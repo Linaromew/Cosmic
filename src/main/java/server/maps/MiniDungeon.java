@@ -57,14 +57,11 @@ public class MiniDungeon {
             chr.sendPacket(PacketCreator.getClock(time));
         }
 
-        try {
-            if (timeoutTask == null) {
-                return false;
-            }
+        if (timeoutTask == null) {
+            return false;
+        }
 
-            players.add(chr);
-        } finally {
-            }
+        players.add(chr);
 
         return true;
     }
@@ -72,15 +69,12 @@ public class MiniDungeon {
     public boolean unregisterPlayer(Character chr) {
         chr.sendPacket(PacketCreator.removeClock());
 
-        try {
-            players.remove(chr);
+        players.remove(chr);
 
-            if (players.isEmpty()) {
-                dispose();
-                return false;
-            }
-        } finally {
-            }
+        if (players.isEmpty()) {
+            dispose();
+            return false;
+        }
 
         if (chr.isPartyLeader()) {  // thanks Conrad for noticing party is not sent out of the MD as soon as leader leaves it
             close();
@@ -90,28 +84,22 @@ public class MiniDungeon {
     }
 
     public void close() {
-        try {
-            List<Character> lchr = new ArrayList<>(players);
+        List<Character> lchr = new ArrayList<>(players);
 
-            for (Character chr : lchr) {
-                chr.changeMap(baseMap);
-            }
+        for (Character chr : lchr) {
+            chr.changeMap(baseMap);
+        }
 
-            dispose();
-            timeoutTask = null;
-        } finally {
-            }
+        dispose();
+        timeoutTask = null;
     }
 
     public void dispose() {
-        try {
-            players.clear();
+        players.clear();
 
-            if (timeoutTask != null) {
-                timeoutTask.cancel(false);
-                timeoutTask = null;
-            }
-        } finally {
-            }
+        if (timeoutTask != null) {
+            timeoutTask.cancel(false);
+            timeoutTask = null;
+        }
     }
 }

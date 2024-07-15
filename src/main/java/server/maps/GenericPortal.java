@@ -131,10 +131,7 @@ public class GenericPortal implements Portal {
         boolean changed = false;
         if (getScriptName() != null) {
             try {
-                try {
-                    changed = PortalScriptManager.getInstance().executePortalScript(this, c);
-                } finally {
-                    }
+                changed = PortalScriptManager.getInstance().executePortalScript(this, c);
             } catch (NullPointerException npe) {
                 npe.printStackTrace();
             }

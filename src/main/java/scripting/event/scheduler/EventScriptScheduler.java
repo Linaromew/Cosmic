@@ -50,24 +50,21 @@ public class EventScriptScheduler {
         List<Runnable> toRemove;
         Map<Runnable, Long> registeredEntriesCopy;
 
-        try {
-            if (registeredEntries.isEmpty()) {
-                idleProcs++;
+        if (registeredEntries.isEmpty()) {
+            idleProcs++;
 
-                if (idleProcs >= YamlConfig.config.server.MOB_STATUS_MONITOR_LIFE) {
-                    if (schedulerTask != null) {
-                        schedulerTask.cancel(false);
-                        schedulerTask = null;
-                    }
+            if (idleProcs >= YamlConfig.config.server.MOB_STATUS_MONITOR_LIFE) {
+                if (schedulerTask != null) {
+                    schedulerTask.cancel(false);
+                    schedulerTask = null;
                 }
-
-                return;
             }
 
-            idleProcs = 0;
-            registeredEntriesCopy = new HashMap<>(registeredEntries);
-        } finally {
-            }
+            return;
+        }
+
+        idleProcs = 0;
+        registeredEntriesCopy = new HashMap<>(registeredEntries);
 
         long timeNow = Server.getInstance().getCurrentTime();
         toRemove = new LinkedList<>();
@@ -81,57 +78,45 @@ public class EventScriptScheduler {
         }
 
         if (!toRemove.isEmpty()) {
-            try {
-                for (Runnable r : toRemove) {
-                    registeredEntries.remove(r);
-                }
-            } finally {
-                }
+            for (Runnable r : toRemove) {
+                registeredEntries.remove(r);
+            }
         }
     }
 
     public void registerEntry(final Runnable scheduledAction, final long duration) {
 
         ThreadManager.getInstance().newTask(() -> {
-            try {
-                idleProcs = 0;
-                if (schedulerTask == null) {
-                    if (disposed) {
-                        return;
-                    }
-
-                    schedulerTask = TimerManager.getInstance().register(monitorTask, YamlConfig.config.server.MOB_STATUS_MONITOR_PROC, YamlConfig.config.server.MOB_STATUS_MONITOR_PROC);
+            idleProcs = 0;
+            if (schedulerTask == null) {
+                if (disposed) {
+                    return;
                 }
 
-                registeredEntries.put(scheduledAction, Server.getInstance().getCurrentTime() + duration);
-            } finally {
-                }
+                schedulerTask = TimerManager.getInstance().register(monitorTask, YamlConfig.config.server.MOB_STATUS_MONITOR_PROC, YamlConfig.config.server.MOB_STATUS_MONITOR_PROC);
+            }
+
+            registeredEntries.put(scheduledAction, Server.getInstance().getCurrentTime() + duration);
         });
     }
 
     public void cancelEntry(final Runnable scheduledAction) {
 
         ThreadManager.getInstance().newTask(() -> {
-            try {
-                registeredEntries.remove(scheduledAction);
-            } finally {
-                }
+            registeredEntries.remove(scheduledAction);
         });
     }
 
     public void dispose() {
 
         ThreadManager.getInstance().newTask(() -> {
-            try {
-                if (schedulerTask != null) {
-                    schedulerTask.cancel(false);
-                    schedulerTask = null;
-                }
+            if (schedulerTask != null) {
+                schedulerTask.cancel(false);
+                schedulerTask = null;
+            }
 
-                registeredEntries.clear();
-                disposed = true;
-            } finally {
-                }
+            registeredEntries.clear();
+            disposed = true;
         });
     }
 }

@@ -46,52 +46,34 @@ public class PlayerStorage {
     }
 
     public void addPlayer(Character chr) {
-        try {
-            storage.put(chr.getId(), chr);
-            nameStorage.put(chr.getName().toLowerCase(), chr);
-        } finally {
-            }
+        storage.put(chr.getId(), chr);
+        nameStorage.put(chr.getName().toLowerCase(), chr);
     }
 
     public Character removePlayer(int chr) {
-        try {
-            Character mc = storage.remove(chr);
-            if (mc != null) {
-                nameStorage.remove(mc.getName().toLowerCase());
-            }
+        Character mc = storage.remove(chr);
+        if (mc != null) {
+            nameStorage.remove(mc.getName().toLowerCase());
+        }
 
-            return mc;
-        } finally {
-            }
+        return mc;
     }
 
     public Character getCharacterByName(String name) {
-        try {
-            return nameStorage.get(name.toLowerCase());
-        } finally {
-            }
+        return nameStorage.get(name.toLowerCase());
     }
 
     public Character getCharacterById(int id) {
-        try {
-            return storage.get(id);
-        } finally {
-            }
+        return storage.get(id);
     }
 
     public Collection<Character> getAllCharacters() {
-        try {
-            return new ArrayList<>(storage.values());
-        } finally {
-            }
+        return new ArrayList<>(storage.values());
     }
 
     public final void disconnectAll() {
         List<Character> chrList;
-        try {
-            chrList = new ArrayList<>(storage.values());
-        } finally {
-            }
+        chrList = new ArrayList<>(storage.values());
 
         for (Character mc : chrList) {
             Client client = mc.getClient();
@@ -100,16 +82,10 @@ public class PlayerStorage {
             }
         }
 
-        try {
-            storage.clear();
-        } finally {
-            }
+        storage.clear();
     }
 
     public int getSize() {
-        try {
-            return storage.size();
-        } finally {
-            }
+        return storage.size();
     }
 }

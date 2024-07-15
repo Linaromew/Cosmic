@@ -202,11 +202,8 @@ public class Reactor extends AbstractMapObject {
             return;
         }
 
-        try {
-            this.resetReactorActions(newState);
-            map.broadcastMessage(PacketCreator.triggerReactor(this, (short) 0));
-        } finally {
-            }
+        this.resetReactorActions(newState);
+        map.broadcastMessage(PacketCreator.triggerReactor(this, (short) 0));
     }
 
     public void cancelReactorTimeout() {
@@ -319,21 +316,18 @@ public class Reactor extends AbstractMapObject {
 
     public boolean destroy() {
         if (reactorLock.tryLock()) {
-            try {
-                boolean alive = this.isAlive();
-                // reactor neither alive nor in delayed respawn, remove map object allowed
-                if (alive) {
-                    this.setAlive(false);
-                    this.cancelReactorTimeout();
+            boolean alive = this.isAlive();
+            // reactor neither alive nor in delayed respawn, remove map object allowed
+            if (alive) {
+                this.setAlive(false);
+                this.cancelReactorTimeout();
 
-                    if (this.getDelay() > 0) {
-                        this.delayedRespawn();
-                    }
-                } else {
-                    return !this.inDelayedRespawn();
+                if (this.getDelay() > 0) {
+                    this.delayedRespawn();
                 }
-            } finally {
-                }
+            } else {
+                return !this.inDelayedRespawn();
+            }
         }
 
         map.broadcastMessage(PacketCreator.destroyReactor(this));

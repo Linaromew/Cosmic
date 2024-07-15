@@ -45,14 +45,11 @@ public class SessionInitialization {
             int tries = 0;
             while (true) {
                 if (lock.tryLock()) {
-                    try {
-                        if (remoteHostsInInitState.contains(remoteHost)) {
-                            return InitializationResult.ALREADY_INITIALIZED;
-                        }
+                    if (remoteHostsInInitState.contains(remoteHost)) {
+                        return InitializationResult.ALREADY_INITIALIZED;
+                    }
 
-                        remoteHostsInInitState.add(remoteHost);
-                    } finally {
-                        }
+                    remoteHostsInInitState.add(remoteHost);
 
                     break;
                 } else {
@@ -76,9 +73,6 @@ public class SessionInitialization {
      */
     public void finalize(String remoteHost) {
         final Lock lock = getLock(remoteHost);
-        try {
-            remoteHostsInInitState.remove(remoteHost);
-        } finally {
-            }
+        remoteHostsInInitState.remove(remoteHost);
     }
 }

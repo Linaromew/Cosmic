@@ -73,94 +73,55 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     public int getStr() {
-        try {
-            return str;
-        } finally {
-            }
+        return str;
     }
 
     public int getDex() {
-        try {
-            return dex;
-        } finally {
-            }
+        return dex;
     }
 
     public int getInt() {
-        try {
-            return int_;
-        } finally {
-            }
+        return int_;
     }
 
     public int getLuk() {
-        try {
-            return luk;
-        } finally {
-            }
+        return luk;
     }
 
     public int getRemainingAp() {
-        try {
-            return remainingAp;
-        } finally {
-            }
+        return remainingAp;
     }
 
     protected int getRemainingSp(int jobid) {
-        try {
-            return remainingSp[GameConstants.getSkillBook(jobid)];
-        } finally {
-            }
+        return remainingSp[GameConstants.getSkillBook(jobid)];
     }
 
     public int[] getRemainingSps() {
-        try {
-            return Arrays.copyOf(remainingSp, remainingSp.length);
-        } finally {
-            }
+        return Arrays.copyOf(remainingSp, remainingSp.length);
     }
 
     public int getHpMpApUsed() {
-        try {
-            return hpMpApUsed;
-        } finally {
-            }
+        return hpMpApUsed;
     }
 
     public boolean isAlive() {
-        try {
-            return hp > 0;
-        } finally {
-            }
+        return hp > 0;
     }
 
     public int getHp() {
-        try {
-            return hp;
-        } finally {
-            }
+        return hp;
     }
 
     public int getMp() {
-        try {
-            return mp;
-        } finally {
-            }
+        return mp;
     }
 
     public int getMaxHp() {
-        try {
-            return maxhp;
-        } finally {
-            }
+        return maxhp;
     }
 
     public int getMaxMp() {
-        try {
-            return maxmp;
-        } finally {
-            }
+        return maxmp;
     }
 
     public int getClientMaxHp() {
@@ -282,107 +243,104 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     private void changeStatPool(Long hpMpPool, Long strDexIntLuk, Long newSp, int newAp, boolean silent) {
-        try {
-            statUpdates.clear();
-            boolean poolUpdate = false;
-            boolean statUpdate = false;
+        statUpdates.clear();
+        boolean poolUpdate = false;
+        boolean statUpdate = false;
 
-            if (hpMpPool != null) {
-                short newHp = (short) (hpMpPool >> 48);
-                short newMp = (short) (hpMpPool >> 32);
-                short newMaxHp = (short) (hpMpPool >> 16);
-                short newMaxMp = hpMpPool.shortValue();
+        if (hpMpPool != null) {
+            short newHp = (short) (hpMpPool >> 48);
+            short newMp = (short) (hpMpPool >> 32);
+            short newMaxHp = (short) (hpMpPool >> 16);
+            short newMaxMp = hpMpPool.shortValue();
 
-                if (newMaxHp != Short.MIN_VALUE) {
-                    if (newMaxHp < 50) {
-                        newMaxHp = 50;
-                    }
-
-                    poolUpdate = true;
-                    setMaxHp(newMaxHp);
-                    statUpdates.put(Stat.MAXHP, clientmaxhp);
-                    statUpdates.put(Stat.HP, hp);
+            if (newMaxHp != Short.MIN_VALUE) {
+                if (newMaxHp < 50) {
+                    newMaxHp = 50;
                 }
 
-                if (newHp != Short.MIN_VALUE) {
-                    setHp(newHp);
-                    statUpdates.put(Stat.HP, hp);
-                }
-
-                if (newMaxMp != Short.MIN_VALUE) {
-                    if (newMaxMp < 5) {
-                        newMaxMp = 5;
-                    }
-
-                    poolUpdate = true;
-                    setMaxMp(newMaxMp);
-                    statUpdates.put(Stat.MAXMP, clientmaxmp);
-                    statUpdates.put(Stat.MP, mp);
-                }
-
-                if (newMp != Short.MIN_VALUE) {
-                    setMp(newMp);
-                    statUpdates.put(Stat.MP, mp);
-                }
+                poolUpdate = true;
+                setMaxHp(newMaxHp);
+                statUpdates.put(Stat.MAXHP, clientmaxhp);
+                statUpdates.put(Stat.HP, hp);
             }
 
-            if (strDexIntLuk != null) {
-                short newStr = (short) (strDexIntLuk >> 48);
-                short newDex = (short) (strDexIntLuk >> 32);
-                short newInt = (short) (strDexIntLuk >> 16);
-                short newLuk = strDexIntLuk.shortValue();
-
-                if (newStr >= 4) {
-                    setStr(newStr);
-                    statUpdates.put(Stat.STR, str);
-                }
-
-                if (newDex >= 4) {
-                    setDex(newDex);
-                    statUpdates.put(Stat.DEX, dex);
-                }
-
-                if (newInt >= 4) {
-                    setInt(newInt);
-                    statUpdates.put(Stat.INT, int_);
-                }
-
-                if (newLuk >= 4) {
-                    setLuk(newLuk);
-                    statUpdates.put(Stat.LUK, luk);
-                }
-
-                if (newAp >= 0) {
-                    setRemainingAp(newAp);
-                    statUpdates.put(Stat.AVAILABLEAP, remainingAp);
-                }
-
-                statUpdate = true;
+            if (newHp != Short.MIN_VALUE) {
+                setHp(newHp);
+                statUpdates.put(Stat.HP, hp);
             }
 
-            if (newSp != null) {
-                short sp = (short) (newSp >> 16);
-                short skillbook = newSp.shortValue();
-
-                setRemainingSp(sp, skillbook);
-                statUpdates.put(Stat.AVAILABLESP, remainingSp[skillbook]);
-            }
-
-            if (!statUpdates.isEmpty()) {
-                if (poolUpdate) {
-                    dispatchHpmpPoolUpdated();
+            if (newMaxMp != Short.MIN_VALUE) {
+                if (newMaxMp < 5) {
+                    newMaxMp = 5;
                 }
 
-                if (statUpdate) {
-                    dispatchStatUpdated();
-                }
+                poolUpdate = true;
+                setMaxMp(newMaxMp);
+                statUpdates.put(Stat.MAXMP, clientmaxmp);
+                statUpdates.put(Stat.MP, mp);
+            }
 
-                if (!silent) {
-                    dispatchStatPoolUpdateAnnounced();
-                }
+            if (newMp != Short.MIN_VALUE) {
+                setMp(newMp);
+                statUpdates.put(Stat.MP, mp);
             }
-        } finally {
+        }
+
+        if (strDexIntLuk != null) {
+            short newStr = (short) (strDexIntLuk >> 48);
+            short newDex = (short) (strDexIntLuk >> 32);
+            short newInt = (short) (strDexIntLuk >> 16);
+            short newLuk = strDexIntLuk.shortValue();
+
+            if (newStr >= 4) {
+                setStr(newStr);
+                statUpdates.put(Stat.STR, str);
             }
+
+            if (newDex >= 4) {
+                setDex(newDex);
+                statUpdates.put(Stat.DEX, dex);
+            }
+
+            if (newInt >= 4) {
+                setInt(newInt);
+                statUpdates.put(Stat.INT, int_);
+            }
+
+            if (newLuk >= 4) {
+                setLuk(newLuk);
+                statUpdates.put(Stat.LUK, luk);
+            }
+
+            if (newAp >= 0) {
+                setRemainingAp(newAp);
+                statUpdates.put(Stat.AVAILABLEAP, remainingAp);
+            }
+
+            statUpdate = true;
+        }
+
+        if (newSp != null) {
+            short sp = (short) (newSp >> 16);
+            short skillbook = newSp.shortValue();
+
+            setRemainingSp(sp, skillbook);
+            statUpdates.put(Stat.AVAILABLESP, remainingSp[skillbook]);
+        }
+
+        if (!statUpdates.isEmpty()) {
+            if (poolUpdate) {
+                dispatchHpmpPoolUpdated();
+            }
+
+            if (statUpdate) {
+                dispatchStatUpdated();
+            }
+
+            if (!silent) {
+                dispatchStatPoolUpdateAnnounced();
+            }
+        }
     }
 
     public void healHpMp() {
@@ -443,66 +401,42 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     protected void enforceMaxHpMp() {
-        try {
-            if (mp > localmaxmp || hp > localmaxhp) {
-                changeHpMp(hp, mp, false);
-            }
-        } finally {
-            }
+        if (mp > localmaxmp || hp > localmaxhp) {
+            changeHpMp(hp, mp, false);
+        }
     }
 
     public int safeAddHP(int delta) {
-        try {
-            if (hp + delta <= 0) {
-                delta = -hp + 1;
-            }
+        if (hp + delta <= 0) {
+            delta = -hp + 1;
+        }
 
-            addHP(delta);
-            return delta;
-        } finally {
-            }
+        addHP(delta);
+        return delta;
     }
 
     public void addHP(int delta) {
-        try {
-            updateHp(hp + delta);
-        } finally {
-            }
+        updateHp(hp + delta);
     }
 
     public void addMP(int delta) {
-        try {
-            updateMp(mp + delta);
-        } finally {
-            }
+        updateMp(mp + delta);
     }
 
     public void addMPHP(int hpDelta, int mpDelta) {
-        try {
-            updateHpMp(hp + hpDelta, mp + mpDelta);
-        } finally {
-            }
+        updateHpMp(hp + hpDelta, mp + mpDelta);
     }
 
     protected void addMaxMPMaxHP(int hpdelta, int mpdelta, boolean silent) {
-        try {
-            changeHpMpPool(null, null, maxhp + hpdelta, maxmp + mpdelta, silent);
-        } finally {
-            }
+        changeHpMpPool(null, null, maxhp + hpdelta, maxmp + mpdelta, silent);
     }
 
     public void addMaxHP(int delta) {
-        try {
-            updateMaxHp(maxhp + delta);
-        } finally {
-            }
+        updateMaxHp(maxhp + delta);
     }
 
     public void addMaxMP(int delta) {
-        try {
-            updateMaxMp(maxmp + delta);
-        } finally {
-            }
+        updateMaxMp(maxmp + delta);
     }
 
     private void setStr(int str) {
@@ -538,35 +472,29 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     public boolean assignHP(int deltaHP, int deltaAp) {
-        try {
-            if (remainingAp - deltaAp < 0 || hpMpApUsed + deltaAp < 0 || maxhp >= 30000) {
-                return false;
-            }
+        if (remainingAp - deltaAp < 0 || hpMpApUsed + deltaAp < 0 || maxhp >= 30000) {
+            return false;
+        }
 
-            long hpMpPool = calcStatPoolLong(null, null, maxhp + deltaHP, maxmp);
-            long strDexIntLuk = calcStatPoolLong(str, dex, int_, luk);
+        long hpMpPool = calcStatPoolLong(null, null, maxhp + deltaHP, maxmp);
+        long strDexIntLuk = calcStatPoolLong(str, dex, int_, luk);
 
-            changeStatPool(hpMpPool, strDexIntLuk, null, remainingAp - deltaAp, false);
-            setHpMpApUsed(hpMpApUsed + deltaAp);
-            return true;
-        } finally {
-            }
+        changeStatPool(hpMpPool, strDexIntLuk, null, remainingAp - deltaAp, false);
+        setHpMpApUsed(hpMpApUsed + deltaAp);
+        return true;
     }
 
     public boolean assignMP(int deltaMP, int deltaAp) {
-        try {
-            if (remainingAp - deltaAp < 0 || hpMpApUsed + deltaAp < 0 || maxmp >= 30000) {
-                return false;
-            }
+        if (remainingAp - deltaAp < 0 || hpMpApUsed + deltaAp < 0 || maxmp >= 30000) {
+            return false;
+        }
 
-            long hpMpPool = calcStatPoolLong(null, null, maxhp, maxmp + deltaMP);
-            long strDexIntLuk = calcStatPoolLong(str, dex, int_, luk);
+        long hpMpPool = calcStatPoolLong(null, null, maxhp, maxmp + deltaMP);
+        long strDexIntLuk = calcStatPoolLong(str, dex, int_, luk);
 
-            changeStatPool(hpMpPool, strDexIntLuk, null, remainingAp - deltaAp, false);
-            setHpMpApUsed(hpMpApUsed + deltaAp);
-            return true;
-        } finally {
-            }
+        changeStatPool(hpMpPool, strDexIntLuk, null, remainingAp - deltaAp, false);
+        setHpMpApUsed(hpMpApUsed + deltaAp);
+        return true;
     }
 
     private static int apAssigned(Integer x) {
@@ -578,47 +506,44 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     private boolean assignStrDexIntLuk(Integer deltaStr, Integer deltaDex, Integer deltaInt, Integer deltaLuk) {
-        try {
-            int apUsed = apAssigned(deltaStr) + apAssigned(deltaDex) + apAssigned(deltaInt) + apAssigned(deltaLuk);
-            if (apUsed > remainingAp) {
-                return false;
-            }
+        int apUsed = apAssigned(deltaStr) + apAssigned(deltaDex) + apAssigned(deltaInt) + apAssigned(deltaLuk);
+        if (apUsed > remainingAp) {
+            return false;
+        }
 
-            int newStr = str, newDex = dex, newInt = int_, newLuk = luk;
-            if (deltaStr != null) {
-                newStr += deltaStr;   // thanks Rohenn for noticing an NPE case after "null" started being used
-            }
-            if (deltaDex != null) {
-                newDex += deltaDex;
-            }
-            if (deltaInt != null) {
-                newInt += deltaInt;
-            }
-            if (deltaLuk != null) {
-                newLuk += deltaLuk;
-            }
+        int newStr = str, newDex = dex, newInt = int_, newLuk = luk;
+        if (deltaStr != null) {
+            newStr += deltaStr;   // thanks Rohenn for noticing an NPE case after "null" started being used
+        }
+        if (deltaDex != null) {
+            newDex += deltaDex;
+        }
+        if (deltaInt != null) {
+            newInt += deltaInt;
+        }
+        if (deltaLuk != null) {
+            newLuk += deltaLuk;
+        }
 
-            if (newStr < 4 || newStr > YamlConfig.config.server.MAX_AP) {
-                return false;
-            }
+        if (newStr < 4 || newStr > YamlConfig.config.server.MAX_AP) {
+            return false;
+        }
 
-            if (newDex < 4 || newDex > YamlConfig.config.server.MAX_AP) {
-                return false;
-            }
+        if (newDex < 4 || newDex > YamlConfig.config.server.MAX_AP) {
+            return false;
+        }
 
-            if (newInt < 4 || newInt > YamlConfig.config.server.MAX_AP) {
-                return false;
-            }
+        if (newInt < 4 || newInt > YamlConfig.config.server.MAX_AP) {
+            return false;
+        }
 
-            if (newLuk < 4 || newLuk > YamlConfig.config.server.MAX_AP) {
-                return false;
-            }
+        if (newLuk < 4 || newLuk > YamlConfig.config.server.MAX_AP) {
+            return false;
+        }
 
-            int newAp = remainingAp - apUsed;
-            updateStrDexIntLuk(newStr, newDex, newInt, newLuk, newAp);
-            return true;
-        } finally {
-            }
+        int newAp = remainingAp - apUsed;
+        updateStrDexIntLuk(newStr, newDex, newInt, newLuk, newAp);
+        return true;
     }
 
     public void updateStrDexIntLuk(int x) {
@@ -626,17 +551,11 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     public void changeRemainingAp(int x, boolean silent) {
-        try {
-            changeStrDexIntLuk(str, dex, int_, luk, x, silent);
-        } finally {
-            }
+        changeStrDexIntLuk(str, dex, int_, luk, x, silent);
     }
 
     public void gainAp(int deltaAp, boolean silent) {
-        try {
-            changeRemainingAp(Math.max(0, remainingAp + deltaAp), silent);
-        } finally {
-            }
+        changeRemainingAp(Math.max(0, remainingAp + deltaAp), silent);
     }
 
     protected void updateStrDexIntLuk(int str, int dex, int int_, int luk, int remainingAp) {
@@ -659,10 +578,7 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     protected void setRemainingSp(int[] sps) {
-        try {
-            System.arraycopy(sps, 0, remainingSp, 0, sps.length);
-        } finally {
-            }
+        System.arraycopy(sps, 0, remainingSp, 0, sps.length);
     }
 
     protected void updateRemainingSp(int remainingSp, int skillbook) {
@@ -675,9 +591,6 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     public void gainSp(int deltaSp, int skillbook, boolean silent) {
-        try {
-            changeRemainingSp(Math.max(0, remainingSp[skillbook] + deltaSp), skillbook, silent);
-        } finally {
-            }
+        changeRemainingSp(Math.max(0, remainingSp[skillbook] + deltaSp), skillbook, silent);
     }
 }

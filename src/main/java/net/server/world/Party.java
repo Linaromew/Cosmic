@@ -63,29 +63,20 @@ public class Party {
     }
 
     public boolean containsMembers(PartyCharacter member) {
-        try {
-            return members.contains(member);
-        } finally {
-            }
+        return members.contains(member);
     }
 
     public void addMember(PartyCharacter member) {
-        try {
-            histMembers.put(member.getId(), nextEntry);
-            nextEntry++;
+        histMembers.put(member.getId(), nextEntry);
+        nextEntry++;
 
-            members.add(member);
-        } finally {
-            }
+        members.add(member);
     }
 
     public void removeMember(PartyCharacter member) {
-        try {
-            histMembers.remove(member.getId());
+        histMembers.remove(member.getId());
 
-            members.remove(member);
-        } finally {
-            }
+        members.remove(member);
     }
 
     public void setLeader(PartyCharacter victim) {
@@ -93,55 +84,40 @@ public class Party {
     }
 
     public void updateMember(PartyCharacter member) {
-        try {
-            for (int i = 0; i < members.size(); i++) {
-                if (members.get(i).getId() == member.getId()) {
-                    members.set(i, member);
-                }
+        for (int i = 0; i < members.size(); i++) {
+            if (members.get(i).getId() == member.getId()) {
+                members.set(i, member);
             }
-        } finally {
-            }
+        }
     }
 
     public PartyCharacter getMemberById(int id) {
-        try {
-            for (PartyCharacter chr : members) {
-                if (chr.getId() == id) {
-                    return chr;
-                }
+        for (PartyCharacter chr : members) {
+            if (chr.getId() == id) {
+                return chr;
             }
-            return null;
-        } finally {
-            }
+        }
+        return null;
     }
 
     public Collection<PartyCharacter> getMembers() {
-        try {
-            return new LinkedList<>(members);
-        } finally {
-            }
+        return new LinkedList<>(members);
     }
 
     public List<PartyCharacter> getPartyMembers() {
-        try {
-            return new LinkedList<>(members);
-        } finally {
-            }
+        return new LinkedList<>(members);
     }
 
     public List<PartyCharacter> getPartyMembersOnline() {
-        try {
-            List<PartyCharacter> ret = new LinkedList<>();
+        List<PartyCharacter> ret = new LinkedList<>();
 
-            for (PartyCharacter mpc : members) {
-                if (mpc.isOnline()) {
-                    ret.add(mpc);
-                }
+        for (PartyCharacter mpc : members) {
+            if (mpc.isOnline()) {
+                ret.add(mpc);
             }
+        }
 
-            return ret;
-        } finally {
-            }
+        return ret;
     }
 
     // used whenever entering PQs: will draw every party member that can attempt a target PQ while ingnoring those unfit.
@@ -166,16 +142,13 @@ public class Party {
     }
 
     public PartyCharacter getLeader() {
-        try {
-            for (PartyCharacter mpc : members) {
-                if (mpc.getId() == leaderId) {
-                    return mpc;
-                }
+        for (PartyCharacter mpc : members) {
+            if (mpc.getId() == leaderId) {
+                return mpc;
             }
+        }
 
-            return null;
-        } finally {
-            }
+        return null;
     }
 
     public Party getEnemy() {
@@ -189,10 +162,7 @@ public class Party {
     public List<Integer> getMembersSortedByHistory() {
         List<Entry<Integer, Integer>> histList;
 
-        try {
-            histList = new LinkedList<>(histMembers.entrySet());
-        } finally {
-            }
+        histList = new LinkedList<>(histMembers.entrySet());
 
         histList.sort((o1, o2) -> (o1.getValue()).compareTo(o2.getValue()));
 
@@ -218,38 +188,26 @@ public class Party {
     }
 
     public void addDoor(Integer owner, Door door) {
-        try {
-            this.doors.put(owner, door);
-        } finally {
-            }
+        this.doors.put(owner, door);
     }
 
     public void removeDoor(Integer owner) {
-        try {
-            this.doors.remove(owner);
-        } finally {
-            }
+        this.doors.remove(owner);
     }
 
     public Map<Integer, Door> getDoors() {
-        try {
-            return Collections.unmodifiableMap(doors);
-        } finally {
-            }
+        return Collections.unmodifiableMap(doors);
     }
 
     public void assignNewLeader(Client c) {
         World world = c.getWorldServer();
         PartyCharacter newLeadr = null;
 
-        try {
-            for (PartyCharacter mpc : members) {
-                if (mpc.getId() != leaderId && (newLeadr == null || newLeadr.getLevel() < mpc.getLevel())) {
-                    newLeadr = mpc;
-                }
+        for (PartyCharacter mpc : members) {
+            if (mpc.getId() != leaderId && (newLeadr == null || newLeadr.getLevel() < mpc.getLevel())) {
+                newLeadr = mpc;
             }
-        } finally {
-            }
+        }
 
         if (newLeadr != null) {
             world.updateParty(this.getId(), PartyOperation.CHANGE_LEADER, newLeadr);

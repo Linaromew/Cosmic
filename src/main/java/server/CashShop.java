@@ -351,10 +351,7 @@ public class CashShop {
     }
 
     public List<Item> getInventory() {
-        try {
-            return Collections.unmodifiableList(inventory);
-        } finally {
-            }
+        return Collections.unmodifiableList(inventory);
     }
 
     public Item findByCashId(int cashId) {
@@ -377,17 +374,11 @@ public class CashShop {
     }
 
     public void addToInventory(Item item) {
-        try {
-            inventory.add(item);
-        } finally {
-            }
+        inventory.add(item);
     }
 
     public void removeFromInventory(Item item) {
-        try {
-            inventory.remove(item);
-        } finally {
-            }
+        inventory.remove(item);
     }
 
     public List<Integer> getWishList() {
@@ -509,39 +500,36 @@ public class CashShop {
     }
 
     public Optional<CashShopSurpriseResult> openCashShopSurprise(long cashId) {
-        try {
-            Optional<Item> maybeCashShopSurprise = getItemByCashId(cashId);
-            if (maybeCashShopSurprise.isEmpty() ||
-                    maybeCashShopSurprise.get().getItemId() != ItemId.CASH_SHOP_SURPRISE) {
-                return Optional.empty();
-            }
+        Optional<Item> maybeCashShopSurprise = getItemByCashId(cashId);
+        if (maybeCashShopSurprise.isEmpty() ||
+                maybeCashShopSurprise.get().getItemId() != ItemId.CASH_SHOP_SURPRISE) {
+            return Optional.empty();
+        }
 
-            Item cashShopSurprise = maybeCashShopSurprise.get();
-            if (cashShopSurprise.getQuantity() <= 0) {
-                return Optional.empty();
-            }
+        Item cashShopSurprise = maybeCashShopSurprise.get();
+        if (cashShopSurprise.getQuantity() <= 0) {
+            return Optional.empty();
+        }
 
-            if (getItemsSize() >= 100) {
-                return Optional.empty();
-            }
+        if (getItemsSize() >= 100) {
+            return Optional.empty();
+        }
 
-            Optional<CashItem> cashItemReward = CashItemFactory.getRandomCashItem();
-            if (cashItemReward.isEmpty()) {
-                return Optional.empty();
-            }
+        Optional<CashItem> cashItemReward = CashItemFactory.getRandomCashItem();
+        if (cashItemReward.isEmpty()) {
+            return Optional.empty();
+        }
 
-            short newQuantity = (short) (cashShopSurprise.getQuantity() - 1);
-            cashShopSurprise.setQuantity(newQuantity);
-            if (newQuantity <= 0) {
-                removeFromInventory(cashShopSurprise);
-            }
+        short newQuantity = (short) (cashShopSurprise.getQuantity() - 1);
+        cashShopSurprise.setQuantity(newQuantity);
+        if (newQuantity <= 0) {
+            removeFromInventory(cashShopSurprise);
+        }
 
-            Item itemReward = cashItemReward.get().toItem();
-            addToInventory(itemReward);
+        Item itemReward = cashItemReward.get().toItem();
+        addToInventory(itemReward);
 
-            return Optional.of(new CashShopSurpriseResult(cashShopSurprise, itemReward));
-        } finally {
-            }
+        return Optional.of(new CashShopSurpriseResult(cashShopSurprise, itemReward));
     }
 
     @GuardedBy("lock")
@@ -552,10 +540,7 @@ public class CashShop {
     }
 
     public int getItemsSize() {
-        try {
-            return inventory.size();
-        } finally {
-            }
+        return inventory.size();
     }
 
     public static Item generateCouponItem(int itemId, short quantity) {

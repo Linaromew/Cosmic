@@ -95,21 +95,18 @@ public class MobStatusService extends BaseService {
             super.addListener((toRemove, update) -> {
                 List<Runnable> toRun = new ArrayList<>();
 
-                try {
-                    for (Object mseo : toRemove) {
-                        MonsterStatusEffect mse = (MonsterStatusEffect) mseo;
-                        registeredMobStatusOvertime.remove(mse);
-                    }
+                for (Object mseo : toRemove) {
+                    MonsterStatusEffect mse = (MonsterStatusEffect) mseo;
+                    registeredMobStatusOvertime.remove(mse);
+                }
 
-                    if (update) {
-                        // it's probably ok to use one thread for both management & overtime actions
-                        List<MobStatusOvertimeEntry> mdoeList = new ArrayList<>(registeredMobStatusOvertime.values());
-                        for (MobStatusOvertimeEntry mdoe : mdoeList) {
-                            mdoe.update(toRun);
-                        }
+                if (update) {
+                    // it's probably ok to use one thread for both management & overtime actions
+                    List<MobStatusOvertimeEntry> mdoeList = new ArrayList<>(registeredMobStatusOvertime.values());
+                    for (MobStatusOvertimeEntry mdoe : mdoeList) {
+                        mdoe.update(toRun);
                     }
-                } finally {
-                    }
+                }
 
                 for (Runnable r : toRun) {
                     r.run();
@@ -121,10 +118,7 @@ public class MobStatusService extends BaseService {
             if (overtimeStatus != null) {
                 MobStatusOvertimeEntry mdoe = new MobStatusOvertimeEntry(overtimeDelay, overtimeStatus);
 
-                try {
-                    registeredMobStatusOvertime.put(mse, mdoe);
-                } finally {
-                    }
+                registeredMobStatusOvertime.put(mse, mdoe);
             }
 
             registerEntry(mse, cancelStatus, duration);

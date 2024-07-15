@@ -99,10 +99,7 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public void broadcastToVisitorsThreadsafe(Packet packet) {
-        try {
-            broadcastToVisitors(packet);
-        } finally {
-            }
+        broadcastToVisitors(packet);
     }
 
     private void broadcastToVisitors(Packet packet) {
@@ -114,55 +111,46 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public byte[] getShopRoomInfo() {
-        try {
-            byte count = 0;
-            if (this.isOpen()) {
-                for (Visitor visitor : visitors) {
-                    if (visitor != null) {
-                        count++;
-                    }
+        byte count = 0;
+        if (this.isOpen()) {
+            for (Visitor visitor : visitors) {
+                if (visitor != null) {
+                    count++;
                 }
-            } else {
-                count = (byte) (visitors.length + 1);
             }
+        } else {
+            count = (byte) (visitors.length + 1);
+        }
 
-            return new byte[]{count, (byte) (visitors.length + 1)};
-        } finally {
-            }
+        return new byte[]{count, (byte) (visitors.length + 1)};
     }
 
     public boolean addVisitor(Character visitor) {
-        try {
-            int i = this.getFreeSlot();
-            if (i > -1) {
-                visitors[i] = new Visitor(visitor, Instant.now());
-                broadcastToVisitors(PacketCreator.hiredMerchantVisitorAdd(visitor, i + 1));
-                this.getMap().broadcastMessage(PacketCreator.updateHiredMerchantBox(this));
+        int i = this.getFreeSlot();
+        if (i > -1) {
+            visitors[i] = new Visitor(visitor, Instant.now());
+            broadcastToVisitors(PacketCreator.hiredMerchantVisitorAdd(visitor, i + 1));
+            this.getMap().broadcastMessage(PacketCreator.updateHiredMerchantBox(this));
 
-                return true;
-            }
+            return true;
+        }
 
-            return false;
-        } finally {
-            }
+        return false;
     }
 
     public void removeVisitor(Character chr) {
-        try {
-            int slot = getVisitorSlot(chr);
-            if (slot < 0) { //Not found
-                return;
-            }
+        int slot = getVisitorSlot(chr);
+        if (slot < 0) { //Not found
+            return;
+        }
 
-            Visitor visitor = visitors[slot];
-            if (visitor != null && visitor.chr.getId() == chr.getId()) {
-                visitors[slot] = null;
-                addVisitorToHistory(visitor);
-                broadcastToVisitors(PacketCreator.hiredMerchantVisitorLeave(slot + 1));
-                this.getMap().broadcastMessage(PacketCreator.updateHiredMerchantBox(this));
-            }
-        } finally {
-            }
+        Visitor visitor = visitors[slot];
+        if (visitor != null && visitor.chr.getId() == chr.getId()) {
+            visitors[slot] = null;
+            addVisitorToHistory(visitor);
+            broadcastToVisitors(PacketCreator.hiredMerchantVisitorLeave(slot + 1));
+            this.getMap().broadcastMessage(PacketCreator.updateHiredMerchantBox(this));
+        }
     }
 
     private void addVisitorToHistory(Visitor visitor) {
@@ -174,10 +162,7 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public int getVisitorSlotThreadsafe(Character visitor) {
-        try {
-            return getVisitorSlot(visitor);
-        } finally {
-            }
+        return getVisitorSlot(visitor);
     }
 
     private int getVisitorSlot(Character visitor) {
@@ -190,23 +175,20 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     private void removeAllVisitors() {
-        try {
-            for (int i = 0; i < 3; i++) {
-                Visitor visitor = visitors[i];
+        for (int i = 0; i < 3; i++) {
+            Visitor visitor = visitors[i];
 
-                if (visitor != null) {
-                    final Character visitorChr = visitor.chr;
-                    visitorChr.setHiredMerchant(null);
-                    visitorChr.sendPacket(PacketCreator.leaveHiredMerchant(i + 1, 0x11));
-                    visitorChr.sendPacket(PacketCreator.hiredMerchantMaintenanceMessage());
-                    visitors[i] = null;
-                    addVisitorToHistory(visitor);
-                }
+            if (visitor != null) {
+                final Character visitorChr = visitor.chr;
+                visitorChr.setHiredMerchant(null);
+                visitorChr.sendPacket(PacketCreator.leaveHiredMerchant(i + 1, 0x11));
+                visitorChr.sendPacket(PacketCreator.hiredMerchantMaintenanceMessage());
+                visitors[i] = null;
+                addVisitorToHistory(visitor);
             }
+        }
 
-            this.getMap().broadcastMessage(PacketCreator.updateHiredMerchantBox(this));
-        } finally {
-            }
+        this.getMap().broadcastMessage(PacketCreator.updateHiredMerchantBox(this));
     }
 
     private void removeOwner(Character owner) {
@@ -364,15 +346,12 @@ public class HiredMerchant extends AbstractMapObject {
 
         Character owner = Server.getInstance().getWorld(world).getPlayerStorage().getCharacterById(ownerId);
 
-        try {
-            setOpen(false);
-            removeAllVisitors();
+        setOpen(false);
+        removeAllVisitors();
 
-            if (owner != null && owner.isLoggedinWorld() && this == owner.getHiredMerchant()) {
-                closeOwnerMerchant(owner);
-            }
-        } finally {
-            }
+        if (owner != null && owner.isLoggedinWorld() && this == owner.getHiredMerchant()) {
+            closeOwnerMerchant(owner);
+        }
 
         Server.getInstance().getWorld(world).unregisterHiredMerchant(this);
 
@@ -467,27 +446,24 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public synchronized void visitShop(Character chr) {
-        try {
-            if (this.isOwner(chr)) {
-                this.setOpen(false);
-                this.removeAllVisitors();
+        if (this.isOwner(chr)) {
+            this.setOpen(false);
+            this.removeAllVisitors();
 
-                chr.sendPacket(PacketCreator.getHiredMerchant(chr, this, false));
-            } else if (!this.isOpen()) {
-                chr.sendPacket(PacketCreator.getMiniRoomError(18));
-                return;
-            } else if (isBlacklisted(chr.getName())) {
-                chr.sendPacket(PacketCreator.getMiniRoomError(17));
-                return;
-            } else if (!this.addVisitor(chr)) {
-                chr.sendPacket(PacketCreator.getMiniRoomError(2));
-                return;
-            } else {
-                chr.sendPacket(PacketCreator.getHiredMerchant(chr, this, false));
-            }
-            chr.setHiredMerchant(this);
-        } finally {
-            }
+            chr.sendPacket(PacketCreator.getHiredMerchant(chr, this, false));
+        } else if (!this.isOpen()) {
+            chr.sendPacket(PacketCreator.getMiniRoomError(18));
+            return;
+        } else if (isBlacklisted(chr.getName())) {
+            chr.sendPacket(PacketCreator.getMiniRoomError(17));
+            return;
+        } else if (!this.addVisitor(chr)) {
+            chr.sendPacket(PacketCreator.getMiniRoomError(2));
+            return;
+        } else {
+            chr.sendPacket(PacketCreator.getHiredMerchant(chr, this, false));
+        }
+        chr.setHiredMerchant(this);
     }
 
     public String getOwner() {
@@ -509,18 +485,15 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public Character[] getVisitorCharacters() {
-        try {
-            Character[] copy = new Character[3];
-            for (int i = 0; i < visitors.length; i++) {
-                Visitor visitor = visitors[i];
-                if (visitor != null) {
-                    copy[i] = visitor.chr;
-                }
+        Character[] copy = new Character[3];
+        for (int i = 0; i < visitors.length; i++) {
+            Visitor visitor = visitors[i];
+            if (visitor != null) {
+                copy[i] = visitor.chr;
             }
+        }
 
-            return copy;
-        } finally {
-            }
+        return copy;
     }
 
     public List<PlayerShopItem> getItems() {
@@ -710,20 +683,14 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public void addToBlacklist(String chrName) {
-        try {
-            if (blacklist.size() >= BLACKLIST_LIMIT) {
-                return;
-            }
-            blacklist.add(chrName);
-        } finally {
-            }
+        if (blacklist.size() >= BLACKLIST_LIMIT) {
+            return;
+        }
+        blacklist.add(chrName);
     }
 
     public void removeFromBlacklist(String chrName) {
-        try {
-            blacklist.remove(chrName);
-        } finally {
-            }
+        blacklist.remove(chrName);
     }
 
     public Set<String> getBlacklist() {
@@ -731,10 +698,7 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     private boolean isBlacklisted(String chrName) {
-        try {
-            return blacklist.contains(chrName);
-        } finally {
-            }
+        return blacklist.contains(chrName);
     }
 
     public int getMapId() {

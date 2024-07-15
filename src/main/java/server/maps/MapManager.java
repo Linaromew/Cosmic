@@ -48,10 +48,7 @@ public class MapManager {
     }
 
     public MapleMap resetMap(int mapid) {
-        try {
-            maps.remove(mapid);
-        } finally {
-            }
+        maps.remove(mapid);
 
         return getMap(mapid);
     }
@@ -60,10 +57,7 @@ public class MapManager {
         MapleMap map;
 
         if (cache) {
-            try {
-                map = maps.get(mapid);
-            } finally {
-                }
+            map = maps.get(mapid);
 
             if (map != null) {
                 return map;
@@ -73,10 +67,7 @@ public class MapManager {
         map = MapFactory.loadMapFromWz(mapid, world, channel, event);
 
         if (cache) {
-            try {
-                maps.put(mapid, map);
-            } finally {
-                }
+            maps.put(mapid, map);
         }
 
         return map;
@@ -85,10 +76,7 @@ public class MapManager {
     public MapleMap getMap(int mapid) {
         MapleMap map;
 
-        try {
-            map = maps.get(mapid);
-        } finally {
-            }
+        map = maps.get(mapid);
 
         return (map != null) ? map : loadMapFromWz(mapid, true);
     }
@@ -98,17 +86,11 @@ public class MapManager {
     }
 
     public boolean isMapLoaded(int mapId) {
-        try {
-            return maps.containsKey(mapId);
-        } finally {
-            }
+        return maps.containsKey(mapId);
     }
 
     public Map<Integer, MapleMap> getMaps() {
-        try {
-            return new HashMap<>(maps);
-        } finally {
-            }
+        return new HashMap<>(maps);
     }
 
     public void updateMaps() {

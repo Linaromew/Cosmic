@@ -119,12 +119,9 @@ public class EventManager {
         }
 
         List<EventInstanceManager> readyEims;
-        try {
-            readyEims = new ArrayList<>(readyInstances);
-            readyInstances.clear();
-            onLoadInstances = Integer.MIN_VALUE / 2;
-        } finally {
-            }
+        readyEims = new ArrayList<>(readyInstances);
+        readyInstances.clear();
+        onLoadInstances = Integer.MIN_VALUE / 2;
 
         for (EventInstanceManager eim : readyEims) {
             eim.dispose(true);
@@ -276,28 +273,22 @@ public class EventManager {
     }
 
     private void setLockLobby(int lobbyId, boolean lock) {
-        try {
-            openedLobbys.set(lobbyId, lock);
-        } finally {
-            }
+        openedLobbys.set(lobbyId, lock);
     }
 
     private boolean startLobbyInstance(int lobbyId) {
-        try {
-            if (lobbyId < 0) {
-                lobbyId = 0;
-            } else if (lobbyId >= maxLobbys) {
-                lobbyId = maxLobbys - 1;
-            }
+        if (lobbyId < 0) {
+            lobbyId = 0;
+        } else if (lobbyId >= maxLobbys) {
+            lobbyId = maxLobbys - 1;
+        }
 
-            if (!openedLobbys.get(lobbyId)) {
-                openedLobbys.set(lobbyId, true);
-                return true;
-            }
+        if (!openedLobbys.get(lobbyId)) {
+            openedLobbys.set(lobbyId, true);
+            return true;
+        }
 
-            return false;
-        } finally {
-            }
+        return false;
     }
 
     private void freeLobbyInstance(String lobbyName) {
@@ -875,43 +866,34 @@ public class EventManager {
     }
 
     private EventInstanceManager getReadyInstance() {
-        try {
-            if (readyInstances.isEmpty()) {
-                fillEimQueue();
-                return null;
-            }
-
-            EventInstanceManager eim = readyInstances.remove(0);
+        if (readyInstances.isEmpty()) {
             fillEimQueue();
+            return null;
+        }
 
-            return eim;
-        } finally {
-            }
+        EventInstanceManager eim = readyInstances.remove(0);
+        fillEimQueue();
+
+        return eim;
     }
 
     private void instantiateQueuedInstance() {
         int nextEventId;
-        try {
-            if (this.isDisposed() || readyInstances.size() + onLoadInstances >= Math.ceil((double) maxLobbys / 3.0)) {
-                return;
-            }
+        if (this.isDisposed() || readyInstances.size() + onLoadInstances >= Math.ceil((double) maxLobbys / 3.0)) {
+            return;
+        }
 
-            onLoadInstances++;
-            nextEventId = readyId;
-            readyId++;
-        } finally {
-            }
+        onLoadInstances++;
+        nextEventId = readyId;
+        readyId++;
 
         EventInstanceManager eim = new EventInstanceManager(this, "sampleName" + nextEventId);
-        try {
-            if (this.isDisposed()) {  // EM already disposed
-                return;
-            }
+        if (this.isDisposed()) {  // EM already disposed
+            return;
+        }
 
-            readyInstances.add(eim);
-            onLoadInstances--;
-        } finally {
-            }
+        readyInstances.add(eim);
+        onLoadInstances--;
 
         instantiateQueuedInstance();    // keep filling the queue until reach threshold.
     }

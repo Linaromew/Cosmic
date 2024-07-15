@@ -115,16 +115,13 @@ public class Storage {
     }
 
     public boolean gainSlots(int slots) {
-        try {
-            if (canGainSlots(slots)) {
-                slots += this.slots;
-                this.slots = (byte) slots;
-                return true;
-            }
+        if (canGainSlots(slots)) {
+            slots += this.slots;
+            this.slots = (byte) slots;
+            return true;
+        }
 
-            return false;
-        } finally {
-            }
+        return false;
     }
 
     public void saveToDB(Connection con) {
@@ -149,45 +146,33 @@ public class Storage {
     }
 
     public Item getItem(byte slot) {
-        try {
-            return items.get(slot);
-        } finally {
-            }
+        return items.get(slot);
     }
 
     public boolean takeOut(Item item) {
-        try {
-            boolean ret = items.remove(item);
+        boolean ret = items.remove(item);
 
-            InventoryType type = item.getInventoryType();
-            typeItems.put(type, new ArrayList<>(filterItems(type)));
+        InventoryType type = item.getInventoryType();
+        typeItems.put(type, new ArrayList<>(filterItems(type)));
 
-            return ret;
-        } finally {
-            }
+        return ret;
     }
 
     public boolean store(Item item) {
-        try {
-            if (isFull()) { // thanks Optimist for noticing unrestricted amount of insertions here
-                return false;
-            }
+        if (isFull()) { // thanks Optimist for noticing unrestricted amount of insertions here
+            return false;
+        }
 
-            items.add(item);
+        items.add(item);
 
-            InventoryType type = item.getInventoryType();
-            typeItems.put(type, new ArrayList<>(filterItems(type)));
+        InventoryType type = item.getInventoryType();
+        typeItems.put(type, new ArrayList<>(filterItems(type)));
 
-            return true;
-        } finally {
-            }
+        return true;
     }
 
     public List<Item> getItems() {
-        try {
-            return Collections.unmodifiableList(items);
-        } finally {
-            }
+        return Collections.unmodifiableList(items);
     }
 
     private List<Item> filterItems(InventoryType type) {
@@ -203,18 +188,15 @@ public class Storage {
     }
 
     public byte getSlot(InventoryType type, byte slot) {
-        try {
-            byte ret = 0;
-            List<Item> storageItems = getItems();
-            for (Item item : storageItems) {
-                if (item == typeItems.get(type).get(slot)) {
-                    return ret;
-                }
-                ret++;
+        byte ret = 0;
+        List<Item> storageItems = getItems();
+        for (Item item : storageItems) {
+            if (item == typeItems.get(type).get(slot)) {
+                return ret;
             }
-            return -1;
-        } finally {
-            }
+            ret++;
+        }
+        return -1;
     }
 
     public void sendStorage(Client c, int npcId) {
@@ -224,54 +206,42 @@ public class Storage {
             return;
         }
 
-        try {
-            items.sort((o1, o2) -> {
-                if (o1.getInventoryType().getType() < o2.getInventoryType().getType()) {
-                    return -1;
-                } else if (o1.getInventoryType() == o2.getInventoryType()) {
-                    return 0;
-                }
-                return 1;
-            });
-
-            List<Item> storageItems = getItems();
-            for (InventoryType type : InventoryType.values()) {
-                typeItems.put(type, new ArrayList<>(storageItems));
+        items.sort((o1, o2) -> {
+            if (o1.getInventoryType().getType() < o2.getInventoryType().getType()) {
+                return -1;
+            } else if (o1.getInventoryType() == o2.getInventoryType()) {
+                return 0;
             }
+            return 1;
+        });
 
-            currentNpcid = npcId;
-            c.sendPacket(PacketCreator.getStorage(npcId, slots, storageItems, meso));
-        } finally {
-            }
+        List<Item> storageItems = getItems();
+        for (InventoryType type : InventoryType.values()) {
+            typeItems.put(type, new ArrayList<>(storageItems));
+        }
+
+        currentNpcid = npcId;
+        c.sendPacket(PacketCreator.getStorage(npcId, slots, storageItems, meso));
     }
 
     public void sendStored(Client c, InventoryType type) {
-        try {
-            c.sendPacket(PacketCreator.storeStorage(slots, type, typeItems.get(type)));
-        } finally {
-            }
+        c.sendPacket(PacketCreator.storeStorage(slots, type, typeItems.get(type)));
     }
 
     public void sendTakenOut(Client c, InventoryType type) {
-        try {
-            c.sendPacket(PacketCreator.takeOutStorage(slots, type, typeItems.get(type)));
-        } finally {
-            }
+        c.sendPacket(PacketCreator.takeOutStorage(slots, type, typeItems.get(type)));
     }
 
     public void arrangeItems(Client c) {
-        try {
-            StorageInventory msi = new StorageInventory(c, items);
-            msi.mergeItems();
-            items = msi.sortItems();
+        StorageInventory msi = new StorageInventory(c, items);
+        msi.mergeItems();
+        items = msi.sortItems();
 
-            for (InventoryType type : InventoryType.values()) {
-                typeItems.put(type, new ArrayList<>(items));
-            }
+        for (InventoryType type : InventoryType.values()) {
+            typeItems.put(type, new ArrayList<>(items));
+        }
 
-            c.sendPacket(PacketCreator.arrangeStorage(slots, items));
-        } finally {
-            }
+        c.sendPacket(PacketCreator.arrangeStorage(slots, items));
     }
 
     public int getMeso() {
@@ -326,17 +296,11 @@ public class Storage {
     }
 
     public boolean isFull() {
-        try {
-            return items.size() >= slots;
-        } finally {
-            }
+        return items.size() >= slots;
     }
 
     public void close() {
-        try {
-            typeItems.clear();
-        } finally {
-            }
+        typeItems.clear();
     }
 
 }

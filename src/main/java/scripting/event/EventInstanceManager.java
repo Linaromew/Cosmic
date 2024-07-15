@@ -126,10 +126,7 @@ public class EventInstanceManager {
     }
 
     public EventManager getEm() {
-        try {
-            return em;
-        } finally {
-            }
+        return em;
     }
 
     public int getEventPlayersJobs() {
@@ -239,15 +236,12 @@ public class EventInstanceManager {
             return;
         }
 
-        try {
-            if (chars.containsKey(chr.getId())) {
-                return;
-            }
+        if (chars.containsKey(chr.getId())) {
+            return;
+        }
 
-            chars.put(chr.getId(), chr);
-            chr.setEventInstance(this);
-        } finally {
-            }
+        chars.put(chr.getId(), chr);
+        chr.setEventInstance(this);
 
         if (runEntryScript) {
             try {
@@ -389,42 +383,27 @@ public class EventInstanceManager {
             log.error("Event script {} does not implement the playerUnregistered function", em.getName(), ex);
         }
 
-        try {
-            chars.remove(chr.getId());
-            chr.setEventInstance(null);
-        } finally {
-            }
+        chars.remove(chr.getId());
+        chr.setEventInstance(null);
 
         gridRemove(chr);
         dropExclusiveItems(chr);
     }
 
     public int getPlayerCount() {
-        try {
-            return chars.size();
-        } finally {
-            }
+        return chars.size();
     }
 
     public Character getPlayerById(int id) {
-        try {
-            return chars.get(id);
-        } finally {
-            }
+        return chars.get(id);
     }
 
     public List<Character> getPlayers() {
-        try {
-            return new ArrayList<>(chars.values());
-        } finally {
-            }
+        return new ArrayList<>(chars.values());
     }
 
     private List<Character> getPlayerList() {
-        try {
-            return new LinkedList<>(chars.values());
-        } finally {
-            }
+        return new LinkedList<>(chars.values());
     }
 
     public void registerMonster(Monster mob) {
@@ -468,18 +447,15 @@ public class EventInstanceManager {
     public void monsterKilled(final Monster mob, final boolean hasKiller) {
         int scriptResult = 0;
 
-        try {
-            mobs.remove(mob);
+        mobs.remove(mob);
 
-            if (eventStarted) {
-                scriptResult = 1;
+        if (eventStarted) {
+            scriptResult = 1;
 
-                if (mobs.isEmpty()) {
-                    scriptResult = 2;
-                }
+            if (mobs.isEmpty()) {
+                scriptResult = 2;
             }
-        } finally {
-            }
+        }
 
         if (scriptResult > 0) {
             try {
@@ -584,12 +560,9 @@ public class EventInstanceManager {
     }
 
     public void dispose() {
-        try {
-            for (Character chr : chars.values()) {
-                chr.setEventInstance(null);
-            }
-        } finally {
-            }
+        for (Character chr : chars.values()) {
+            chr.setEventInstance(null);
+        }
 
         dispose(false);
     }
@@ -608,15 +581,12 @@ public class EventInstanceManager {
 
         ess.dispose();
 
-        try {
-            for (Character chr : chars.values()) {
-                chr.setEventInstance(null);
-            }
-            chars.clear();
-            mobs.clear();
-            ess = null;
-        } finally {
-            }
+        for (Character chr : chars.values()) {
+            chr.setEventInstance(null);
+        }
+        chars.clear();
+        mobs.clear();
+        ess = null;
 
         if (event_schedule != null) {
             event_schedule.cancel(false);
@@ -630,20 +600,14 @@ public class EventInstanceManager {
 
         disposeExpedition();
 
-        try {
-            if (!eventCleared) {
-                em.disposeInstance(name);
-            }
-        } finally {
-            }
+        if (!eventCleared) {
+            em.disposeInstance(name);
+        }
 
         TimerManager.getInstance().schedule(() -> {
             mapManager.dispose();   // issues from instantly disposing some event objects found thanks to MedicOP
-            try {
-                mapManager = null;
-                em = null;
-            } finally {
-                }
+            mapManager = null;
+            em = null;
         }, MINUTES.toMillis(1));
     }
 
@@ -652,20 +616,17 @@ public class EventInstanceManager {
     }
 
     public void schedule(final String methodName, long delay) {
-        try {
-            if (ess != null) {
-                Runnable r = () -> {
-                    try {
-                        invokeScriptFunction(methodName, EventInstanceManager.this);
-                    } catch (ScriptException | NoSuchMethodException ex) {
-                        ex.printStackTrace();
-                    }
-                };
+        if (ess != null) {
+            Runnable r = () -> {
+                try {
+                    invokeScriptFunction(methodName, EventInstanceManager.this);
+                } catch (ScriptException | NoSuchMethodException ex) {
+                    ex.printStackTrace();
+                }
+            };
 
-                ess.registerEntry(r, delay);
-            }
-        } finally {
-            }
+            ess.registerEntry(r, delay);
+        }
     }
 
     public String getName() {
@@ -677,12 +638,9 @@ public class EventInstanceManager {
         map.setEventInstance(this);
 
         if (!mapManager.isMapLoaded(mapId)) {
-            try {
-                if (em.getProperty("shuffleReactors") != null && em.getProperty("shuffleReactors").equals("true")) {
-                    map.shuffleReactors();
-                }
-            } finally {
-                }
+            if (em.getProperty("shuffleReactors") != null && em.getProperty("shuffleReactors").equals("true")) {
+                map.shuffleReactors();
+            }
         }
         return map;
     }
@@ -696,45 +654,27 @@ public class EventInstanceManager {
     }
 
     public void setProperty(String key, String value) {
-        try {
-            props.setProperty(key, value);
-        } finally {
-            }
+        props.setProperty(key, value);
     }
 
     public Object setProperty(String key, String value, boolean prev) {
-        try {
-            return props.setProperty(key, value);
-        } finally {
-            }
+        return props.setProperty(key, value);
     }
 
     public void setObjectProperty(String key, Object obj) {
-        try {
-            objectProps.put(key, obj);
-        } finally {
-            }
+        objectProps.put(key, obj);
     }
 
     public String getProperty(String key) {
-        try {
-            return props.getProperty(key);
-        } finally {
-            }
+        return props.getProperty(key);
     }
 
     public int getIntProperty(String key) {
-        try {
-            return Integer.parseInt(props.getProperty(key));
-        } finally {
-            }
+        return Integer.parseInt(props.getProperty(key));
     }
 
     public Object getObjectProperty(String key) {
-        try {
-            return objectProps.get(key);
-        } finally {
-            }
+        return objectProps.get(key);
     }
 
     public void leftParty(final Character chr) {
@@ -908,10 +848,7 @@ public class EventInstanceManager {
     public final void setExclusiveItems(List<Object> items) {
         List<Integer> exclusive = convertToIntegerList(items);
 
-        try {
-            exclusiveItems.addAll(exclusive);
-        } finally {
-            }
+        exclusiveItems.addAll(exclusive);
     }
 
     public final void setEventRewards(List<Object> rwds, List<Object> qtys, int expGiven) {
@@ -938,12 +875,9 @@ public class EventInstanceManager {
         List<Integer> rewardQtys = convertToIntegerList(qtys);
 
         //rewardsSet and rewardsQty hold temporary values
-        try {
-            collectionSet.put(eventLevel, rewardIds);
-            collectionQty.put(eventLevel, rewardQtys);
-            collectionExp.put(eventLevel, expGiven);
-        } finally {
-            }
+        collectionSet.put(eventLevel, rewardIds);
+        collectionQty.put(eventLevel, rewardQtys);
+        collectionExp.put(eventLevel, expGiven);
     }
 
     private byte getRewardListRequirements(int level) {
@@ -983,18 +917,15 @@ public class EventInstanceManager {
         List<Integer> rewardsSet, rewardsQty;
         Integer rewardExp;
 
-        try {
-            eventLevel--;       //event level starts counting from 1
-            if (eventLevel >= collectionSet.size()) {
-                return true;
-            }
+        eventLevel--;       //event level starts counting from 1
+        if (eventLevel >= collectionSet.size()) {
+            return true;
+        }
 
-            rewardsSet = collectionSet.get(eventLevel);
-            rewardsQty = collectionQty.get(eventLevel);
+        rewardsSet = collectionSet.get(eventLevel);
+        rewardsQty = collectionQty.get(eventLevel);
 
-            rewardExp = collectionExp.get(eventLevel);
-        } finally {
-            }
+        rewardExp = collectionExp.get(eventLevel);
 
         if (rewardExp == null) {
             rewardExp = 0;
@@ -1025,10 +956,7 @@ public class EventInstanceManager {
         if (expedition != null) {
             expedition.dispose(eventCleared);
 
-            try {
-                expedition.removeChannelExpedition(em.getChannelServer());
-            } finally {
-                }
+            expedition.removeChannelExpedition(em.getChannelServer());
 
             expedition = null;
         }
@@ -1051,10 +979,7 @@ public class EventInstanceManager {
             chr.awardQuestPoint(YamlConfig.config.server.QUEST_POINT_PER_EVENT_CLEAR);
         }
 
-        try {
-            em.disposeInstance(name);
-        } finally {
-            }
+        em.disposeInstance(name);
 
         disposeExpedition();
     }
@@ -1109,25 +1034,22 @@ public class EventInstanceManager {
     }
 
     public final boolean isEventTeamTogether() {
-        try {
-            if (chars.size() <= 1) {
-                return true;
-            }
-
-            Iterator<Character> iterator = chars.values().iterator();
-            Character mc = iterator.next();
-            int mapId = mc.getMapId();
-
-            for (; iterator.hasNext(); ) {
-                mc = iterator.next();
-                if (mc.getMapId() != mapId) {
-                    return false;
-                }
-            }
-
+        if (chars.size() <= 1) {
             return true;
-        } finally {
+        }
+
+        Iterator<Character> iterator = chars.values().iterator();
+        Character mc = iterator.next();
+        int mapId = mc.getMapId();
+
+        for (; iterator.hasNext(); ) {
+            mc = iterator.next();
+            if (mc.getMapId() != mapId) {
+                return false;
             }
+        }
+
+        return true;
     }
 
     public final void warpEventTeam(int warpFrom, int warpTo) {
@@ -1167,24 +1089,15 @@ public class EventInstanceManager {
     }
 
     public final int getLeaderId() {
-        try {
-            return leaderId;
-        } finally {
-            }
+        return leaderId;
     }
 
     public Character getLeader() {
-        try {
-            return chars.get(leaderId);
-        } finally {
-            }
+        return chars.get(leaderId);
     }
 
     public final void setLeader(Character chr) {
-        try {
-            leaderId = chr.getId();
-        } finally {
-            }
+        leaderId = chr.getId();
     }
 
     public final void showWrongEffect() {
@@ -1226,22 +1139,16 @@ public class EventInstanceManager {
         map.broadcastMessage(PacketCreator.playSound("Party1/Clear"));
         if (hasGate) {
             map.broadcastMessage(PacketCreator.environmentChange(mapObj, newState));
-            try {
-                openedGates.put(map.getId(), new Pair<>(mapObj, newState));
-            } finally {
-                }
+            openedGates.put(map.getId(), new Pair<>(mapObj, newState));
         }
     }
 
     public final void recoverOpenedGate(Character chr, int thisMapId) {
         Pair<String, Integer> gateData = null;
 
-        try {
-            if (openedGates.containsKey(thisMapId)) {
-                gateData = openedGates.get(thisMapId);
-            }
-        } finally {
-            }
+        if (openedGates.containsKey(thisMapId)) {
+            gateData = openedGates.get(thisMapId);
+        }
 
         if (gateData != null) {
             chr.sendPacket(PacketCreator.environmentChange(gateData.getLeft(), gateData.getRight()));
@@ -1278,41 +1185,26 @@ public class EventInstanceManager {
 
     // registers a player status in an event
     public final void gridInsert(Character chr, int newStatus) {
-        try {
-            playerGrid.put(chr.getId(), newStatus);
-        } finally {
-            }
+        playerGrid.put(chr.getId(), newStatus);
     }
 
     // unregisters a player status in an event
     public final void gridRemove(Character chr) {
-        try {
-            playerGrid.remove(chr.getId());
-        } finally {
-            }
+        playerGrid.remove(chr.getId());
     }
 
     // checks a player status
     public final int gridCheck(Character chr) {
-        try {
-            Integer i = playerGrid.get(chr.getId());
-            return (i != null) ? i : -1;
-        } finally {
-            }
+        Integer i = playerGrid.get(chr.getId());
+        return (i != null) ? i : -1;
     }
 
     public final int gridSize() {
-        try {
-            return playerGrid.size();
-        } finally {
-            }
+        return playerGrid.size();
     }
 
     public final void gridClear() {
-        try {
-            playerGrid.clear();
-        } finally {
-            }
+        playerGrid.clear();
     }
 
     public boolean activatedAllReactorsOnMap(int mapId, int minReactorId, int maxReactorId) {

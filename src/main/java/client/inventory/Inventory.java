@@ -72,37 +72,28 @@ public class Inventory implements Iterable<Item> {
     }
 
     public byte getSlotLimit() {
-        try {
-            return slotLimit;
-        } finally {
-            }
+        return slotLimit;
     }
 
     public void setSlotLimit(int newLimit) {
-        try {
-            if (newLimit < slotLimit) {
-                List<Short> toRemove = new LinkedList<>();
-                for (Item it : list()) {
-                    if (it.getPosition() > newLimit) {
-                        toRemove.add(it.getPosition());
-                    }
-                }
-
-                for (Short slot : toRemove) {
-                    removeSlot(slot);
+        if (newLimit < slotLimit) {
+            List<Short> toRemove = new LinkedList<>();
+            for (Item it : list()) {
+                if (it.getPosition() > newLimit) {
+                    toRemove.add(it.getPosition());
                 }
             }
 
-            slotLimit = (byte) newLimit;
-        } finally {
+            for (Short slot : toRemove) {
+                removeSlot(slot);
             }
+        }
+
+        slotLimit = (byte) newLimit;
     }
 
     public Collection<Item> list() {
-        try {
-            return Collections.unmodifiableCollection(inventory.values());
-        } finally {
-            }
+        return Collections.unmodifiableCollection(inventory.values());
     }
 
     public Item findById(int itemId) {
@@ -236,32 +227,29 @@ public class Inventory implements Iterable<Item> {
     }
 
     public void move(short sSlot, short dSlot, short slotMax) {
-        try {
-            Item source = inventory.get(sSlot);
-            Item target = inventory.get(dSlot);
-            if (source == null) {
-                return;
-            }
-            if (target == null) {
-                source.setPosition(dSlot);
-                inventory.put(dSlot, source);
-                inventory.remove(sSlot);
-            } else if (target.getItemId() == source.getItemId() && !ItemConstants.isRechargeable(source.getItemId()) && isSameOwner(source, target)) {
-                if (type.getType() == InventoryType.EQUIP.getType() || type.getType() == InventoryType.CASH.getType()) {
-                    swap(target, source);
-                } else if (source.getQuantity() + target.getQuantity() > slotMax) {
-                    short rest = (short) ((source.getQuantity() + target.getQuantity()) - slotMax);
-                    source.setQuantity(rest);
-                    target.setQuantity(slotMax);
-                } else {
-                    target.setQuantity((short) (source.getQuantity() + target.getQuantity()));
-                    inventory.remove(sSlot);
-                }
-            } else {
+        Item source = inventory.get(sSlot);
+        Item target = inventory.get(dSlot);
+        if (source == null) {
+            return;
+        }
+        if (target == null) {
+            source.setPosition(dSlot);
+            inventory.put(dSlot, source);
+            inventory.remove(sSlot);
+        } else if (target.getItemId() == source.getItemId() && !ItemConstants.isRechargeable(source.getItemId()) && isSameOwner(source, target)) {
+            if (type.getType() == InventoryType.EQUIP.getType() || type.getType() == InventoryType.CASH.getType()) {
                 swap(target, source);
+            } else if (source.getQuantity() + target.getQuantity() > slotMax) {
+                short rest = (short) ((source.getQuantity() + target.getQuantity()) - slotMax);
+                source.setQuantity(rest);
+                target.setQuantity(slotMax);
+            } else {
+                target.setQuantity((short) (source.getQuantity() + target.getQuantity()));
+                inventory.remove(sSlot);
             }
-        } finally {
-            }
+        } else {
+            swap(target, source);
+        }
     }
 
     private void swap(Item source, Item target) {
@@ -275,10 +263,7 @@ public class Inventory implements Iterable<Item> {
     }
 
     public Item getItem(short slot) {
-        try {
-            return inventory.get(slot);
-        } finally {
-            }
+        return inventory.get(slot);
     }
 
     public void removeItem(short slot) {
@@ -305,15 +290,12 @@ public class Inventory implements Iterable<Item> {
         }
 
         short slotId;
-        try {
-            slotId = getNextFreeSlot();
-            if (slotId < 0) {
-                return -1;
-            }
+        slotId = getNextFreeSlot();
+        if (slotId < 0) {
+            return -1;
+        }
 
-            inventory.put(slotId, item);
-        } finally {
-            }
+        inventory.put(slotId, item);
 
         if (ItemConstants.isRateCoupon(item.getItemId())) {
             // deadlocks with coupons rates found thanks to GabrielSin & Masterrulax
@@ -324,10 +306,7 @@ public class Inventory implements Iterable<Item> {
     }
 
     protected void addSlotFromDB(short slot, Item item) {
-        try {
-            inventory.put(slot, item);
-        } finally {
-            }
+        inventory.put(slot, item);
 
         if (ItemConstants.isRateCoupon(item.getItemId())) {
             ThreadManager.getInstance().newTask(() -> owner.updateCouponRates());
@@ -336,10 +315,7 @@ public class Inventory implements Iterable<Item> {
 
     public void removeSlot(short slot) {
         Item item;
-        try {
-            item = inventory.remove(slot);
-        } finally {
-            }
+        item = inventory.remove(slot);
 
         if (item != null && ItemConstants.isRateCoupon(item.getItemId())) {
             ThreadManager.getInstance().newTask(() -> owner.updateCouponRates());
@@ -347,26 +323,17 @@ public class Inventory implements Iterable<Item> {
     }
 
     public boolean isFull() {
-        try {
-            return inventory.size() >= slotLimit;
-        } finally {
-            }
+        return inventory.size() >= slotLimit;
     }
 
     public boolean isFull(int margin) {
-        try {
-            //System.out.print("(" + inventory.size() + " " + margin + " <> " + slotLimit + ")");
-            return inventory.size() + margin >= slotLimit;
-        } finally {
-            }
+        //System.out.print("(" + inventory.size() + " " + margin + " <> " + slotLimit + ")");
+        return inventory.size() + margin >= slotLimit;
     }
 
     public boolean isFullAfterSomeItems(int margin, int used) {
-        try {
-            //System.out.print("(" + inventory.size() + " " + margin + " <> " + slotLimit + " -" + used + ")");
-            return inventory.size() + margin >= slotLimit - used;
-        } finally {
-            }
+        //System.out.print("(" + inventory.size() + " " + margin + " <> " + slotLimit + " -" + used + ")");
+        return inventory.size() + margin >= slotLimit - used;
     }
 
     public short getNextFreeSlot() {
@@ -374,15 +341,12 @@ public class Inventory implements Iterable<Item> {
             return -1;
         }
 
-        try {
-            for (short i = 1; i <= slotLimit; i++) {
-                if (!inventory.containsKey(i)) {
-                    return i;
-                }
+        for (short i = 1; i <= slotLimit; i++) {
+            if (!inventory.containsKey(i)) {
+                return i;
             }
-            return -1;
-        } finally {
-            }
+        }
+        return -1;
     }
 
     public short getNumFreeSlot() {
@@ -390,16 +354,13 @@ public class Inventory implements Iterable<Item> {
             return 0;
         }
 
-        try {
-            short free = 0;
-            for (short i = 1; i <= slotLimit; i++) {
-                if (!inventory.containsKey(i)) {
-                    free++;
-                }
+        short free = 0;
+        for (short i = 1; i <= slotLimit; i++) {
+            if (!inventory.containsKey(i)) {
+                free++;
             }
-            return free;
-        } finally {
-            }
+        }
+        return free;
     }
 
     private static boolean checkItemRestricted(List<Pair<Item, InventoryType>> items) {
@@ -605,17 +566,11 @@ public class Inventory implements Iterable<Item> {
     }
 
     public boolean checked() {
-        try {
-            return checked;
-        } finally {
-            }
+        return checked;
     }
 
     public void checked(boolean yes) {
-        try {
-            checked = yes;
-        } finally {
-            }
+        checked = yes;
     }
 
     public void lockInventory() {

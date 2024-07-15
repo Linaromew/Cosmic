@@ -90,28 +90,22 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public boolean hasFreeSlot() {
-        try {
-            return visitors[0] == null || visitors[1] == null || visitors[2] == null;
-        } finally {
-            }
+        return visitors[0] == null || visitors[1] == null || visitors[2] == null;
     }
 
     public byte[] getShopRoomInfo() {
-        try {
-            byte count = 0;
-            //if (this.isOpen()) {
-            for (Character visitor : visitors) {
-                if (visitor != null) {
-                    count++;
-                }
+        byte count = 0;
+        //if (this.isOpen()) {
+        for (Character visitor : visitors) {
+            if (visitor != null) {
+                count++;
             }
-            //} else {  shouldn't happen since there isn't a "closed" state for player shops.
-            //    count = (byte) (visitors.length + 1);
-            //}
+        }
+        //} else {  shouldn't happen since there isn't a "closed" state for player shops.
+        //    count = (byte) (visitors.length + 1);
+        //}
 
-            return new byte[]{count, (byte) visitors.length};
-        } finally {
-            }
+        return new byte[]{count, (byte) visitors.length};
     }
 
     public boolean isOwner(Character chr) {
@@ -137,20 +131,17 @@ public class PlayerShop extends AbstractMapObject {
             owner.setPlayerShop(null);
         }
 
-        try {
-            for (int i = 0; i < 3; i++) {
-                if (visitors[i] != null && visitors[i].getId() == visitor.getId()) {
-                    visitors[i].setPlayerShop(null);
-                    visitors[i] = null;
-                    visitor.setSlot(-1);
+        for (int i = 0; i < 3; i++) {
+            if (visitors[i] != null && visitors[i].getId() == visitor.getId()) {
+                visitors[i].setPlayerShop(null);
+                visitors[i] = null;
+                visitor.setSlot(-1);
 
-                    this.broadcast(PacketCreator.getPlayerShopRemoveVisitor(i + 1));
-                    owner.getMap().broadcastMessage(PacketCreator.updatePlayerShopBox(this));
-                    return;
-                }
+                this.broadcast(PacketCreator.getPlayerShopRemoveVisitor(i + 1));
+                owner.getMap().broadcastMessage(PacketCreator.updatePlayerShopBox(this));
+                return;
             }
-        } finally {
-            }
+        }
     }
 
     public void removeVisitor(Character visitor) {
@@ -158,44 +149,38 @@ public class PlayerShop extends AbstractMapObject {
             owner.getMap().removeMapObject(this);
             owner.setPlayerShop(null);
         } else {
-            try {
-                for (int i = 0; i < 3; i++) {
-                    if (visitors[i] != null && visitors[i].getId() == visitor.getId()) {
-                        visitor.setSlot(-1);    //absolutely cant remove player slot for late players without dc'ing them... heh
+            for (int i = 0; i < 3; i++) {
+                if (visitors[i] != null && visitors[i].getId() == visitor.getId()) {
+                    visitor.setSlot(-1);    //absolutely cant remove player slot for late players without dc'ing them... heh
 
-                        for (int j = i; j < 2; j++) {
-                            if (visitors[j] != null) {
-                                owner.sendPacket(PacketCreator.getPlayerShopRemoveVisitor(j + 1));
-                            }
-                            visitors[j] = visitors[j + 1];
-                            if (visitors[j] != null) {
-                                visitors[j].setSlot(j);
-                            }
+                    for (int j = i; j < 2; j++) {
+                        if (visitors[j] != null) {
+                            owner.sendPacket(PacketCreator.getPlayerShopRemoveVisitor(j + 1));
                         }
-                        visitors[2] = null;
-                        for (int j = i; j < 2; j++) {
-                            if (visitors[j] != null) {
-                                owner.sendPacket(PacketCreator.getPlayerShopNewVisitor(visitors[j], j + 1));
-                            }
+                        visitors[j] = visitors[j + 1];
+                        if (visitors[j] != null) {
+                            visitors[j].setSlot(j);
                         }
-
-                        this.broadcastRestoreToVisitors();
-                        owner.getMap().broadcastMessage(PacketCreator.updatePlayerShopBox(this));
-                        return;
                     }
+                    visitors[2] = null;
+                    for (int j = i; j < 2; j++) {
+                        if (visitors[j] != null) {
+                            owner.sendPacket(PacketCreator.getPlayerShopNewVisitor(visitors[j], j + 1));
+                        }
+                    }
+
+                    this.broadcastRestoreToVisitors();
+                    owner.getMap().broadcastMessage(PacketCreator.updatePlayerShopBox(this));
+                    return;
                 }
-            } finally {
-                }
+            }
 
             owner.getMap().broadcastMessage(PacketCreator.updatePlayerShopBox(this));
         }
     }
 
     public boolean isVisitor(Character visitor) {
-        try {
-            return visitors[0] == visitor || visitors[1] == visitor || visitors[2] == visitor;
-        } finally {
-            }
+        return visitors[0] == visitor || visitors[1] == visitor || visitors[2] == visitor;
     }
 
     public boolean addItem(PlayerShopItem item) {
@@ -264,52 +249,49 @@ public class PlayerShop extends AbstractMapObject {
 
                 KarmaManipulator.toggleKarmaFlagToUntradeable(newItem);
 
-                try {
-                    int price = (int) Math.min((float) pItem.getPrice() * quantity, Integer.MAX_VALUE);
+                int price = (int) Math.min((float) pItem.getPrice() * quantity, Integer.MAX_VALUE);
 
-                    if (c.getPlayer().getMeso() >= price) {
-                        if (!owner.canHoldMeso(price)) {    // thanks Rohenn for noticing owner hold check misplaced
-                            c.getPlayer().dropMessage(1, "Transaction failed since the shop owner can't hold any more mesos.");
-                            c.sendPacket(PacketCreator.enableActions());
-                            return false;
-                        }
-
-                        if (canBuy(c, newItem)) {
-                            c.getPlayer().gainMeso(-price, false);
-                            price -= Trade.getFee(price);  // thanks BHB for pointing out trade fees not applying here
-                            owner.gainMeso(price, true);
-
-                            SoldItem soldItem = new SoldItem(c.getPlayer().getName(), pItem.getItem().getItemId(), quantity, price);
-                            owner.sendPacket(PacketCreator.getPlayerShopOwnerUpdate(soldItem, item));
-
-                            synchronized (sold) {
-                                sold.add(soldItem);
-                            }
-
-                            pItem.setBundles((short) (pItem.getBundles() - quantity));
-                            if (pItem.getBundles() < 1) {
-                                pItem.setDoesExist(false);
-                                if (++boughtnumber == items.size()) {
-                                    owner.setPlayerShop(null);
-                                    this.setOpen(false);
-                                    this.closeShop();
-                                    owner.dropMessage(1, "Your items are sold out, and therefore your shop is closed.");
-                                }
-                            }
-                        } else {
-                            c.getPlayer().dropMessage(1, "Your inventory is full. Please clear a slot before buying this item.");
-                            c.sendPacket(PacketCreator.enableActions());
-                            return false;
-                        }
-                    } else {
-                        c.getPlayer().dropMessage(1, "You don't have enough mesos to purchase this item.");
+                if (c.getPlayer().getMeso() >= price) {
+                    if (!owner.canHoldMeso(price)) {    // thanks Rohenn for noticing owner hold check misplaced
+                        c.getPlayer().dropMessage(1, "Transaction failed since the shop owner can't hold any more mesos.");
                         c.sendPacket(PacketCreator.enableActions());
                         return false;
                     }
 
-                    return true;
-                } finally {
+                    if (canBuy(c, newItem)) {
+                        c.getPlayer().gainMeso(-price, false);
+                        price -= Trade.getFee(price);  // thanks BHB for pointing out trade fees not applying here
+                        owner.gainMeso(price, true);
+
+                        SoldItem soldItem = new SoldItem(c.getPlayer().getName(), pItem.getItem().getItemId(), quantity, price);
+                        owner.sendPacket(PacketCreator.getPlayerShopOwnerUpdate(soldItem, item));
+
+                        synchronized (sold) {
+                            sold.add(soldItem);
+                        }
+
+                        pItem.setBundles((short) (pItem.getBundles() - quantity));
+                        if (pItem.getBundles() < 1) {
+                            pItem.setDoesExist(false);
+                            if (++boughtnumber == items.size()) {
+                                owner.setPlayerShop(null);
+                                this.setOpen(false);
+                                this.closeShop();
+                                owner.dropMessage(1, "Your items are sold out, and therefore your shop is closed.");
+                            }
+                        }
+                    } else {
+                        c.getPlayer().dropMessage(1, "Your inventory is full. Please clear a slot before buying this item.");
+                        c.sendPacket(PacketCreator.enableActions());
+                        return false;
                     }
+                } else {
+                    c.getPlayer().dropMessage(1, "You don't have enough mesos to purchase this item.");
+                    c.sendPacket(PacketCreator.enableActions());
+                    return false;
+                }
+
+                return true;
             } else {
                 return false;
             }
@@ -317,51 +299,42 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public void broadcastToVisitors(Packet packet) {
-        try {
-            for (int i = 0; i < 3; i++) {
-                if (visitors[i] != null) {
-                    visitors[i].sendPacket(packet);
-                }
+        for (int i = 0; i < 3; i++) {
+            if (visitors[i] != null) {
+                visitors[i].sendPacket(packet);
             }
-        } finally {
-            }
+        }
     }
 
     public void broadcastRestoreToVisitors() {
-        try {
-            for (int i = 0; i < 3; i++) {
-                if (visitors[i] != null) {
-                    visitors[i].sendPacket(PacketCreator.getPlayerShopRemoveVisitor(i + 1));
-                }
+        for (int i = 0; i < 3; i++) {
+            if (visitors[i] != null) {
+                visitors[i].sendPacket(PacketCreator.getPlayerShopRemoveVisitor(i + 1));
             }
+        }
 
-            for (int i = 0; i < 3; i++) {
-                if (visitors[i] != null) {
-                    visitors[i].sendPacket(PacketCreator.getPlayerShop(this, false));
-                }
+        for (int i = 0; i < 3; i++) {
+            if (visitors[i] != null) {
+                visitors[i].sendPacket(PacketCreator.getPlayerShop(this, false));
             }
+        }
 
-            recoverChatLog();
-        } finally {
-            }
+        recoverChatLog();
     }
 
     public void removeVisitors() {
         List<Character> visitorList = new ArrayList<>(3);
 
         try {
-            try {
-                for (int i = 0; i < 3; i++) {
-                    if (visitors[i] != null) {
-                        visitors[i].sendPacket(PacketCreator.shopErrorMessage(10, 1));
-                        visitorList.add(visitors[i]);
-                    }
+            for (int i = 0; i < 3; i++) {
+                if (visitors[i] != null) {
+                    visitors[i].sendPacket(PacketCreator.shopErrorMessage(10, 1));
+                    visitorList.add(visitors[i]);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        } finally {
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         for (Character mc : visitorList) {
             forceRemoveVisitor(mc);
@@ -433,10 +406,7 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public void sendShop(Client c) {
-        try {
-            c.sendPacket(PacketCreator.getPlayerShop(this, isOwner(c.getPlayer())));
-        } finally {
-            }
+        c.sendPacket(PacketCreator.getPlayerShop(this, isOwner(c.getPlayer())));
     }
 
     public Character getOwner() {
@@ -444,15 +414,12 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public Character[] getVisitors() {
-        try {
-            Character[] copy = new Character[3];
-            for (int i = 0; i < visitors.length; i++) {
-                copy[i] = visitors[i];
-            }
+        Character[] copy = new Character[3];
+        for (int i = 0; i < visitors.length; i++) {
+            copy[i] = visitors[i];
+        }
 
-            return copy;
-        } finally {
-            }
+        return copy;
     }
 
     public List<PlayerShopItem> getItems() {
@@ -485,15 +452,12 @@ public class PlayerShop extends AbstractMapObject {
         }
 
         Character target = null;
-        try {
-            for (int i = 0; i < 3; i++) {
-                if (visitors[i] != null && visitors[i].getName().equals(name)) {
-                    target = visitors[i];
-                    break;
-                }
+        for (int i = 0; i < 3; i++) {
+            if (visitors[i] != null && visitors[i].getName().equals(name)) {
+                target = visitors[i];
+                break;
             }
-        } finally {
-            }
+        }
 
         if (target != null) {
             target.sendPacket(PacketCreator.shopErrorMessage(5, 1));
@@ -511,23 +475,20 @@ public class PlayerShop extends AbstractMapObject {
             return false;
         }
 
-        try {
-            if (!open.get()) {
-                chr.dropMessage(1, "This store is not yet open.");
-                return false;
-            }
-
-            if (this.hasFreeSlot() && !this.isVisitor(chr)) {
-                this.addVisitor(chr);
-                chr.setPlayerShop(this);
-                this.sendShop(chr.getClient());
-
-                return true;
-            }
-
+        if (!open.get()) {
+            chr.dropMessage(1, "This store is not yet open.");
             return false;
-        } finally {
-            }
+        }
+
+        if (this.hasFreeSlot() && !this.isVisitor(chr)) {
+            this.addVisitor(chr);
+            chr.setPlayerShop(this);
+            this.sendShop(chr.getClient());
+
+            return true;
+        }
+
+        return false;
     }
 
     public List<PlayerShopItem> sendAvailableBundles(int itemid) {

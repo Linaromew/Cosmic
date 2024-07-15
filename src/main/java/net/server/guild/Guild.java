@@ -133,23 +133,20 @@ public class Guild {
             }
         }
 
-        try {
-            for (GuildCharacter mgc : members) {
-                if (!mgc.isOnline()) {
-                    continue;
-                }
+        for (GuildCharacter mgc : members) {
+            if (!mgc.isOnline()) {
+                continue;
+            }
 
-                List<Integer> chl;
-                synchronized (notifications) {
-                    chl = notifications.get(mgc.getChannel());
-                }
-                if (chl != null) {
-                    chl.add(mgc.getId());
-                }
-                //Unable to connect to Channel... error was here
+            List<Integer> chl;
+            synchronized (notifications) {
+                chl = notifications.get(mgc.getChannel());
             }
-        } finally {
+            if (chl != null) {
+                chl.add(mgc.getId());
             }
+            //Unable to connect to Channel... error was here
+        }
 
         bDirty = false;
     }
@@ -189,10 +186,7 @@ public class Guild {
                     ps.executeUpdate();
                 }
 
-                try {
-                    this.broadcast(GuildPackets.guildDisband(this.id));
-                } finally {
-                    }
+                this.broadcast(GuildPackets.guildDisband(this.id));
             }
         } catch (SQLException se) {
             se.printStackTrace();
@@ -259,10 +253,7 @@ public class Guild {
     }
 
     public List<GuildCharacter> getMembers() {
-        try {
-            return new ArrayList<>(members);
-        } finally {
-            }
+        return new ArrayList<>(members);
     }
 
     public int getCapacity() {
@@ -324,43 +315,37 @@ public class Guild {
 
     public void broadcast(Packet packet, int exceptionId, BCOp bcop) {
         // membersLock awareness thanks to ProjectNano dev team
-        try {
-            synchronized (notifications) {
-                if (bDirty) {
-                    buildNotifications();
-                }
-                try {
-                    for (Integer b : Server.getInstance().getOpenChannels(world)) {
-                        if (notifications.get(b).size() > 0) {
-                            if (bcop == BCOp.DISBAND) {
-                                Server.getInstance().getWorld(world).setGuildAndRank(notifications.get(b), 0, 5, exceptionId);
-                            } else if (bcop == BCOp.EMBLEMCHANGE) {
-                                Server.getInstance().getWorld(world).changeEmblem(this.id, notifications.get(b), new GuildSummary(this));
-                            } else {
-                                Server.getInstance().getWorld(world).sendPacket(notifications.get(b), packet, exceptionId);
-                            }
+        synchronized (notifications) {
+            if (bDirty) {
+                buildNotifications();
+            }
+            try {
+                for (Integer b : Server.getInstance().getOpenChannels(world)) {
+                    if (notifications.get(b).size() > 0) {
+                        if (bcop == BCOp.DISBAND) {
+                            Server.getInstance().getWorld(world).setGuildAndRank(notifications.get(b), 0, 5, exceptionId);
+                        } else if (bcop == BCOp.EMBLEMCHANGE) {
+                            Server.getInstance().getWorld(world).changeEmblem(this.id, notifications.get(b), new GuildSummary(this));
+                        } else {
+                            Server.getInstance().getWorld(world).sendPacket(notifications.get(b), packet, exceptionId);
                         }
                     }
-                } catch (Exception re) {
-                    log.error("Failed to contact channel(s) for broadcast.", re);
                 }
+            } catch (Exception re) {
+                log.error("Failed to contact channel(s) for broadcast.", re);
             }
-        } finally {
-            }
+        }
     }
 
     public void guildMessage(Packet serverNotice) {
-        try {
-            for (GuildCharacter mgc : members) {
-                for (Channel cs : Server.getInstance().getChannelsFromWorld(world)) {
-                    if (cs.getPlayerStorage().getCharacterById(mgc.getId()) != null) {
-                        cs.getPlayerStorage().getCharacterById(mgc.getId()).sendPacket(serverNotice);
-                        break;
-                    }
+        for (GuildCharacter mgc : members) {
+            for (Channel cs : Server.getInstance().getChannelsFromWorld(world)) {
+                if (cs.getPlayerStorage().getCharacterById(mgc.getId()) != null) {
+                    cs.getPlayerStorage().getCharacterById(mgc.getId()).sendPacket(serverNotice);
+                    break;
                 }
             }
-        } finally {
-            }
+        }
     }
 
     public void dropMessage(String message) {
@@ -368,14 +353,11 @@ public class Guild {
     }
 
     public void dropMessage(int type, String message) {
-        try {
-            for (GuildCharacter mgc : members) {
-                if (mgc.getCharacter() != null) {
-                    mgc.getCharacter().dropMessage(type, message);
-                }
+        for (GuildCharacter mgc : members) {
+            if (mgc.getCharacter() != null) {
+                mgc.getCharacter().dropMessage(type, message);
             }
-        } finally {
-            }
+        }
     }
 
     public void broadcastMessage(Packet packet) {
@@ -383,31 +365,25 @@ public class Guild {
     }
 
     public final void setOnline(int cid, boolean online, int channel) {
-        try {
-            boolean bBroadcast = true;
-            for (GuildCharacter mgc : members) {
-                if (mgc.getId() == cid) {
-                    if (mgc.isOnline() && online) {
-                        bBroadcast = false;
-                    }
-                    mgc.setOnline(online);
-                    mgc.setChannel(channel);
-                    break;
+        boolean bBroadcast = true;
+        for (GuildCharacter mgc : members) {
+            if (mgc.getId() == cid) {
+                if (mgc.isOnline() && online) {
+                    bBroadcast = false;
                 }
+                mgc.setOnline(online);
+                mgc.setChannel(channel);
+                break;
             }
-            if (bBroadcast) {
-                this.broadcast(GuildPackets.guildMemberOnline(id, cid, online), cid);
-            }
-            bDirty = true;
-        } finally {
-            }
+        }
+        if (bBroadcast) {
+            this.broadcast(GuildPackets.guildMemberOnline(id, cid, online), cid);
+        }
+        bDirty = true;
     }
 
     public void guildChat(String name, int cid, String message) {
-        try {
-            this.broadcast(PacketCreator.multiChat(name, message, 2), cid);
-        } finally {
-            }
+        this.broadcast(PacketCreator.multiChat(name, message, 2), cid);
     }
 
     public String getRankTitle(int rank) {
@@ -457,73 +433,61 @@ public class Guild {
     }
 
     public int addGuildMember(GuildCharacter mgc, Character chr) {
-        try {
-            if (members.size() >= capacity) {
-                return 0;
+        if (members.size() >= capacity) {
+            return 0;
+        }
+        for (int i = members.size() - 1; i >= 0; i--) {
+            if (members.get(i).getGuildRank() < 5 || members.get(i).getName().compareTo(mgc.getName()) < 0) {
+                mgc.setCharacter(chr);
+                members.add(i + 1, mgc);
+                bDirty = true;
+                break;
             }
-            for (int i = members.size() - 1; i >= 0; i--) {
-                if (members.get(i).getGuildRank() < 5 || members.get(i).getName().compareTo(mgc.getName()) < 0) {
-                    mgc.setCharacter(chr);
-                    members.add(i + 1, mgc);
-                    bDirty = true;
-                    break;
-                }
-            }
+        }
 
-            this.broadcast(GuildPackets.newGuildMember(mgc));
-            return 1;
-        } finally {
-            }
+        this.broadcast(GuildPackets.newGuildMember(mgc));
+        return 1;
     }
 
     public void leaveGuild(GuildCharacter mgc) {
-        try {
-            this.broadcast(GuildPackets.memberLeft(mgc, false));
-            members.remove(mgc);
-            bDirty = true;
-        } finally {
-            }
+        this.broadcast(GuildPackets.memberLeft(mgc, false));
+        members.remove(mgc);
+        bDirty = true;
     }
 
     public void expelMember(GuildCharacter initiator, String name, int cid, NoteService noteService) {
-        try {
-            java.util.Iterator<GuildCharacter> itr = members.iterator();
-            GuildCharacter mgc;
-            while (itr.hasNext()) {
-                mgc = itr.next();
-                if (mgc.getId() == cid && initiator.getGuildRank() < mgc.getGuildRank()) {
-                    this.broadcast(GuildPackets.memberLeft(mgc, true));
-                    itr.remove();
-                    bDirty = true;
-                    try {
-                        if (mgc.isOnline()) {
-                            Server.getInstance().getWorld(mgc.getWorld()).setGuildAndRank(cid, 0, 5);
-                        } else {
-                            noteService.sendNormal("You have been expelled from the guild.", initiator.getName(), mgc.getName());
-                            Server.getInstance().getWorld(mgc.getWorld()).setOfflineGuildStatus((short) 0, (byte) 5, cid);
-                        }
-                    } catch (Exception re) {
-                        re.printStackTrace();
-                        return;
+        java.util.Iterator<GuildCharacter> itr = members.iterator();
+        GuildCharacter mgc;
+        while (itr.hasNext()) {
+            mgc = itr.next();
+            if (mgc.getId() == cid && initiator.getGuildRank() < mgc.getGuildRank()) {
+                this.broadcast(GuildPackets.memberLeft(mgc, true));
+                itr.remove();
+                bDirty = true;
+                try {
+                    if (mgc.isOnline()) {
+                        Server.getInstance().getWorld(mgc.getWorld()).setGuildAndRank(cid, 0, 5);
+                    } else {
+                        noteService.sendNormal("You have been expelled from the guild.", initiator.getName(), mgc.getName());
+                        Server.getInstance().getWorld(mgc.getWorld()).setOfflineGuildStatus((short) 0, (byte) 5, cid);
                     }
+                } catch (Exception re) {
+                    re.printStackTrace();
                     return;
                 }
+                return;
             }
-            log.warn("Unable to find member with name {} and id {}", name, cid);
-        } finally {
-            }
+        }
+        log.warn("Unable to find member with name {} and id {}", name, cid);
     }
 
     public void changeRank(int cid, int newRank) {
-        try {
-            for (GuildCharacter mgc : members) {
-                if (cid == mgc.getId()) {
-                    changeRank(mgc, newRank);
-                    return;
-                }
+        for (GuildCharacter mgc : members) {
+            if (cid == mgc.getId()) {
+                changeRank(mgc, newRank);
+                return;
             }
-        } finally {
-            }
+        }
     }
 
     public void changeRank(GuildCharacter mgc, int newRank) {
@@ -540,34 +504,25 @@ public class Guild {
             return;
         }
 
-        try {
-            this.broadcast(GuildPackets.changeRank(mgc));
-        } finally {
-            }
+        this.broadcast(GuildPackets.changeRank(mgc));
     }
 
     public void setGuildNotice(String notice) {
         this.notice = notice;
         this.writeToDB(false);
 
-        try {
-            this.broadcast(GuildPackets.guildNotice(this.id, notice));
-        } finally {
-            }
+        this.broadcast(GuildPackets.guildNotice(this.id, notice));
     }
 
     public void memberLevelJobUpdate(GuildCharacter mgc) {
-        try {
-            for (GuildCharacter member : members) {
-                if (mgc.equals(member)) {
-                    member.setJobId(mgc.getJobId());
-                    member.setLevel(mgc.getLevel());
-                    this.broadcast(GuildPackets.guildMemberLevelJobUpdate(mgc));
-                    break;
-                }
+        for (GuildCharacter member : members) {
+            if (mgc.equals(member)) {
+                member.setJobId(mgc.getJobId());
+                member.setLevel(mgc.getLevel());
+                this.broadcast(GuildPackets.guildMemberLevelJobUpdate(mgc));
+                break;
             }
-        } finally {
-            }
+        }
     }
 
     @Override
@@ -589,10 +544,7 @@ public class Guild {
     public void changeRankTitle(String[] ranks) {
         System.arraycopy(ranks, 0, rankTitles, 0, 5);
 
-        try {
-            this.broadcast(GuildPackets.rankTitleChange(this.id, ranks));
-        } finally {
-            }
+        this.broadcast(GuildPackets.rankTitleChange(this.id, ranks));
 
         this.writeToDB(false);
     }
@@ -604,11 +556,8 @@ public class Guild {
             }
         }
 
-        try {
-            this.writeToDB(true);
-            this.broadcast(null, -1, BCOp.DISBAND);
-        } finally {
-            }
+        this.writeToDB(true);
+        this.broadcast(null, -1, BCOp.DISBAND);
     }
 
     public void setGuildEmblem(short bg, byte bgcolor, short logo, byte logocolor) {
@@ -618,22 +567,16 @@ public class Guild {
         this.logoColor = logocolor;
         this.writeToDB(false);
 
-        try {
-            this.broadcast(null, -1, BCOp.EMBLEMCHANGE);
-        } finally {
-            }
+        this.broadcast(null, -1, BCOp.EMBLEMCHANGE);
     }
 
     public GuildCharacter getMGC(int cid) {
-        try {
-            for (GuildCharacter mgc : members) {
-                if (mgc.getId() == cid) {
-                    return mgc;
-                }
+        for (GuildCharacter mgc : members) {
+            if (mgc.getId() == cid) {
+                return mgc;
             }
-            return null;
-        } finally {
-            }
+        }
+        return null;
     }
 
     public boolean increaseCapacity() {
@@ -643,10 +586,7 @@ public class Guild {
         capacity += 5;
         this.writeToDB(false);
 
-        try {
-            this.broadcast(GuildPackets.guildCapacityChange(this.id, this.capacity));
-        } finally {
-            }
+        this.broadcast(GuildPackets.guildCapacityChange(this.id, this.capacity));
 
         return true;
     }
@@ -747,14 +687,11 @@ public class Guild {
 
     public void resetAllianceGuildPlayersRank() {
         try {
-            try {
-                for (GuildCharacter mgc : members) {
-                    if (mgc.isOnline()) {
-                        mgc.setAllianceRank(5);
-                    }
+            for (GuildCharacter mgc : members) {
+                if (mgc.isOnline()) {
+                    mgc.setAllianceRank(5);
                 }
-            } finally {
-                }
+            }
 
             try (Connection con = DatabaseConnection.getConnection();
                  PreparedStatement ps = con.prepareStatement("UPDATE characters SET allianceRank = ? WHERE guildid = ?")) {

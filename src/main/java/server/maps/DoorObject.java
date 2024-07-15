@@ -61,25 +61,16 @@ public class DoorObject extends AbstractMapObject {
     }
 
     public void update(int townPortalId, Point toPosition) {
-        try {
-            linkedPortalId = townPortalId;
-            linkedPos = toPosition;
-        } finally {
-            }
+        linkedPortalId = townPortalId;
+        linkedPos = toPosition;
     }
 
     private int getLinkedPortalId() {
-        try {
-            return linkedPortalId;
-        } finally {
-            }
+        return linkedPortalId;
     }
 
     private Point getLinkedPortalPosition() {
-        try {
-            return linkedPos;
-        } finally {
-            }
+        return linkedPos;
     }
 
     public void warp(final Character chr) {

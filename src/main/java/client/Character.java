@@ -615,10 +615,7 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void addCooldown(int skillId, long startTime, long length) {
-        try {
-            this.coolDowns.put(Integer.valueOf(skillId), new CooldownValueHolder(skillId, startTime, length));
-        } finally {
-            }
+        this.coolDowns.put(Integer.valueOf(skillId), new CooldownValueHolder(skillId, startTime, length));
     }
 
     public void addCrushRing(Ring r) {
@@ -713,15 +710,12 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void addPet(Pet pet) {
-        try {
-            for (int i = 0; i < 3; i++) {
-                if (pets[i] == null) {
-                    pets[i] = pet;
-                    return;
-                }
+        for (int i = 0; i < 3; i++) {
+            if (pets[i] == null) {
+                pets[i] = pet;
+                return;
             }
-        } finally {
-            }
+        }
     }
 
     public void addSummon(int id, Summon summon) {
@@ -1219,21 +1213,18 @@ public class Character extends AbstractCharacterObject {
         }
         */
 
-        try {
-            addMaxMPMaxHP(addhp, addmp, true);
-            recalcLocalStats();
+        addMaxMPMaxHP(addhp, addmp, true);
+        recalcLocalStats();
 
-            List<Pair<Stat, Integer>> statup = new ArrayList<>(7);
-            statup.add(new Pair<>(Stat.HP, hp));
-            statup.add(new Pair<>(Stat.MP, mp));
-            statup.add(new Pair<>(Stat.MAXHP, clientmaxhp));
-            statup.add(new Pair<>(Stat.MAXMP, clientmaxmp));
-            statup.add(new Pair<>(Stat.AVAILABLEAP, remainingAp));
-            statup.add(new Pair<>(Stat.AVAILABLESP, remainingSp[GameConstants.getSkillBook(job.getId())]));
-            statup.add(new Pair<>(Stat.JOB, job.getId()));
-            sendPacket(PacketCreator.updatePlayerStats(statup, true, this));
-        } finally {
-            }
+        List<Pair<Stat, Integer>> statup = new ArrayList<>(7);
+        statup.add(new Pair<>(Stat.HP, hp));
+        statup.add(new Pair<>(Stat.MP, mp));
+        statup.add(new Pair<>(Stat.MAXHP, clientmaxhp));
+        statup.add(new Pair<>(Stat.MAXMP, clientmaxmp));
+        statup.add(new Pair<>(Stat.AVAILABLEAP, remainingAp));
+        statup.add(new Pair<>(Stat.AVAILABLESP, remainingSp[GameConstants.getSkillBook(job.getId())]));
+        statup.add(new Pair<>(Stat.JOB, job.getId()));
+        sendPacket(PacketCreator.updatePlayerStats(statup, true, this));
 
         setMPC(new PartyCharacter(this));
         silentPartyUpdate();
@@ -1524,20 +1515,17 @@ public class Character extends AbstractCharacterObject {
         int thisMapid = mapid;
         int returnMapid = client.getChannelServer().getMapFactory().getMap(thisMapid).getReturnMapId();
 
-        try {
-            for (Entry<BuffStat, BuffStatValueHolder> mbs : effects.entrySet()) {
-                if (mbs.getKey() == BuffStat.MAP_PROTECTION) {
-                    byte value = (byte) mbs.getValue().value;
+        for (Entry<BuffStat, BuffStatValueHolder> mbs : effects.entrySet()) {
+            if (mbs.getKey() == BuffStat.MAP_PROTECTION) {
+                byte value = (byte) mbs.getValue().value;
 
-                    if (value == 1 && ((returnMapid == MapId.EL_NATH && thisMapid != MapId.ORBIS_TOWER_BOTTOM) || returnMapid == MapId.INTERNET_CAFE)) {
-                        return true;        //protection from cold
-                    } else {
-                        return value == 2 && (returnMapid == MapId.AQUARIUM || thisMapid == MapId.ORBIS_TOWER_BOTTOM);        //breathing underwater
-                    }
+                if (value == 1 && ((returnMapid == MapId.EL_NATH && thisMapid != MapId.ORBIS_TOWER_BOTTOM) || returnMapid == MapId.INTERNET_CAFE)) {
+                    return true;        //protection from cold
+                } else {
+                    return value == 2 && (returnMapid == MapId.AQUARIUM || thisMapid == MapId.ORBIS_TOWER_BOTTOM);        //breathing underwater
                 }
             }
-        } finally {
-            }
+        }
 
         for (Item it : this.getInventory(InventoryType.EQUIPPED).list()) {
             if ((it.getFlag() & ItemConstants.COLD) == ItemConstants.COLD &&
@@ -1552,16 +1540,13 @@ public class Character extends AbstractCharacterObject {
     public List<Integer> getLastVisitedMapids() {
         List<Integer> lastVisited = new ArrayList<>(5);
 
-        try {
-            for (WeakReference<MapleMap> lv : lastVisitedMaps) {
-                MapleMap lvm = lv.get();
+        for (WeakReference<MapleMap> lv : lastVisitedMaps) {
+            MapleMap lvm = lv.get();
 
-                if (lvm != null) {
-                    lastVisited.add(lvm.getId());
-                }
+            if (lvm != null) {
+                lastVisited.add(lvm.getId());
             }
-        } finally {
-            }
+        }
 
         return lastVisited;
     }
@@ -1569,10 +1554,7 @@ public class Character extends AbstractCharacterObject {
     public void partyOperationUpdate(Party party, List<Character> exPartyMembers) {
         List<WeakReference<MapleMap>> mapids;
 
-        try {
-            mapids = new LinkedList<>(lastVisitedMaps);
-        } finally {
-            }
+        mapids = new LinkedList<>(lastVisitedMaps);
 
         List<Character> partyMembers = new LinkedList<>();
         for (Character mc : (exPartyMembers != null) ? exPartyMembers : this.getPartyMembersOnline()) {
@@ -1713,22 +1695,19 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void visitMap(MapleMap map) {
-        try {
-            int idx = getVisitedMapIndex(map);
+        int idx = getVisitedMapIndex(map);
 
-            if (idx == -1) {
-                if (lastVisitedMaps.size() == YamlConfig.config.server.MAP_VISITED_SIZE) {
-                    lastVisitedMaps.remove(0);
-                }
-            } else {
-                WeakReference<MapleMap> mapRef = lastVisitedMaps.remove(idx);
-                lastVisitedMaps.add(mapRef);
-                return;
+        if (idx == -1) {
+            if (lastVisitedMaps.size() == YamlConfig.config.server.MAP_VISITED_SIZE) {
+                lastVisitedMaps.remove(0);
             }
+        } else {
+            WeakReference<MapleMap> mapRef = lastVisitedMaps.remove(idx);
+            lastVisitedMaps.add(mapRef);
+            return;
+        }
 
-            lastVisitedMaps.add(new WeakReference<>(map));
-        } finally {
-            }
+        lastVisitedMaps.add(new WeakReference<>(map));
     }
 
     public void setOwnedMap(MapleMap map) {
@@ -1778,14 +1757,11 @@ public class Character extends AbstractCharacterObject {
             map.addPlayer(this);
             visitMap(map);
 
-            try {
-                if (party != null) {
-                    mpc.setMapId(to.getId());
-                    sendPacket(PacketCreator.updateParty(client.getChannel(), party, PartyOperation.SILENT_UPDATE, null));
-                    updatePartyMemberHPInternal();
-                }
-            } finally {
-                }
+            if (party != null) {
+                mpc.setMapId(to.getId());
+                sendPacket(PacketCreator.updateParty(client.getChannel(), party, PartyOperation.SILENT_UPDATE, null));
+                updatePartyMemberHPInternal();
+            }
             if (Character.this.getParty() != null) {
                 Character.this.getParty().setEnemy(k);
             }
@@ -1896,44 +1872,29 @@ public class Character extends AbstractCharacterObject {
 
     public void controlMonster(Monster monster) {
         if (cpnLock.tryLock()) {
-            try {
-                controlled.add(monster);
-            } finally {
-                }
+            controlled.add(monster);
         }
     }
 
     public void stopControllingMonster(Monster monster) {
         if (cpnLock.tryLock()) {
-            try {
-                controlled.remove(monster);
-            } finally {
-                }
+            controlled.remove(monster);
         }
     }
 
     public int getNumControlledMonsters() {
-        try {
-            return controlled.size();
-        } finally {
-            }
+        return controlled.size();
     }
 
     public Collection<Monster> getControlledMonsters() {
-        try {
-            return new ArrayList<>(controlled);
-        } finally {
-            }
+        return new ArrayList<>(controlled);
     }
 
     public void releaseControlledMonsters() {
         Collection<Monster> controlledMonsters;
 
-        try {
-            controlledMonsters = new ArrayList<>(controlled);
-            controlled.clear();
-        } finally {
-            }
+        controlledMonsters = new ArrayList<>(controlled);
+        controlled.clear();
 
         for (Monster monster : controlledMonsters) {
             monster.aggroRedirectController();
@@ -2431,13 +2392,10 @@ public class Character extends AbstractCharacterObject {
     }
 
     private void stopChairTask() {
-        try {
-            if (chairRecoveryTask != null) {
-                chairRecoveryTask.cancel(false);
-                chairRecoveryTask = null;
-            }
-        } finally {
-            }
+        if (chairRecoveryTask != null) {
+            chairRecoveryTask.cancel(false);
+            chairRecoveryTask = null;
+        }
     }
 
     private static Pair<Integer, Pair<Integer, Integer>> getChairTaskIntervalRate(int maxhp, int maxmp) {
@@ -2476,21 +2434,15 @@ public class Character extends AbstractCharacterObject {
     }
 
     private void updateChairHealStats() {
-        try {
-            if (localchairrate != -1) {
-                return;
-            }
-        } finally {
-            }
+        if (localchairrate != -1) {
+            return;
+        }
 
-        try {
-            Pair<Integer, Pair<Integer, Integer>> p = getChairTaskIntervalRate(localmaxhp, localmaxmp);
+        Pair<Integer, Pair<Integer, Integer>> p = getChairTaskIntervalRate(localmaxhp, localmaxmp);
 
-            localchairrate = p.getLeft();
-            localchairhp = p.getRight().getLeft();
-            localchairmp = p.getRight().getRight();
-        } finally {
-            }
+        localchairrate = p.getLeft();
+        localchairhp = p.getRight().getLeft();
+        localchairmp = p.getRight().getRight();
     }
 
     private void startChairTask() {
@@ -2499,55 +2451,43 @@ public class Character extends AbstractCharacterObject {
         }
 
         int healInterval;
-        try {
-            updateChairHealStats();
-            healInterval = localchairrate;
-        } finally {
-            }
+        updateChairHealStats();
+        healInterval = localchairrate;
 
-        try {
-            if (chairRecoveryTask != null) {
-                stopChairTask();
-            }
+        if (chairRecoveryTask != null) {
+            stopChairTask();
+        }
 
-            chairRecoveryTask = TimerManager.getInstance().register(new Runnable() {
-                @Override
-                public void run() {
-                    updateChairHealStats();
-                    final int healHP = localchairhp;
-                    final int healMP = localchairmp;
+        chairRecoveryTask = TimerManager.getInstance().register(new Runnable() {
+            @Override
+            public void run() {
+                updateChairHealStats();
+                final int healHP = localchairhp;
+                final int healMP = localchairmp;
 
-                    if (Character.this.getHp() < localmaxhp) {
-                        byte recHP = (byte) (healHP / YamlConfig.config.server.CHAIR_EXTRA_HEAL_MULTIPLIER);
+                if (Character.this.getHp() < localmaxhp) {
+                    byte recHP = (byte) (healHP / YamlConfig.config.server.CHAIR_EXTRA_HEAL_MULTIPLIER);
 
-                        sendPacket(PacketCreator.showOwnRecovery(recHP));
-                        getMap().broadcastMessage(Character.this, PacketCreator.showRecovery(id, recHP), false);
-                    } else if (Character.this.getMp() >= localmaxmp) {
-                        stopChairTask();    // optimizing schedule management when player is already with full pool.
-                    }
-
-                    addMPHP(healHP, healMP);
+                    sendPacket(PacketCreator.showOwnRecovery(recHP));
+                    getMap().broadcastMessage(Character.this, PacketCreator.showRecovery(id, recHP), false);
+                } else if (Character.this.getMp() >= localmaxmp) {
+                    stopChairTask();    // optimizing schedule management when player is already with full pool.
                 }
-            }, healInterval, healInterval);
-        } finally {
+
+                addMPHP(healHP, healMP);
             }
+        }, healInterval, healInterval);
     }
 
     private void stopExtraTask() {
-        try {
-            if (extraRecoveryTask != null) {
-                extraRecoveryTask.cancel(false);
-                extraRecoveryTask = null;
-            }
-        } finally {
-            }
+        if (extraRecoveryTask != null) {
+            extraRecoveryTask.cancel(false);
+            extraRecoveryTask = null;
+        }
     }
 
     private void startExtraTask(final byte healHP, final byte healMP, final short healInterval) {
-        try {
-            startExtraTaskInternal(healHP, healMP, healInterval);
-        } finally {
-            }
+        startExtraTaskInternal(healHP, healMP, healInterval);
     }
 
     private void startExtraTaskInternal(final byte healHP, final byte healMP, final short healInterval) {
@@ -2598,62 +2538,47 @@ public class Character extends AbstractCharacterObject {
     }
 
     public final boolean hasDisease(final Disease dis) {
-        try {
-            return diseases.containsKey(dis);
-        } finally {
-            }
+        return diseases.containsKey(dis);
     }
 
     public final int getDiseasesSize() {
-        try {
-            return diseases.size();
-        } finally {
-            }
+        return diseases.size();
     }
 
     public Map<Disease, Pair<Long, MobSkill>> getAllDiseases() {
-        try {
-            long curtime = Server.getInstance().getCurrentTime();
-            Map<Disease, Pair<Long, MobSkill>> ret = new LinkedHashMap<>();
+        long curtime = Server.getInstance().getCurrentTime();
+        Map<Disease, Pair<Long, MobSkill>> ret = new LinkedHashMap<>();
 
-            for (Entry<Disease, Long> de : diseaseExpires.entrySet()) {
-                Pair<DiseaseValueHolder, MobSkill> dee = diseases.get(de.getKey());
-                DiseaseValueHolder mdvh = dee.getLeft();
+        for (Entry<Disease, Long> de : diseaseExpires.entrySet()) {
+            Pair<DiseaseValueHolder, MobSkill> dee = diseases.get(de.getKey());
+            DiseaseValueHolder mdvh = dee.getLeft();
 
-                ret.put(de.getKey(), new Pair<>(mdvh.length - (curtime - mdvh.startTime), dee.getRight()));
-            }
+            ret.put(de.getKey(), new Pair<>(mdvh.length - (curtime - mdvh.startTime), dee.getRight()));
+        }
 
-            return ret;
-        } finally {
-            }
+        return ret;
     }
 
     public void silentApplyDiseases(Map<Disease, Pair<Long, MobSkill>> diseaseMap) {
-        try {
-            long curTime = Server.getInstance().getCurrentTime();
+        long curTime = Server.getInstance().getCurrentTime();
 
-            for (Entry<Disease, Pair<Long, MobSkill>> di : diseaseMap.entrySet()) {
-                long expTime = curTime + di.getValue().getLeft();
+        for (Entry<Disease, Pair<Long, MobSkill>> di : diseaseMap.entrySet()) {
+            long expTime = curTime + di.getValue().getLeft();
 
-                diseaseExpires.put(di.getKey(), expTime);
-                diseases.put(di.getKey(), new Pair<>(new DiseaseValueHolder(curTime, di.getValue().getLeft()), di.getValue().getRight()));
-            }
-        } finally {
-            }
+            diseaseExpires.put(di.getKey(), expTime);
+            diseases.put(di.getKey(), new Pair<>(new DiseaseValueHolder(curTime, di.getValue().getLeft()), di.getValue().getRight()));
+        }
     }
 
     public void announceDiseases() {
         Set<Entry<Disease, Pair<DiseaseValueHolder, MobSkill>>> chrDiseases;
 
-        try {
-            // Poison damage visibility and diseases status visibility, extended through map transitions thanks to Ronan
-            if (!this.isLoggedinWorld()) {
-                return;
-            }
+        // Poison damage visibility and diseases status visibility, extended through map transitions thanks to Ronan
+        if (!this.isLoggedinWorld()) {
+            return;
+        }
 
-            chrDiseases = new LinkedHashSet<>(diseases.entrySet());
-        } finally {
-            }
+        chrDiseases = new LinkedHashSet<>(diseases.entrySet());
 
         for (Entry<Disease, Pair<DiseaseValueHolder, MobSkill>> di : chrDiseases) {
             Disease disease = di.getKey();
@@ -2694,12 +2619,9 @@ public class Character extends AbstractCharacterObject {
                 }
             }
 
-            try {
-                long curTime = Server.getInstance().getCurrentTime();
-                diseaseExpires.put(disease, curTime + skill.getDuration());
-                diseases.put(disease, new Pair<>(new DiseaseValueHolder(curTime, skill.getDuration()), skill));
-            } finally {
-                }
+            long curTime = Server.getInstance().getCurrentTime();
+            diseaseExpires.put(disease, curTime + skill.getDuration());
+            diseases.put(disease, new Pair<>(new DiseaseValueHolder(curTime, skill.getDuration()), skill));
 
             if (disease == Disease.SEDUCE && chair.get() < 0) {
                 sitChair(-1);
@@ -2727,11 +2649,8 @@ public class Character extends AbstractCharacterObject {
                 map.broadcastMessage(this, PacketCreator.cancelForeignSlowDebuff(id), false);
             }
 
-            try {
-                diseases.remove(debuff);
-                diseaseExpires.remove(debuff);
-            } finally {
-                }
+            diseases.remove(debuff);
+            diseaseExpires.remove(debuff);
         }
     }
 
@@ -2752,11 +2671,8 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void cancelAllDebuffs() {
-        try {
-            diseases.clear();
-            diseaseExpires.clear();
-        } finally {
-            }
+        diseases.clear();
+        diseaseExpires.clear();
     }
 
     public void dispelSkill(int skillid) {
@@ -2842,16 +2758,13 @@ public class Character extends AbstractCharacterObject {
                 public void run() {
                     Set<Disease> toExpire = new LinkedHashSet<>();
 
-                    try {
-                        long curTime = Server.getInstance().getCurrentTime();
+                    long curTime = Server.getInstance().getCurrentTime();
 
-                        for (Entry<Disease, Long> de : diseaseExpires.entrySet()) {
-                            if (de.getValue() < curTime) {
-                                toExpire.add(de.getKey());
-                            }
+                    for (Entry<Disease, Long> de : diseaseExpires.entrySet()) {
+                        if (de.getValue() < curTime) {
+                            toExpire.add(de.getKey());
                         }
-                    } finally {
-                        }
+                    }
 
                     for (Disease d : toExpire) {
                         dispelDebuff(d);
@@ -2876,17 +2789,14 @@ public class Character extends AbstractCharacterObject {
                     Set<Entry<Integer, Long>> es;
                     List<BuffStatValueHolder> toCancel = new ArrayList<>();
 
-                    try {
-                        es = new LinkedHashSet<>(buffExpires.entrySet());
+                    es = new LinkedHashSet<>(buffExpires.entrySet());
 
-                        long curTime = Server.getInstance().getCurrentTime();
-                        for (Entry<Integer, Long> bel : es) {
-                            if (curTime >= bel.getValue()) {
-                                toCancel.add(buffEffects.get(bel.getKey()).entrySet().iterator().next().getValue());    //rofl
-                            }
+                    long curTime = Server.getInstance().getCurrentTime();
+                    for (Entry<Integer, Long> bel : es) {
+                        if (curTime >= bel.getValue()) {
+                            toCancel.add(buffEffects.get(bel.getKey()).entrySet().iterator().next().getValue());    //rofl
                         }
-                    } finally {
-                        }
+                    }
 
                     for (BuffStatValueHolder mbsvh : toCancel) {
                         cancelEffect(mbsvh.effect, false, mbsvh.startTime);
@@ -2910,10 +2820,7 @@ public class Character extends AbstractCharacterObject {
                 public void run() {
                     Set<Entry<Integer, CooldownValueHolder>> es;
 
-                    try {
-                        es = new LinkedHashSet<>(coolDowns.entrySet());
-                    } finally {
-                        }
+                    es = new LinkedHashSet<>(coolDowns.entrySet());
 
                     long curTime = Server.getInstance().getCurrentTime();
                     for (Entry<Integer, CooldownValueHolder> bel : es) {
@@ -3156,18 +3063,15 @@ public class Character extends AbstractCharacterObject {
     }
 
     private Pair<Integer, Integer> applyFame(int delta) {
-        try {
-            int newFame = fame + delta;
-            if (newFame < -30000) {
-                delta = -(30000 + fame);
-            } else if (newFame > 30000) {
-                delta = 30000 - fame;
-            }
+        int newFame = fame + delta;
+        if (newFame < -30000) {
+            delta = -(30000 + fame);
+        } else if (newFame > 30000) {
+            delta = 30000 - fame;
+        }
 
-            fame += delta;
-            return new Pair<>(fame, delta);
-        } finally {
-            }
+        fame += delta;
+        return new Pair<>(fame, delta);
     }
 
     public void gainFame(int delta) {
@@ -3209,16 +3113,13 @@ public class Character extends AbstractCharacterObject {
 
     public void gainMeso(int gain, boolean show, boolean enableActions, boolean inChat) {
         long nextMeso;
-        try {
-            nextMeso = (long) meso.get() + gain;  // thanks Thora for pointing integer overflow here
-            if (nextMeso > Integer.MAX_VALUE) {
-                gain -= (nextMeso - Integer.MAX_VALUE);
-            } else if (nextMeso < 0) {
-                gain = -meso.get();
-            }
-            nextMeso = meso.addAndGet(gain);
-        } finally {
-            }
+        nextMeso = (long) meso.get() + gain;  // thanks Thora for pointing integer overflow here
+        if (nextMeso > Integer.MAX_VALUE) {
+            gain -= (nextMeso - Integer.MAX_VALUE);
+        } else if (nextMeso < 0) {
+            gain = -meso.get();
+        }
+        nextMeso = meso.addAndGet(gain);
 
         if (gain != 0) {
             updateSingleStat(Stat.MESO, (int) nextMeso, enableActions);
@@ -3241,12 +3142,9 @@ public class Character extends AbstractCharacterObject {
     public List<PlayerCoolDownValueHolder> getAllCooldowns() {
         List<PlayerCoolDownValueHolder> ret = new ArrayList<>();
 
-        try {
-            for (CooldownValueHolder mcdvh : coolDowns.values()) {
-                ret.add(new PlayerCoolDownValueHolder(mcdvh.skillId, mcdvh.startTime, mcdvh.length));
-            }
-        } finally {
-            }
+        for (CooldownValueHolder mcdvh : coolDowns.values()) {
+            ret.add(new PlayerCoolDownValueHolder(mcdvh.skillId, mcdvh.startTime, mcdvh.length));
+        }
 
         return ret;
     }
@@ -3310,114 +3208,84 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Long getBuffedStarttime(BuffStat effect) {
-        try {
-            BuffStatValueHolder mbsvh = effects.get(effect);
-            if (mbsvh == null) {
-                return null;
-            }
-            return Long.valueOf(mbsvh.startTime);
-        } finally {
-            }
+        BuffStatValueHolder mbsvh = effects.get(effect);
+        if (mbsvh == null) {
+            return null;
+        }
+        return Long.valueOf(mbsvh.startTime);
     }
 
     public Integer getBuffedValue(BuffStat effect) {
-        try {
-            BuffStatValueHolder mbsvh = effects.get(effect);
-            if (mbsvh == null) {
-                return null;
-            }
-            return Integer.valueOf(mbsvh.value);
-        } finally {
-            }
+        BuffStatValueHolder mbsvh = effects.get(effect);
+        if (mbsvh == null) {
+            return null;
+        }
+        return Integer.valueOf(mbsvh.value);
     }
 
     public int getBuffSource(BuffStat stat) {
-        try {
-            BuffStatValueHolder mbsvh = effects.get(stat);
-            if (mbsvh == null) {
-                return -1;
-            }
-            return mbsvh.effect.getSourceId();
-        } finally {
-            }
+        BuffStatValueHolder mbsvh = effects.get(stat);
+        if (mbsvh == null) {
+            return -1;
+        }
+        return mbsvh.effect.getSourceId();
     }
 
     public StatEffect getBuffEffect(BuffStat stat) {
-        try {
-            BuffStatValueHolder mbsvh = effects.get(stat);
-            if (mbsvh == null) {
-                return null;
-            } else {
-                return mbsvh.effect;
-            }
-        } finally {
-            }
+        BuffStatValueHolder mbsvh = effects.get(stat);
+        if (mbsvh == null) {
+            return null;
+        } else {
+            return mbsvh.effect;
+        }
     }
 
     public Set<Integer> getAvailableBuffs() {
-        try {
-            return new LinkedHashSet<>(buffEffects.keySet());
-        } finally {
-            }
+        return new LinkedHashSet<>(buffEffects.keySet());
     }
 
     private List<BuffStatValueHolder> getAllStatups() {
-        try {
-            List<BuffStatValueHolder> ret = new ArrayList<>();
-            for (Map<BuffStat, BuffStatValueHolder> bel : buffEffects.values()) {
-                for (BuffStatValueHolder mbsvh : bel.values()) {
-                    ret.add(mbsvh);
-                }
+        List<BuffStatValueHolder> ret = new ArrayList<>();
+        for (Map<BuffStat, BuffStatValueHolder> bel : buffEffects.values()) {
+            for (BuffStatValueHolder mbsvh : bel.values()) {
+                ret.add(mbsvh);
             }
-            return ret;
-        } finally {
-            }
+        }
+        return ret;
     }
 
     public List<PlayerBuffValueHolder> getAllBuffs() {  // buff values will be stored in an arbitrary order
-        try {
-            long curtime = Server.getInstance().getCurrentTime();
+        long curtime = Server.getInstance().getCurrentTime();
 
-            Map<Integer, PlayerBuffValueHolder> ret = new LinkedHashMap<>();
-            for (Map<BuffStat, BuffStatValueHolder> bel : buffEffects.values()) {
-                for (BuffStatValueHolder mbsvh : bel.values()) {
-                    int srcid = mbsvh.effect.getBuffSourceId();
-                    if (!ret.containsKey(srcid)) {
-                        ret.put(srcid, new PlayerBuffValueHolder((int) (curtime - mbsvh.startTime), mbsvh.effect));
-                    }
+        Map<Integer, PlayerBuffValueHolder> ret = new LinkedHashMap<>();
+        for (Map<BuffStat, BuffStatValueHolder> bel : buffEffects.values()) {
+            for (BuffStatValueHolder mbsvh : bel.values()) {
+                int srcid = mbsvh.effect.getBuffSourceId();
+                if (!ret.containsKey(srcid)) {
+                    ret.put(srcid, new PlayerBuffValueHolder((int) (curtime - mbsvh.startTime), mbsvh.effect));
                 }
             }
-            return new ArrayList<>(ret.values());
-        } finally {
-            }
+        }
+        return new ArrayList<>(ret.values());
     }
 
     public List<Pair<BuffStat, Integer>> getAllActiveStatups() {
-        try {
-            List<Pair<BuffStat, Integer>> ret = new ArrayList<>();
-            for (BuffStat mbs : effects.keySet()) {
-                BuffStatValueHolder mbsvh = effects.get(mbs);
-                ret.add(new Pair<>(mbs, mbsvh.value));
-            }
-            return ret;
-        } finally {
-            }
+        List<Pair<BuffStat, Integer>> ret = new ArrayList<>();
+        for (BuffStat mbs : effects.keySet()) {
+            BuffStatValueHolder mbsvh = effects.get(mbs);
+            ret.add(new Pair<>(mbs, mbsvh.value));
+        }
+        return ret;
     }
 
     public boolean hasBuffFromSourceid(int sourceid) {
-        try {
-            return buffEffects.containsKey(sourceid);
-        } finally {
-            }
+        return buffEffects.containsKey(sourceid);
     }
 
     public boolean hasActiveBuff(int sourceid) {
         LinkedList<BuffStatValueHolder> allBuffs;
 
-        try {
-            allBuffs = new LinkedList<>(effects.values());
-        } finally {
-            }
+        allBuffs = new LinkedList<>(effects.values());
 
         for (BuffStatValueHolder mbsvh : allBuffs) {
             if (mbsvh.effect.getBuffSourceId() == sourceid) {
@@ -3545,72 +3413,57 @@ public class Character extends AbstractCharacterObject {
     }
 
     private void extractBuffValue(int sourceid, BuffStat stat) {
-        try {
-            removeEffectFromItemEffectHolder(sourceid, stat);
-        } finally {
-            }
+        removeEffectFromItemEffectHolder(sourceid, stat);
     }
 
     public void debugListAllBuffs() {
-        try {
-            log.debug("-------------------");
-            log.debug("CACHED BUFF COUNT: {}", buffEffectsCount.entrySet().stream()
-                    .map(entry -> entry.getKey() + ": " + entry.getValue())
-                    .collect(Collectors.joining(", "))
-            );
+        log.debug("-------------------");
+        log.debug("CACHED BUFF COUNT: {}", buffEffectsCount.entrySet().stream()
+                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                .collect(Collectors.joining(", "))
+        );
 
-            log.debug("-------------------");
-            log.debug("CACHED BUFFS: {}", buffEffects.entrySet().stream()
-                    .map(entry -> entry.getKey() + ": (" + entry.getValue().entrySet().stream()
-                            .map(innerEntry -> innerEntry.getKey().name() + innerEntry.getValue().value)
-                            .collect(Collectors.joining(", ")) + ")")
-                    .collect(Collectors.joining(", "))
-            );
+        log.debug("-------------------");
+        log.debug("CACHED BUFFS: {}", buffEffects.entrySet().stream()
+                .map(entry -> entry.getKey() + ": (" + entry.getValue().entrySet().stream()
+                        .map(innerEntry -> innerEntry.getKey().name() + innerEntry.getValue().value)
+                        .collect(Collectors.joining(", ")) + ")")
+                .collect(Collectors.joining(", "))
+        );
 
-            log.debug("-------------------");
-            log.debug("IN ACTION: {}", effects.entrySet().stream()
-                    .map(entry -> entry.getKey().name() + " -> " + ItemInformationProvider.getInstance().getName(entry.getValue().effect.getSourceId()))
-                    .collect(Collectors.joining(", "))
-            );
-        } finally {
-            }
+        log.debug("-------------------");
+        log.debug("IN ACTION: {}", effects.entrySet().stream()
+                .map(entry -> entry.getKey().name() + " -> " + ItemInformationProvider.getInstance().getName(entry.getValue().effect.getSourceId()))
+                .collect(Collectors.joining(", "))
+        );
     }
 
     public void debugListAllBuffsCount() {
-        try {
-            log.debug("ALL BUFFS COUNT: {}", buffEffectsCount.entrySet().stream()
-                    .map(entry -> entry.getKey().name() + " -> " + entry.getValue())
-                    .collect(Collectors.joining(", "))
-            );
-        } finally {
-            }
+        log.debug("ALL BUFFS COUNT: {}", buffEffectsCount.entrySet().stream()
+                .map(entry -> entry.getKey().name() + " -> " + entry.getValue())
+                .collect(Collectors.joining(", "))
+        );
     }
 
     public void cancelAllBuffs(boolean softcancel) {
         if (softcancel) {
-            try {
-                cancelEffectFromBuffStat(BuffStat.SUMMON);
-                cancelEffectFromBuffStat(BuffStat.PUPPET);
-                cancelEffectFromBuffStat(BuffStat.COMBO);
+            cancelEffectFromBuffStat(BuffStat.SUMMON);
+            cancelEffectFromBuffStat(BuffStat.PUPPET);
+            cancelEffectFromBuffStat(BuffStat.COMBO);
 
-                effects.clear();
+            effects.clear();
 
-                for (Integer srcid : new ArrayList<>(buffEffects.keySet())) {
-                    removeItemEffectHolder(srcid);
-                }
-            } finally {
-                }
+            for (Integer srcid : new ArrayList<>(buffEffects.keySet())) {
+                removeItemEffectHolder(srcid);
+            }
         } else {
             Map<StatEffect, Long> mseBuffs = new LinkedHashMap<>();
 
-            try {
-                for (Entry<Integer, Map<BuffStat, BuffStatValueHolder>> bpl : buffEffects.entrySet()) {
-                    for (Entry<BuffStat, BuffStatValueHolder> mbse : bpl.getValue().entrySet()) {
-                        mseBuffs.put(mbse.getValue().effect, mbse.getValue().startTime);
-                    }
+            for (Entry<Integer, Map<BuffStat, BuffStatValueHolder>> bpl : buffEffects.entrySet()) {
+                for (Entry<BuffStat, BuffStatValueHolder> mbse : bpl.getValue().entrySet()) {
+                    mseBuffs.put(mbse.getValue().effect, mbse.getValue().startTime);
                 }
-            } finally {
-                }
+            }
 
             for (Entry<StatEffect, Long> mse : mseBuffs.entrySet()) {
                 cancelEffect(mse.getKey(), false, mse.getValue());
@@ -3622,17 +3475,14 @@ public class Character extends AbstractCharacterObject {
         for (Pair<BuffStat, BuffStatValueHolder> cancelEffectCancelTasks : effectsToCancel) {
             //boolean nestedCancel = false;
 
-            try {
-                /*
-                if (buffExpires.get(cancelEffectCancelTasks.getRight().effect.getBuffSourceId()) != null) {
-                    nestedCancel = true;
-                }*/
+            /*
+            if (buffExpires.get(cancelEffectCancelTasks.getRight().effect.getBuffSourceId()) != null) {
+                nestedCancel = true;
+            }*/
 
-                if (cancelEffectCancelTasks.getRight().bestApplied) {
-                    fetchBestEffectFromItemEffectHolder(cancelEffectCancelTasks.getLeft());
-                }
-            } finally {
-                }
+            if (cancelEffectCancelTasks.getRight().bestApplied) {
+                fetchBestEffectFromItemEffectHolder(cancelEffectCancelTasks.getLeft());
+            }
 
             /*
             if (nestedCancel) {
@@ -3642,76 +3492,73 @@ public class Character extends AbstractCharacterObject {
     }
 
     private List<Pair<BuffStat, BuffStatValueHolder>> deregisterBuffStats(Map<BuffStat, BuffStatValueHolder> stats) {
-        try {
-            List<Pair<BuffStat, BuffStatValueHolder>> effectsToCancel = new ArrayList<>(stats.size());
-            for (Entry<BuffStat, BuffStatValueHolder> stat : stats.entrySet()) {
-                int sourceid = stat.getValue().effect.getBuffSourceId();
+        List<Pair<BuffStat, BuffStatValueHolder>> effectsToCancel = new ArrayList<>(stats.size());
+        for (Entry<BuffStat, BuffStatValueHolder> stat : stats.entrySet()) {
+            int sourceid = stat.getValue().effect.getBuffSourceId();
 
-                if (!buffEffects.containsKey(sourceid)) {
-                    buffExpires.remove(sourceid);
-                }
+            if (!buffEffects.containsKey(sourceid)) {
+                buffExpires.remove(sourceid);
+            }
 
-                BuffStat mbs = stat.getKey();
-                effectsToCancel.add(new Pair<>(mbs, stat.getValue()));
+            BuffStat mbs = stat.getKey();
+            effectsToCancel.add(new Pair<>(mbs, stat.getValue()));
 
-                BuffStatValueHolder mbsvh = effects.get(mbs);
-                if (mbsvh != null && mbsvh.effect.getBuffSourceId() == sourceid) {
-                    mbsvh.bestApplied = true;
-                    effects.remove(mbs);
+            BuffStatValueHolder mbsvh = effects.get(mbs);
+            if (mbsvh != null && mbsvh.effect.getBuffSourceId() == sourceid) {
+                mbsvh.bestApplied = true;
+                effects.remove(mbs);
 
-                    if (mbs == BuffStat.RECOVERY) {
-                        if (recoveryTask != null) {
-                            recoveryTask.cancel(false);
-                            recoveryTask = null;
-                        }
-                    } else if (mbs == BuffStat.SUMMON || mbs == BuffStat.PUPPET) {
-                        int summonId = mbsvh.effect.getSourceId();
+                if (mbs == BuffStat.RECOVERY) {
+                    if (recoveryTask != null) {
+                        recoveryTask.cancel(false);
+                        recoveryTask = null;
+                    }
+                } else if (mbs == BuffStat.SUMMON || mbs == BuffStat.PUPPET) {
+                    int summonId = mbsvh.effect.getSourceId();
 
-                        Summon summon = summons.get(summonId);
-                        if (summon != null) {
-                            getMap().broadcastMessage(PacketCreator.removeSummon(summon, true), summon.getPosition());
-                            getMap().removeMapObject(summon);
-                            removeVisibleMapObject(summon);
+                    Summon summon = summons.get(summonId);
+                    if (summon != null) {
+                        getMap().broadcastMessage(PacketCreator.removeSummon(summon, true), summon.getPosition());
+                        getMap().removeMapObject(summon);
+                        removeVisibleMapObject(summon);
 
-                            summons.remove(summonId);
-                            if (summon.isPuppet()) {
-                                map.removePlayerPuppet(this);
-                            } else if (summon.getSkill() == DarkKnight.BEHOLDER) {
-                                if (beholderHealingSchedule != null) {
-                                    beholderHealingSchedule.cancel(false);
-                                    beholderHealingSchedule = null;
-                                }
-                                if (beholderBuffSchedule != null) {
-                                    beholderBuffSchedule.cancel(false);
-                                    beholderBuffSchedule = null;
-                                }
+                        summons.remove(summonId);
+                        if (summon.isPuppet()) {
+                            map.removePlayerPuppet(this);
+                        } else if (summon.getSkill() == DarkKnight.BEHOLDER) {
+                            if (beholderHealingSchedule != null) {
+                                beholderHealingSchedule.cancel(false);
+                                beholderHealingSchedule = null;
+                            }
+                            if (beholderBuffSchedule != null) {
+                                beholderBuffSchedule.cancel(false);
+                                beholderBuffSchedule = null;
                             }
                         }
-                    } else if (mbs == BuffStat.DRAGONBLOOD) {
-                        dragonBloodSchedule.cancel(false);
-                        dragonBloodSchedule = null;
-                    } else if (mbs == BuffStat.HPREC || mbs == BuffStat.MPREC) {
-                        if (mbs == BuffStat.HPREC) {
-                            extraHpRec = 0;
-                        } else {
-                            extraMpRec = 0;
-                        }
+                    }
+                } else if (mbs == BuffStat.DRAGONBLOOD) {
+                    dragonBloodSchedule.cancel(false);
+                    dragonBloodSchedule = null;
+                } else if (mbs == BuffStat.HPREC || mbs == BuffStat.MPREC) {
+                    if (mbs == BuffStat.HPREC) {
+                        extraHpRec = 0;
+                    } else {
+                        extraMpRec = 0;
+                    }
 
-                        if (extraRecoveryTask != null) {
-                            extraRecoveryTask.cancel(false);
-                            extraRecoveryTask = null;
-                        }
+                    if (extraRecoveryTask != null) {
+                        extraRecoveryTask.cancel(false);
+                        extraRecoveryTask = null;
+                    }
 
-                        if (extraHpRec != 0 || extraMpRec != 0) {
-                            startExtraTaskInternal(extraHpRec, extraMpRec, extraRecInterval);
-                        }
+                    if (extraHpRec != 0 || extraMpRec != 0) {
+                        startExtraTaskInternal(extraHpRec, extraMpRec, extraRecInterval);
                     }
                 }
             }
+        }
 
-            return effectsToCancel;
-        } finally {
-            }
+        return effectsToCancel;
     }
 
     public void cancelEffect(int itemId) {
@@ -3722,18 +3569,12 @@ public class Character extends AbstractCharacterObject {
     public boolean cancelEffect(StatEffect effect, boolean overwrite, long startTime) {
         boolean ret;
 
-        try {
-            ret = cancelEffect(effect, overwrite, startTime, true);
-        } finally {
-            }
+        ret = cancelEffect(effect, overwrite, startTime, true);
 
         if (effect.isMagicDoor() && ret) {
-            try {
-                if (!hasBuffFromSourceid(Priest.MYSTIC_DOOR)) {
-                    Door.attemptRemoveDoor(this);
-                }
-            } finally {
-                }
+            if (!hasBuffFromSourceid(Priest.MYSTIC_DOOR)) {
+                Door.attemptRemoveDoor(this);
+            }
         }
 
         return ret;
@@ -3763,50 +3604,44 @@ public class Character extends AbstractCharacterObject {
 
     public void updateActiveEffects() {
         // thanks davidlafriniere, maple006, RedHat for pointing a deadlock occurring here
-        try {
-            Set<BuffStat> updatedBuffs = new LinkedHashSet<>();
-            Set<StatEffect> activeEffects = new LinkedHashSet<>();
+        Set<BuffStat> updatedBuffs = new LinkedHashSet<>();
+        Set<StatEffect> activeEffects = new LinkedHashSet<>();
 
-            for (BuffStatValueHolder mse : effects.values()) {
-                activeEffects.add(mse.effect);
-            }
+        for (BuffStatValueHolder mse : effects.values()) {
+            activeEffects.add(mse.effect);
+        }
 
-            for (Map<BuffStat, BuffStatValueHolder> buff : buffEffects.values()) {
-                StatEffect mse = getEffectFromBuffSource(buff);
-                if (isUpdatingEffect(activeEffects, mse)) {
-                    for (Pair<BuffStat, Integer> p : mse.getStatups()) {
-                        updatedBuffs.add(p.getLeft());
-                    }
+        for (Map<BuffStat, BuffStatValueHolder> buff : buffEffects.values()) {
+            StatEffect mse = getEffectFromBuffSource(buff);
+            if (isUpdatingEffect(activeEffects, mse)) {
+                for (Pair<BuffStat, Integer> p : mse.getStatups()) {
+                    updatedBuffs.add(p.getLeft());
                 }
             }
+        }
 
-            for (BuffStat mbs : updatedBuffs) {
-                effects.remove(mbs);
-            }
+        for (BuffStat mbs : updatedBuffs) {
+            effects.remove(mbs);
+        }
 
-            updateEffects(updatedBuffs);
-        } finally {
-            }
+        updateEffects(updatedBuffs);
     }
 
     private void updateEffects(Set<BuffStat> removedStats) {
-        try {
-            Set<BuffStat> retrievedStats = new LinkedHashSet<>();
+        Set<BuffStat> retrievedStats = new LinkedHashSet<>();
 
-            for (BuffStat mbs : removedStats) {
-                fetchBestEffectFromItemEffectHolder(mbs);
+        for (BuffStat mbs : removedStats) {
+            fetchBestEffectFromItemEffectHolder(mbs);
 
-                BuffStatValueHolder mbsvh = effects.get(mbs);
-                if (mbsvh != null) {
-                    for (Pair<BuffStat, Integer> statup : mbsvh.effect.getStatups()) {
-                        retrievedStats.add(statup.getLeft());
-                    }
+            BuffStatValueHolder mbsvh = effects.get(mbs);
+            if (mbsvh != null) {
+                for (Pair<BuffStat, Integer> statup : mbsvh.effect.getStatups()) {
+                    retrievedStats.add(statup.getLeft());
                 }
             }
+        }
 
-            propagateBuffEffectUpdates(new LinkedHashMap<Integer, Pair<StatEffect, Long>>(), retrievedStats, removedStats);
-        } finally {
-            }
+        propagateBuffEffectUpdates(new LinkedHashMap<Integer, Pair<StatEffect, Long>>(), retrievedStats, removedStats);
     }
 
     private boolean cancelEffect(StatEffect effect, boolean overwrite, long startTime, boolean firstCancel) {
@@ -3854,105 +3689,93 @@ public class Character extends AbstractCharacterObject {
     public void cancelEffectFromBuffStat(BuffStat stat) {
         BuffStatValueHolder effect;
 
-        try {
-            effect = effects.get(stat);
-        } finally {
-            }
+        effect = effects.get(stat);
         if (effect != null) {
             cancelEffect(effect.effect, false, -1);
         }
     }
 
     public void cancelBuffStats(BuffStat stat) {
+        List<Pair<Integer, BuffStatValueHolder>> cancelList = new LinkedList<>();
+
         try {
-            List<Pair<Integer, BuffStatValueHolder>> cancelList = new LinkedList<>();
-
-            try {
-                for (Entry<Integer, Map<BuffStat, BuffStatValueHolder>> bel : this.buffEffects.entrySet()) {
-                    BuffStatValueHolder beli = bel.getValue().get(stat);
-                    if (beli != null) {
-                        cancelList.add(new Pair<>(bel.getKey(), beli));
-                    }
+            for (Entry<Integer, Map<BuffStat, BuffStatValueHolder>> bel : this.buffEffects.entrySet()) {
+                BuffStatValueHolder beli = bel.getValue().get(stat);
+                if (beli != null) {
+                    cancelList.add(new Pair<>(bel.getKey(), beli));
                 }
-            } finally {
-                }
-
-            Map<BuffStat, BuffStatValueHolder> buffStatList = new LinkedHashMap<>();
-            for (Pair<Integer, BuffStatValueHolder> p : cancelList) {
-                buffStatList.put(stat, p.getRight());
-                extractBuffValue(p.getLeft(), stat);
-                dropBuffStats(deregisterBuffStats(buffStatList));
             }
         } finally {
             }
+
+        Map<BuffStat, BuffStatValueHolder> buffStatList = new LinkedHashMap<>();
+        for (Pair<Integer, BuffStatValueHolder> p : cancelList) {
+            buffStatList.put(stat, p.getRight());
+            extractBuffValue(p.getLeft(), stat);
+            dropBuffStats(deregisterBuffStats(buffStatList));
+        }
 
         cancelPlayerBuffs(Arrays.asList(stat));
     }
 
     private Map<BuffStat, BuffStatValueHolder> extractCurrentBuffStats(StatEffect effect) {
-        try {
-            Map<BuffStat, BuffStatValueHolder> stats = new LinkedHashMap<>();
-            Map<BuffStat, BuffStatValueHolder> buffList = buffEffects.remove(effect.getBuffSourceId());
+        Map<BuffStat, BuffStatValueHolder> stats = new LinkedHashMap<>();
+        Map<BuffStat, BuffStatValueHolder> buffList = buffEffects.remove(effect.getBuffSourceId());
 
-            if (buffList != null) {
-                for (Entry<BuffStat, BuffStatValueHolder> stateffect : buffList.entrySet()) {
-                    stats.put(stateffect.getKey(), stateffect.getValue());
-                    buffEffectsCount.put(stateffect.getKey(), (byte) (buffEffectsCount.get(stateffect.getKey()) - 1));
-                }
+        if (buffList != null) {
+            for (Entry<BuffStat, BuffStatValueHolder> stateffect : buffList.entrySet()) {
+                stats.put(stateffect.getKey(), stateffect.getValue());
+                buffEffectsCount.put(stateffect.getKey(), (byte) (buffEffectsCount.get(stateffect.getKey()) - 1));
             }
+        }
 
-            return stats;
-        } finally {
-            }
+        return stats;
     }
 
     private Map<BuffStat, BuffStatValueHolder> extractLeastRelevantStatEffectsIfFull(StatEffect effect) {
         Map<BuffStat, BuffStatValueHolder> extractedStatBuffs = new LinkedHashMap<>();
 
-        try {
-            Map<BuffStat, Byte> stats = new LinkedHashMap<>();
-            Map<BuffStat, BuffStatValueHolder> minStatBuffs = new LinkedHashMap<>();
+        Map<BuffStat, Byte> stats = new LinkedHashMap<>();
+        Map<BuffStat, BuffStatValueHolder> minStatBuffs = new LinkedHashMap<>();
 
-            for (Entry<Integer, Map<BuffStat, BuffStatValueHolder>> mbsvhi : buffEffects.entrySet()) {
-                for (Entry<BuffStat, BuffStatValueHolder> mbsvhe : mbsvhi.getValue().entrySet()) {
-                    BuffStat mbs = mbsvhe.getKey();
-                    Byte b = stats.get(mbs);
+        for (Entry<Integer, Map<BuffStat, BuffStatValueHolder>> mbsvhi : buffEffects.entrySet()) {
+            for (Entry<BuffStat, BuffStatValueHolder> mbsvhe : mbsvhi.getValue().entrySet()) {
+                BuffStat mbs = mbsvhe.getKey();
+                Byte b = stats.get(mbs);
 
-                    if (b != null) {
-                        stats.put(mbs, (byte) (b + 1));
-                        if (mbsvhe.getValue().value < minStatBuffs.get(mbs).value) {
-                            minStatBuffs.put(mbs, mbsvhe.getValue());
-                        }
-                    } else {
-                        stats.put(mbs, (byte) 1);
+                if (b != null) {
+                    stats.put(mbs, (byte) (b + 1));
+                    if (mbsvhe.getValue().value < minStatBuffs.get(mbs).value) {
                         minStatBuffs.put(mbs, mbsvhe.getValue());
                     }
+                } else {
+                    stats.put(mbs, (byte) 1);
+                    minStatBuffs.put(mbs, mbsvhe.getValue());
                 }
             }
+        }
 
-            Set<BuffStat> effectStatups = new LinkedHashSet<>();
-            for (Pair<BuffStat, Integer> efstat : effect.getStatups()) {
-                effectStatups.add(efstat.getLeft());
-            }
+        Set<BuffStat> effectStatups = new LinkedHashSet<>();
+        for (Pair<BuffStat, Integer> efstat : effect.getStatups()) {
+            effectStatups.add(efstat.getLeft());
+        }
 
-            for (Entry<BuffStat, Byte> it : stats.entrySet()) {
-                boolean uniqueBuff = isSingletonStatup(it.getKey());
+        for (Entry<BuffStat, Byte> it : stats.entrySet()) {
+            boolean uniqueBuff = isSingletonStatup(it.getKey());
 
-                if (it.getValue() >= (!uniqueBuff ? YamlConfig.config.server.MAX_MONITORED_BUFFSTATS : 1) && effectStatups.contains(it.getKey())) {
-                    BuffStatValueHolder mbsvh = minStatBuffs.get(it.getKey());
+            if (it.getValue() >= (!uniqueBuff ? YamlConfig.config.server.MAX_MONITORED_BUFFSTATS : 1) && effectStatups.contains(it.getKey())) {
+                BuffStatValueHolder mbsvh = minStatBuffs.get(it.getKey());
 
-                    Map<BuffStat, BuffStatValueHolder> lpbe = buffEffects.get(mbsvh.effect.getBuffSourceId());
-                    lpbe.remove(it.getKey());
-                    buffEffectsCount.put(it.getKey(), (byte) (buffEffectsCount.get(it.getKey()) - 1));
+                Map<BuffStat, BuffStatValueHolder> lpbe = buffEffects.get(mbsvh.effect.getBuffSourceId());
+                lpbe.remove(it.getKey());
+                buffEffectsCount.put(it.getKey(), (byte) (buffEffectsCount.get(it.getKey()) - 1));
 
-                    if (lpbe.isEmpty()) {
-                        buffEffects.remove(mbsvh.effect.getBuffSourceId());
-                    }
-                    extractedStatBuffs.put(it.getKey(), mbsvh);
+                if (lpbe.isEmpty()) {
+                    buffEffects.remove(mbsvh.effect.getBuffSourceId());
                 }
+                extractedStatBuffs.put(it.getKey(), mbsvh);
             }
-        } finally {
-            }
+        }
 
         return extractedStatBuffs;
     }
@@ -4365,33 +4188,30 @@ public class Character extends AbstractCharacterObject {
             int healInterval = (YamlConfig.config.server.USE_ULTRA_RECOVERY) ? 2000 : 5000;
             final byte heal = (byte) effect.getX();
 
-            try {
-                if (recoveryTask != null) {
-                    recoveryTask.cancel(false);
-                }
+            if (recoveryTask != null) {
+                recoveryTask.cancel(false);
+            }
 
-                recoveryTask = TimerManager.getInstance().register(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getBuffSource(BuffStat.RECOVERY) == -1) {
-                            try {
-                                if (recoveryTask != null) {
-                                    recoveryTask.cancel(false);
-                                    recoveryTask = null;
-                                }
-                            } finally {
-                                }
+            recoveryTask = TimerManager.getInstance().register(new Runnable() {
+                @Override
+                public void run() {
+                    if (getBuffSource(BuffStat.RECOVERY) == -1) {
+                        try {
+                            if (recoveryTask != null) {
+                                recoveryTask.cancel(false);
+                                recoveryTask = null;
+                            }
+                        } finally {
+                            }
 
-                            return;
-                        }
-
-                        addHP(heal);
-                        sendPacket(PacketCreator.showOwnRecovery(heal));
-                        getMap().broadcastMessage(Character.this, PacketCreator.showRecovery(id, heal), false);
+                        return;
                     }
-                }, healInterval, healInterval);
-            } finally {
+
+                    addHP(heal);
+                    sendPacket(PacketCreator.showOwnRecovery(heal));
+                    getMap().broadcastMessage(Character.this, PacketCreator.showRecovery(id, heal), false);
                 }
+            }, healInterval, healInterval);
         } else if (effect.getHpRRate() > 0 || effect.getMpRRate() > 0) {
             if (effect.getHpRRate() > 0) {
                 extraHpRec = effect.getHpR();
@@ -4403,87 +4223,81 @@ public class Character extends AbstractCharacterObject {
                 extraRecInterval = effect.getMpRRate();
             }
 
-            try {
-                stopExtraTask();
-                startExtraTask(extraHpRec, extraMpRec, extraRecInterval);   // HP & MP sharing the same task holder
-            } finally {
-                }
+            stopExtraTask();
+            startExtraTask(extraHpRec, extraMpRec, extraRecInterval);   // HP & MP sharing the same task holder
 
         } else if (effect.isMapChair()) {
             startChairTask();
         }
 
-        try {
-            Integer sourceid = effect.getBuffSourceId();
-            Map<BuffStat, BuffStatValueHolder> toDeploy;
-            Map<BuffStat, BuffStatValueHolder> appliedStatups = new LinkedHashMap<>();
+        Integer sourceid = effect.getBuffSourceId();
+        Map<BuffStat, BuffStatValueHolder> toDeploy;
+        Map<BuffStat, BuffStatValueHolder> appliedStatups = new LinkedHashMap<>();
 
-            for (Pair<BuffStat, Integer> ps : effect.getStatups()) {
-                appliedStatups.put(ps.getLeft(), new BuffStatValueHolder(effect, starttime, ps.getRight()));
-            }
+        for (Pair<BuffStat, Integer> ps : effect.getStatups()) {
+            appliedStatups.put(ps.getLeft(), new BuffStatValueHolder(effect, starttime, ps.getRight()));
+        }
 
-            boolean active = effect.isActive(this);
-            if (YamlConfig.config.server.USE_BUFF_MOST_SIGNIFICANT) {
-                toDeploy = new LinkedHashMap<>();
-                Map<Integer, Pair<StatEffect, Long>> retrievedEffects = new LinkedHashMap<>();
-                Set<BuffStat> retrievedStats = new LinkedHashSet<>();
-                for (Entry<BuffStat, BuffStatValueHolder> statup : appliedStatups.entrySet()) {
-                    BuffStatValueHolder mbsvh = effects.get(statup.getKey());
-                    BuffStatValueHolder statMbsvh = statup.getValue();
+        boolean active = effect.isActive(this);
+        if (YamlConfig.config.server.USE_BUFF_MOST_SIGNIFICANT) {
+            toDeploy = new LinkedHashMap<>();
+            Map<Integer, Pair<StatEffect, Long>> retrievedEffects = new LinkedHashMap<>();
+            Set<BuffStat> retrievedStats = new LinkedHashSet<>();
+            for (Entry<BuffStat, BuffStatValueHolder> statup : appliedStatups.entrySet()) {
+                BuffStatValueHolder mbsvh = effects.get(statup.getKey());
+                BuffStatValueHolder statMbsvh = statup.getValue();
 
-                    if (active) {
-                        if (mbsvh == null || mbsvh.value < statMbsvh.value || (mbsvh.value == statMbsvh.value && mbsvh.effect.getStatups().size() <= statMbsvh.effect.getStatups().size())) {
-                            toDeploy.put(statup.getKey(), statMbsvh);
-                        } else {
-                            if (!isSingletonStatup(statup.getKey())) {
-                                for (Pair<BuffStat, Integer> mbs : mbsvh.effect.getStatups()) {
-                                    retrievedStats.add(mbs.getLeft());
-                                }
-                            }
-                        }
-                    }
-
-                    addItemEffectHolderCount(statup.getKey());
-                }
-
-                // should also propagate update from buffs shared with priority sourceids
-                Set<BuffStat> updated = appliedStatups.keySet();
-                for (BuffStatValueHolder mbsvh : this.getAllStatups()) {
-                    if (isPriorityBuffSourceid(mbsvh.effect.getBuffSourceId())) {
-                        for (Pair<BuffStat, Integer> p : mbsvh.effect.getStatups()) {
-                            if (updated.contains(p.getLeft())) {
-                                retrievedStats.add(p.getLeft());
+                if (active) {
+                    if (mbsvh == null || mbsvh.value < statMbsvh.value || (mbsvh.value == statMbsvh.value && mbsvh.effect.getStatups().size() <= statMbsvh.effect.getStatups().size())) {
+                        toDeploy.put(statup.getKey(), statMbsvh);
+                    } else {
+                        if (!isSingletonStatup(statup.getKey())) {
+                            for (Pair<BuffStat, Integer> mbs : mbsvh.effect.getStatups()) {
+                                retrievedStats.add(mbs.getLeft());
                             }
                         }
                     }
                 }
 
-                if (!isSilent) {
-                    addItemEffectHolder(sourceid, expirationtime, appliedStatups);
-                    for (Entry<BuffStat, BuffStatValueHolder> statup : toDeploy.entrySet()) {
-                        effects.put(statup.getKey(), statup.getValue());
+                addItemEffectHolderCount(statup.getKey());
+            }
+
+            // should also propagate update from buffs shared with priority sourceids
+            Set<BuffStat> updated = appliedStatups.keySet();
+            for (BuffStatValueHolder mbsvh : this.getAllStatups()) {
+                if (isPriorityBuffSourceid(mbsvh.effect.getBuffSourceId())) {
+                    for (Pair<BuffStat, Integer> p : mbsvh.effect.getStatups()) {
+                        if (updated.contains(p.getLeft())) {
+                            retrievedStats.add(p.getLeft());
+                        }
                     }
-
-                    if (active) {
-                        retrievedEffects.put(sourceid, new Pair<>(effect, starttime));
-                    }
-
-                    propagateBuffEffectUpdates(retrievedEffects, retrievedStats, new LinkedHashSet<BuffStat>());
                 }
-            } else {
-                for (Entry<BuffStat, BuffStatValueHolder> statup : appliedStatups.entrySet()) {
-                    addItemEffectHolderCount(statup.getKey());
+            }
+
+            if (!isSilent) {
+                addItemEffectHolder(sourceid, expirationtime, appliedStatups);
+                for (Entry<BuffStat, BuffStatValueHolder> statup : toDeploy.entrySet()) {
+                    effects.put(statup.getKey(), statup.getValue());
                 }
 
-                toDeploy = (active ? appliedStatups : new LinkedHashMap<BuffStat, BuffStatValueHolder>());
+                if (active) {
+                    retrievedEffects.put(sourceid, new Pair<>(effect, starttime));
+                }
+
+                propagateBuffEffectUpdates(retrievedEffects, retrievedStats, new LinkedHashSet<BuffStat>());
+            }
+        } else {
+            for (Entry<BuffStat, BuffStatValueHolder> statup : appliedStatups.entrySet()) {
+                addItemEffectHolderCount(statup.getKey());
             }
 
-            addItemEffectHolder(sourceid, expirationtime, appliedStatups);
-            for (Entry<BuffStat, BuffStatValueHolder> statup : toDeploy.entrySet()) {
-                effects.put(statup.getKey(), statup.getValue());
-            }
-        } finally {
-            }
+            toDeploy = (active ? appliedStatups : new LinkedHashMap<BuffStat, BuffStatValueHolder>());
+        }
+
+        addItemEffectHolder(sourceid, expirationtime, appliedStatups);
+        for (Entry<BuffStat, BuffStatValueHolder> statup : toDeploy.entrySet()) {
+            effects.put(statup.getKey(), statup.getValue());
+        }
 
         updateLocalStats();
     }
@@ -4597,17 +4411,11 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Collection<Door> getDoors() {
-        try {
-            return (party != null ? Collections.unmodifiableCollection(party.getDoors().values()) : (pdoor != null ? Collections.singleton(pdoor) : new LinkedHashSet<Door>()));
-        } finally {
-            }
+        return (party != null ? Collections.unmodifiableCollection(party.getDoors().values()) : (pdoor != null ? Collections.singleton(pdoor) : new LinkedHashSet<Door>()));
     }
 
     public Door getPlayerDoor() {
-        try {
-            return pdoor;
-        } finally {
-            }
+        return pdoor;
     }
 
     public Door getMainTownDoor() {
@@ -4622,17 +4430,14 @@ public class Character extends AbstractCharacterObject {
 
     public void applyPartyDoor(Door door, boolean partyUpdate) {
         Party chrParty;
-        try {
-            if (!partyUpdate) {
-                pdoor = door;
-            }
+        if (!partyUpdate) {
+            pdoor = door;
+        }
 
-            chrParty = getParty();
-            if (chrParty != null) {
-                chrParty.addDoor(id, door);
-            }
-        } finally {
-            }
+        chrParty = getParty();
+        if (chrParty != null) {
+            chrParty.addDoor(id, door);
+        }
 
         silentPartyUpdateInternal(chrParty);
     }
@@ -4641,18 +4446,15 @@ public class Character extends AbstractCharacterObject {
         Door ret = null;
         Party chrParty;
 
-        try {
-            chrParty = getParty();
-            if (chrParty != null) {
-                chrParty.removeDoor(id);
-            }
+        chrParty = getParty();
+        if (chrParty != null) {
+            chrParty.removeDoor(id);
+        }
 
-            if (!partyUpdate) {
-                ret = pdoor;
-                pdoor = null;
-            }
-        } finally {
-            }
+        if (!partyUpdate) {
+            ret = pdoor;
+            pdoor = null;
+        }
 
         silentPartyUpdateInternal(chrParty);
         return ret;
@@ -4667,10 +4469,7 @@ public class Character extends AbstractCharacterObject {
     }
 
     public EventInstanceManager getEventInstance() {
-        try {
-            return eventInstance;
-        } finally {
-            }
+        return eventInstance;
     }
 
     public Marriage getMarriageInstance() {
@@ -4684,32 +4483,23 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void resetExcluded(int petId) {
-        try {
-            Set<Integer> petExclude = excluded.get(petId);
+        Set<Integer> petExclude = excluded.get(petId);
 
-            if (petExclude != null) {
-                petExclude.clear();
-            } else {
-                excluded.put(petId, new LinkedHashSet<Integer>());
-            }
-        } finally {
-            }
+        if (petExclude != null) {
+            petExclude.clear();
+        } else {
+            excluded.put(petId, new LinkedHashSet<Integer>());
+        }
     }
 
     public void addExcluded(int petId, int x) {
-        try {
-            excluded.get(petId).add(x);
-        } finally {
-            }
+        excluded.get(petId).add(x);
     }
 
     public void commitExcludedItems() {
         Map<Integer, Set<Integer>> petExcluded = this.getExcluded();
 
-        try {
-            excludedItems.clear();
-        } finally {
-            }
+        excludedItems.clear();
 
         for (Map.Entry<Integer, Set<Integer>> pe : petExcluded.entrySet()) {
             byte petIndex = this.getPetIndex(pe.getKey());
@@ -4721,12 +4511,9 @@ public class Character extends AbstractCharacterObject {
             if (!exclItems.isEmpty()) {
                 sendPacket(PacketCreator.loadExceptionList(this.getId(), pe.getKey(), petIndex, new ArrayList<>(exclItems)));
 
-                try {
-                    for (Integer itemid : exclItems) {
-                        excludedItems.add(itemid);
-                    }
-                } finally {
-                    }
+                for (Integer itemid : exclItems) {
+                    excludedItems.add(itemid);
+                }
             }
         }
     }
@@ -4747,17 +4534,11 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Map<Integer, Set<Integer>> getExcluded() {
-        try {
-            return Collections.unmodifiableMap(excluded);
-        } finally {
-            }
+        return Collections.unmodifiableMap(excluded);
     }
 
     public Set<Integer> getExcludedItems() {
-        try {
-            return Collections.unmodifiableSet(excludedItems);
-        } finally {
-            }
+        return Collections.unmodifiableSet(excludedItems);
     }
 
     public int getExp() {
@@ -5287,58 +5068,43 @@ public class Character extends AbstractCharacterObject {
     }
 
     public int getNextEmptyPetIndex() {
-        try {
-            for (int i = 0; i < 3; i++) {
-                if (pets[i] == null) {
-                    return i;
-                }
+        for (int i = 0; i < 3; i++) {
+            if (pets[i] == null) {
+                return i;
             }
-            return 3;
-        } finally {
-            }
+        }
+        return 3;
     }
 
     public int getNoPets() {
-        try {
-            int ret = 0;
-            for (int i = 0; i < 3; i++) {
-                if (pets[i] != null) {
-                    ret++;
-                }
+        int ret = 0;
+        for (int i = 0; i < 3; i++) {
+            if (pets[i] != null) {
+                ret++;
             }
-            return ret;
-        } finally {
-            }
+        }
+        return ret;
     }
 
     public Party getParty() {
-        try {
-            return party;
-        } finally {
-            }
+        return party;
     }
 
     public int getPartyId() {
-        try {
-            return (party != null ? party.getId() : -1);
-        } finally {
-            }
+        return (party != null ? party.getId() : -1);
     }
 
     public List<Character> getPartyMembersOnline() {
         List<Character> list = new LinkedList<>();
 
-        try {
-            if (party != null) {
-                for (PartyCharacter mpc : party.getMembers()) {
-                    Character mc = mpc.getPlayer();
-                    if (mc != null) {
-                        list.add(mc);
-                    }
+        if (party != null) {
+            for (PartyCharacter mpc : party.getMembers()) {
+                Character mc = mpc.getPlayer();
+                if (mc != null) {
+                    list.add(mc);
                 }
             }
-        } finally {
-            }
+        }
 
         return list;
     }
@@ -5347,20 +5113,17 @@ public class Character extends AbstractCharacterObject {
         List<Character> list = new LinkedList<>();
         int thisMapHash = this.getMap().hashCode();
 
-        try {
-            if (party != null) {
-                for (PartyCharacter mpc : party.getMembers()) {
-                    Character chr = mpc.getPlayer();
-                    if (chr != null) {
-                        MapleMap chrMap = chr.getMap();
-                        if (chrMap != null && chrMap.hashCode() == thisMapHash && chr.isLoggedinWorld()) {
-                            list.add(chr);
-                        }
+        if (party != null) {
+            for (PartyCharacter mpc : party.getMembers()) {
+                Character chr = mpc.getPlayer();
+                if (chr != null) {
+                    MapleMap chrMap = chr.getMap();
+                    if (chrMap != null && chrMap.hashCode() == thisMapHash && chr.isLoggedinWorld()) {
+                        list.add(chr);
                     }
                 }
             }
-        } finally {
-            }
+        }
 
         return list;
     }
@@ -5370,12 +5133,9 @@ public class Character extends AbstractCharacterObject {
     }
 
     public boolean isPartyMember(int cid) {
-        try {
-            if (party != null) {
-                return party.getMemberById(cid) != null;
-            }
-        } finally {
-            }
+        if (party != null) {
+            return party.getMemberById(cid) != null;
+        }
 
         return false;
     }
@@ -5504,10 +5264,7 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Pet[] getPets() {
-        try {
-            return Arrays.copyOf(pets, pets.length);
-        } finally {
-            }
+        return Arrays.copyOf(pets, pets.length);
     }
 
     public Pet getPet(int index) {
@@ -5515,38 +5272,29 @@ public class Character extends AbstractCharacterObject {
             return null;
         }
 
-        try {
-            return pets[index];
-        } finally {
-            }
+        return pets[index];
     }
 
     public byte getPetIndex(int petId) {
-        try {
-            for (byte i = 0; i < 3; i++) {
-                if (pets[i] != null) {
-                    if (pets[i].getUniqueId() == petId) {
-                        return i;
-                    }
+        for (byte i = 0; i < 3; i++) {
+            if (pets[i] != null) {
+                if (pets[i].getUniqueId() == petId) {
+                    return i;
                 }
             }
-            return -1;
-        } finally {
-            }
+        }
+        return -1;
     }
 
     public byte getPetIndex(Pet pet) {
-        try {
-            for (byte i = 0; i < 3; i++) {
-                if (pets[i] != null) {
-                    if (pets[i].getUniqueId() == pet.getUniqueId()) {
-                        return i;
-                    }
+        for (byte i = 0; i < 3; i++) {
+            if (pets[i] != null) {
+                if (pets[i].getUniqueId() == pet.getUniqueId()) {
+                    return i;
                 }
             }
-            return -1;
-        } finally {
-            }
+        }
+        return -1;
     }
 
     public int getPossibleReports() {
@@ -5728,14 +5476,11 @@ public class Character extends AbstractCharacterObject {
     }
 
     public StatEffect getStatForBuff(BuffStat effect) {
-        try {
-            BuffStatValueHolder mbsvh = effects.get(effect);
-            if (mbsvh == null) {
-                return null;
-            }
-            return mbsvh.effect;
-        } finally {
-            }
+        BuffStatValueHolder mbsvh = effects.get(effect);
+        if (mbsvh == null) {
+            return null;
+        }
+        return mbsvh.effect;
     }
 
     public Storage getStorage() {
@@ -5934,14 +5679,11 @@ public class Character extends AbstractCharacterObject {
     }
 
     public boolean isBuffFrom(BuffStat stat, Skill skill) {
-        try {
-            BuffStatValueHolder mbsvh = effects.get(stat);
-            if (mbsvh == null) {
-                return false;
-            }
-            return mbsvh.effect.isSkill() && mbsvh.effect.getSourceId() == skill.getId();
-        } finally {
-            }
+        BuffStatValueHolder mbsvh = effects.get(stat);
+        if (mbsvh == null) {
+            return false;
+        }
+        return mbsvh.effect.isSkill() && mbsvh.effect.getSourceId() == skill.getId();
     }
 
     public boolean isGmJob() {
@@ -5974,11 +5716,8 @@ public class Character extends AbstractCharacterObject {
     }
 
     public boolean isPartyLeader() {
-        try {
-            Party party = getParty();
-            return party != null && party.getLeaderId() == getId();
-        } finally {
-            }
+        Party party = getParty();
+        return party != null && party.getLeaderId() == getId();
     }
 
     public boolean isGuildLeader() {    // true on guild master or jr. master
@@ -6092,20 +5831,17 @@ public class Character extends AbstractCharacterObject {
 
         boolean isBeginner = isBeginnerJob();
         if (YamlConfig.config.server.USE_AUTOASSIGN_STARTERS_AP && isBeginner && level < 11) {
-            try {
-                gainAp(5, true);
+            gainAp(5, true);
 
-                int str = 0, dex = 0;
-                if (level < 6) {
-                    str += 5;
-                } else {
-                    str += 4;
-                    dex += 1;
-                }
+            int str = 0, dex = 0;
+            if (level < 6) {
+                str += 5;
+            } else {
+                str += 4;
+                dex += 1;
+            }
 
-                assignStrDexIntLuk(str, dex, 0, 0);
-            } finally {
-                }
+            assignStrDexIntLuk(str, dex, 0, 0);
         } else {
             int remainingAp = 5;
 
@@ -6207,25 +5943,22 @@ public class Character extends AbstractCharacterObject {
 
         levelUpGainSp();
 
-        try {
-            recalcLocalStats();
-            changeHpMp(localmaxhp, localmaxmp, true);
+        recalcLocalStats();
+        changeHpMp(localmaxhp, localmaxmp, true);
 
-            List<Pair<Stat, Integer>> statup = new ArrayList<>(10);
-            statup.add(new Pair<>(Stat.AVAILABLEAP, remainingAp));
-            statup.add(new Pair<>(Stat.AVAILABLESP, remainingSp[GameConstants.getSkillBook(job.getId())]));
-            statup.add(new Pair<>(Stat.HP, hp));
-            statup.add(new Pair<>(Stat.MP, mp));
-            statup.add(new Pair<>(Stat.EXP, exp.get()));
-            statup.add(new Pair<>(Stat.LEVEL, level));
-            statup.add(new Pair<>(Stat.MAXHP, clientmaxhp));
-            statup.add(new Pair<>(Stat.MAXMP, clientmaxmp));
-            statup.add(new Pair<>(Stat.STR, str));
-            statup.add(new Pair<>(Stat.DEX, dex));
+        List<Pair<Stat, Integer>> statup = new ArrayList<>(10);
+        statup.add(new Pair<>(Stat.AVAILABLEAP, remainingAp));
+        statup.add(new Pair<>(Stat.AVAILABLESP, remainingSp[GameConstants.getSkillBook(job.getId())]));
+        statup.add(new Pair<>(Stat.HP, hp));
+        statup.add(new Pair<>(Stat.MP, mp));
+        statup.add(new Pair<>(Stat.EXP, exp.get()));
+        statup.add(new Pair<>(Stat.LEVEL, level));
+        statup.add(new Pair<>(Stat.MAXHP, clientmaxhp));
+        statup.add(new Pair<>(Stat.MAXMP, clientmaxmp));
+        statup.add(new Pair<>(Stat.STR, str));
+        statup.add(new Pair<>(Stat.DEX, dex));
 
-            sendPacket(PacketCreator.updatePlayerStats(statup, true, this));
-        } finally {
-            }
+        sendPacket(PacketCreator.updatePlayerStats(statup, true, this));
 
         getMap().broadcastMessage(this, PacketCreator.showForeignEffect(getId(), 0), false);
         setMPC(new PartyCharacter(this));
@@ -6289,11 +6022,8 @@ public class Character extends AbstractCharacterObject {
         Party party;
         boolean partyLeader;
 
-        try {
-            party = getParty();
-            partyLeader = isPartyLeader();
-        } finally {
-            }
+        party = getParty();
+        partyLeader = isPartyLeader();
 
         if (party != null) {
             if (partyLeader) {
@@ -6342,11 +6072,8 @@ public class Character extends AbstractCharacterObject {
         List<Integer> couponEffects;
 
         Collection<Item> cashItems = this.getInventory(InventoryType.CASH).list();
-        try {
-            setActiveCoupons(cashItems);
-            couponEffects = activateCouponsEffects();
-        } finally {
-            }
+        setActiveCoupons(cashItems);
+        couponEffects = activateCouponsEffects();
 
         for (Integer couponId : couponEffects) {
             commitBuffCoupon(couponId);
@@ -6503,10 +6230,7 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Set<Integer> getActiveCoupons() {
-        try {
-            return Collections.unmodifiableSet(activeCoupons.keySet());
-        } finally {
-            }
+        return Collections.unmodifiableSet(activeCoupons.keySet());
     }
 
     public void addPlayerRing(Ring ring) {
@@ -7426,74 +7150,73 @@ public class Character extends AbstractCharacterObject {
     }
 
     private void reapplyLocalStats() {
-        try {
-            localmaxhp = getMaxHp();
-            localmaxmp = getMaxMp();
-            localdex = getDex();
-            localint_ = getInt();
-            localstr = getStr();
-            localluk = getLuk();
-            localmagic = localint_;
-            localwatk = 0;
-            localchairrate = -1;
+        localmaxhp = getMaxHp();
+        localmaxmp = getMaxMp();
+        localdex = getDex();
+        localint_ = getInt();
+        localstr = getStr();
+        localluk = getLuk();
+        localmagic = localint_;
+        localwatk = 0;
+        localchairrate = -1;
 
-            recalcEquipStats();
+        recalcEquipStats();
 
-            localmagic = Math.min(localmagic, 2000);
+        localmagic = Math.min(localmagic, 2000);
 
-            Integer hbhp = getBuffedValue(BuffStat.HYPERBODYHP);
-            if (hbhp != null) {
-                localmaxhp += (hbhp.doubleValue() / 100) * localmaxhp;
+        Integer hbhp = getBuffedValue(BuffStat.HYPERBODYHP);
+        if (hbhp != null) {
+            localmaxhp += (hbhp.doubleValue() / 100) * localmaxhp;
+        }
+        Integer hbmp = getBuffedValue(BuffStat.HYPERBODYMP);
+        if (hbmp != null) {
+            localmaxmp += (hbmp.doubleValue() / 100) * localmaxmp;
+        }
+
+        localmaxhp = Math.min(30000, localmaxhp);
+        localmaxmp = Math.min(30000, localmaxmp);
+
+        StatEffect combo = getBuffEffect(BuffStat.ARAN_COMBO);
+        if (combo != null) {
+            localwatk += combo.getX();
+        }
+
+        if (energybar == 15000) {
+            Skill energycharge = isCygnus() ? SkillFactory.getSkill(ThunderBreaker.ENERGY_CHARGE) : SkillFactory.getSkill(Marauder.ENERGY_CHARGE);
+            StatEffect ceffect = energycharge.getEffect(getSkillLevel(energycharge));
+            localwatk += ceffect.getWatk();
+        }
+
+        Integer mwarr = getBuffedValue(BuffStat.MAPLE_WARRIOR);
+        if (mwarr != null) {
+            localstr += getStr() * mwarr / 100;
+            localdex += getDex() * mwarr / 100;
+            localint_ += getInt() * mwarr / 100;
+            localluk += getLuk() * mwarr / 100;
+        }
+        if (job.isA(Job.BOWMAN)) {
+            Skill expert = null;
+            if (job.isA(Job.MARKSMAN)) {
+                expert = SkillFactory.getSkill(3220004);
+            } else if (job.isA(Job.BOWMASTER)) {
+                expert = SkillFactory.getSkill(3120005);
             }
-            Integer hbmp = getBuffedValue(BuffStat.HYPERBODYMP);
-            if (hbmp != null) {
-                localmaxmp += (hbmp.doubleValue() / 100) * localmaxmp;
-            }
-
-            localmaxhp = Math.min(30000, localmaxhp);
-            localmaxmp = Math.min(30000, localmaxmp);
-
-            StatEffect combo = getBuffEffect(BuffStat.ARAN_COMBO);
-            if (combo != null) {
-                localwatk += combo.getX();
-            }
-
-            if (energybar == 15000) {
-                Skill energycharge = isCygnus() ? SkillFactory.getSkill(ThunderBreaker.ENERGY_CHARGE) : SkillFactory.getSkill(Marauder.ENERGY_CHARGE);
-                StatEffect ceffect = energycharge.getEffect(getSkillLevel(energycharge));
-                localwatk += ceffect.getWatk();
-            }
-
-            Integer mwarr = getBuffedValue(BuffStat.MAPLE_WARRIOR);
-            if (mwarr != null) {
-                localstr += getStr() * mwarr / 100;
-                localdex += getDex() * mwarr / 100;
-                localint_ += getInt() * mwarr / 100;
-                localluk += getLuk() * mwarr / 100;
-            }
-            if (job.isA(Job.BOWMAN)) {
-                Skill expert = null;
-                if (job.isA(Job.MARKSMAN)) {
-                    expert = SkillFactory.getSkill(3220004);
-                } else if (job.isA(Job.BOWMASTER)) {
-                    expert = SkillFactory.getSkill(3120005);
-                }
-                if (expert != null) {
-                    int boostLevel = getSkillLevel(expert);
-                    if (boostLevel > 0) {
-                        localwatk += expert.getEffect(boostLevel).getX();
-                    }
+            if (expert != null) {
+                int boostLevel = getSkillLevel(expert);
+                if (boostLevel > 0) {
+                    localwatk += expert.getEffect(boostLevel).getX();
                 }
             }
+        }
 
-            Integer watkbuff = getBuffedValue(BuffStat.WATK);
-            if (watkbuff != null) {
-                localwatk += watkbuff.intValue();
-            }
-            Integer matkbuff = getBuffedValue(BuffStat.MATK);
-            if (matkbuff != null) {
-                localmagic += matkbuff.intValue();
-            }
+        Integer watkbuff = getBuffedValue(BuffStat.WATK);
+        if (watkbuff != null) {
+            localwatk += watkbuff.intValue();
+        }
+        Integer matkbuff = getBuffedValue(BuffStat.MATK);
+        if (matkbuff != null) {
+            localmagic += matkbuff.intValue();
+        }
 
             /*
             Integer speedbuff = getBuffedValue(BuffStat.SPEED);
@@ -7506,124 +7229,110 @@ public class Character extends AbstractCharacterObject {
             }
             */
 
-            Integer blessing = getSkillLevel(10000000 * getJobType() + 12);
-            if (blessing > 0) {
-                localwatk += blessing;
-                localmagic += blessing * 2;
-            }
+        Integer blessing = getSkillLevel(10000000 * getJobType() + 12);
+        if (blessing > 0) {
+            localwatk += blessing;
+            localmagic += blessing * 2;
+        }
 
-            if (job.isA(Job.THIEF) || job.isA(Job.BOWMAN) || job.isA(Job.PIRATE) || job.isA(Job.NIGHTWALKER1) || job.isA(Job.WINDARCHER1)) {
-                Item weapon_item = getInventory(InventoryType.EQUIPPED).getItem((short) -11);
-                if (weapon_item != null) {
-                    ItemInformationProvider ii = ItemInformationProvider.getInstance();
-                    WeaponType weapon = ii.getWeaponType(weapon_item.getItemId());
-                    boolean bow = weapon == WeaponType.BOW;
-                    boolean crossbow = weapon == WeaponType.CROSSBOW;
-                    boolean claw = weapon == WeaponType.CLAW;
-                    boolean gun = weapon == WeaponType.GUN;
-                    if (bow || crossbow || claw || gun) {
-                        // Also calc stars into this.
-                        Inventory inv = getInventory(InventoryType.USE);
-                        for (short i = 1; i <= inv.getSlotLimit(); i++) {
-                            Item item = inv.getItem(i);
-                            if (item != null) {
-                                if ((claw && ItemConstants.isThrowingStar(item.getItemId())) || (gun && ItemConstants.isBullet(item.getItemId())) || (bow && ItemConstants.isArrowForBow(item.getItemId())) || (crossbow && ItemConstants.isArrowForCrossBow(item.getItemId()))) {
-                                    if (item.getQuantity() > 0) {
-                                        // Finally there!
-                                        localwatk += ii.getWatkForProjectile(item.getItemId());
-                                        break;
-                                    }
+        if (job.isA(Job.THIEF) || job.isA(Job.BOWMAN) || job.isA(Job.PIRATE) || job.isA(Job.NIGHTWALKER1) || job.isA(Job.WINDARCHER1)) {
+            Item weapon_item = getInventory(InventoryType.EQUIPPED).getItem((short) -11);
+            if (weapon_item != null) {
+                ItemInformationProvider ii = ItemInformationProvider.getInstance();
+                WeaponType weapon = ii.getWeaponType(weapon_item.getItemId());
+                boolean bow = weapon == WeaponType.BOW;
+                boolean crossbow = weapon == WeaponType.CROSSBOW;
+                boolean claw = weapon == WeaponType.CLAW;
+                boolean gun = weapon == WeaponType.GUN;
+                if (bow || crossbow || claw || gun) {
+                    // Also calc stars into this.
+                    Inventory inv = getInventory(InventoryType.USE);
+                    for (short i = 1; i <= inv.getSlotLimit(); i++) {
+                        Item item = inv.getItem(i);
+                        if (item != null) {
+                            if ((claw && ItemConstants.isThrowingStar(item.getItemId())) || (gun && ItemConstants.isBullet(item.getItemId())) || (bow && ItemConstants.isArrowForBow(item.getItemId())) || (crossbow && ItemConstants.isArrowForCrossBow(item.getItemId()))) {
+                                if (item.getQuantity() > 0) {
+                                    // Finally there!
+                                    localwatk += ii.getWatkForProjectile(item.getItemId());
+                                    break;
                                 }
                             }
                         }
                     }
                 }
-                // Add throwing stars to dmg.
             }
-        } finally {
-            }
+            // Add throwing stars to dmg.
+        }
     }
 
     private List<Pair<Stat, Integer>> recalcLocalStats() {
-        try {
-            List<Pair<Stat, Integer>> hpmpupdate = new ArrayList<>(2);
-            int oldlocalmaxhp = localmaxhp;
-            int oldlocalmaxmp = localmaxmp;
+        List<Pair<Stat, Integer>> hpmpupdate = new ArrayList<>(2);
+        int oldlocalmaxhp = localmaxhp;
+        int oldlocalmaxmp = localmaxmp;
 
-            reapplyLocalStats();
+        reapplyLocalStats();
 
-            if (YamlConfig.config.server.USE_FIXED_RATIO_HPMP_UPDATE) {
-                if (localmaxhp != oldlocalmaxhp) {
-                    Pair<Stat, Integer> hpUpdate;
+        if (YamlConfig.config.server.USE_FIXED_RATIO_HPMP_UPDATE) {
+            if (localmaxhp != oldlocalmaxhp) {
+                Pair<Stat, Integer> hpUpdate;
 
-                    if (transienthp == Float.NEGATIVE_INFINITY) {
-                        hpUpdate = calcHpRatioUpdate(localmaxhp, oldlocalmaxhp);
-                    } else {
-                        hpUpdate = calcHpRatioTransient();
-                    }
-
-                    hpmpupdate.add(hpUpdate);
+                if (transienthp == Float.NEGATIVE_INFINITY) {
+                    hpUpdate = calcHpRatioUpdate(localmaxhp, oldlocalmaxhp);
+                } else {
+                    hpUpdate = calcHpRatioTransient();
                 }
 
-                if (localmaxmp != oldlocalmaxmp) {
-                    Pair<Stat, Integer> mpUpdate;
+                hpmpupdate.add(hpUpdate);
+            }
 
-                    if (transientmp == Float.NEGATIVE_INFINITY) {
-                        mpUpdate = calcMpRatioUpdate(localmaxmp, oldlocalmaxmp);
-                    } else {
-                        mpUpdate = calcMpRatioTransient();
-                    }
+            if (localmaxmp != oldlocalmaxmp) {
+                Pair<Stat, Integer> mpUpdate;
 
-                    hpmpupdate.add(mpUpdate);
+                if (transientmp == Float.NEGATIVE_INFINITY) {
+                    mpUpdate = calcMpRatioUpdate(localmaxmp, oldlocalmaxmp);
+                } else {
+                    mpUpdate = calcMpRatioTransient();
                 }
-            }
 
-            return hpmpupdate;
-        } finally {
+                hpmpupdate.add(mpUpdate);
             }
+        }
+
+        return hpmpupdate;
     }
 
     private void updateLocalStats() {
-        try {
-            int oldmaxhp = localmaxhp;
-            List<Pair<Stat, Integer>> hpmpupdate = recalcLocalStats();
-            enforceMaxHpMp();
+        int oldmaxhp = localmaxhp;
+        List<Pair<Stat, Integer>> hpmpupdate = recalcLocalStats();
+        enforceMaxHpMp();
 
-            if (!hpmpupdate.isEmpty()) {
-                sendPacket(PacketCreator.updatePlayerStats(hpmpupdate, true, this));
-            }
+        if (!hpmpupdate.isEmpty()) {
+            sendPacket(PacketCreator.updatePlayerStats(hpmpupdate, true, this));
+        }
 
-            if (oldmaxhp != localmaxhp) {   // thanks Wh1SK3Y (Suwaidy) for pointing out a deadlock occuring related to party members HP
-                updatePartyMemberHP();
-            }
-        } finally {
-            }
+        if (oldmaxhp != localmaxhp) {   // thanks Wh1SK3Y (Suwaidy) for pointing out a deadlock occuring related to party members HP
+            updatePartyMemberHP();
+        }
     }
 
     public void receivePartyMemberHP() {
-        try {
-            if (party != null) {
-                for (Character partychar : this.getPartyMembersOnSameMap()) {
-                    sendPacket(PacketCreator.updatePartyMemberHP(partychar.getId(), partychar.getHp(), partychar.getCurrentMaxHp()));
-                }
+        if (party != null) {
+            for (Character partychar : this.getPartyMembersOnSameMap()) {
+                sendPacket(PacketCreator.updatePartyMemberHP(partychar.getId(), partychar.getHp(), partychar.getCurrentMaxHp()));
             }
-        } finally {
-            }
+        }
     }
 
     public void removeAllCooldownsExcept(int id, boolean packet) {
-        try {
-            ArrayList<CooldownValueHolder> list = new ArrayList<>(coolDowns.values());
-            for (CooldownValueHolder mcvh : list) {
-                if (mcvh.skillId != id) {
-                    coolDowns.remove(mcvh.skillId);
-                    if (packet) {
-                        sendPacket(PacketCreator.skillCooldown(mcvh.skillId, 0));
-                    }
+        ArrayList<CooldownValueHolder> list = new ArrayList<>(coolDowns.values());
+        for (CooldownValueHolder mcvh : list) {
+            if (mcvh.skillId != id) {
+                coolDowns.remove(mcvh.skillId);
+                if (packet) {
+                    sendPacket(PacketCreator.skillCooldown(mcvh.skillId, 0));
                 }
             }
-        } finally {
-            }
+        }
     }
 
     public static void removeAriantRoom(int room) {
@@ -7632,37 +7341,31 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void removeCooldown(int skillId) {
-        try {
-            this.coolDowns.remove(skillId);
-        } finally {
-            }
+        this.coolDowns.remove(skillId);
     }
 
     public void removePet(Pet pet, boolean shift_left) {
-        try {
-            int slot = -1;
-            for (int i = 0; i < 3; i++) {
-                if (pets[i] != null) {
-                    if (pets[i].getUniqueId() == pet.getUniqueId()) {
+        int slot = -1;
+        for (int i = 0; i < 3; i++) {
+            if (pets[i] != null) {
+                if (pets[i].getUniqueId() == pet.getUniqueId()) {
+                    pets[i] = null;
+                    slot = i;
+                    break;
+                }
+            }
+        }
+        if (shift_left) {
+            if (slot > -1) {
+                for (int i = slot; i < 3; i++) {
+                    if (i != 2) {
+                        pets[i] = pets[i + 1];
+                    } else {
                         pets[i] = null;
-                        slot = i;
-                        break;
                     }
                 }
             }
-            if (shift_left) {
-                if (slot > -1) {
-                    for (int i = slot; i < 3; i++) {
-                        if (i != 2) {
-                            pets[i] = pets[i + 1];
-                        } else {
-                            pets[i] = null;
-                        }
-                    }
-                }
-            }
-        } finally {
-            }
+        }
     }
 
     public void removeVisibleMapObject(MapObject mo) {
@@ -7674,48 +7377,45 @@ public class Character extends AbstractCharacterObject {
             return;
         }
 
-        try {
-            int tap = remainingAp + str + dex + int_ + luk, tsp = 1;
-            int tstr = 4, tdex = 4, tint = 4, tluk = 4;
+        int tap = remainingAp + str + dex + int_ + luk, tsp = 1;
+        int tstr = 4, tdex = 4, tint = 4, tluk = 4;
 
-            switch (job.getId()) {
-                case 100:
-                case 1100:
-                case 2100:
-                    tstr = 35;
-                    tsp += ((getLevel() - 10) * 3);
-                    break;
-                case 200:
-                case 1200:
-                    tint = 20;
-                    tsp += ((getLevel() - 8) * 3);
-                    break;
-                case 300:
-                case 1300:
-                case 400:
-                case 1400:
-                    tdex = 25;
-                    tsp += ((getLevel() - 10) * 3);
-                    break;
-                case 500:
-                case 1500:
-                    tdex = 20;
-                    tsp += ((getLevel() - 10) * 3);
-                    break;
-            }
+        switch (job.getId()) {
+            case 100:
+            case 1100:
+            case 2100:
+                tstr = 35;
+                tsp += ((getLevel() - 10) * 3);
+                break;
+            case 200:
+            case 1200:
+                tint = 20;
+                tsp += ((getLevel() - 8) * 3);
+                break;
+            case 300:
+            case 1300:
+            case 400:
+            case 1400:
+                tdex = 25;
+                tsp += ((getLevel() - 10) * 3);
+                break;
+            case 500:
+            case 1500:
+                tdex = 20;
+                tsp += ((getLevel() - 10) * 3);
+                break;
+        }
 
-            tap -= tstr;
-            tap -= tdex;
-            tap -= tint;
-            tap -= tluk;
+        tap -= tstr;
+        tap -= tdex;
+        tap -= tint;
+        tap -= tluk;
 
-            if (tap >= 0) {
-                updateStrDexIntLukSp(tstr, tdex, tint, tluk, tap, tsp, GameConstants.getSkillBook(job.getId()));
-            } else {
-                log.warn("Chr {} tried to have its stats reset without enough AP available");
-            }
-        } finally {
-            }
+        if (tap >= 0) {
+            updateStrDexIntLukSp(tstr, tdex, tint, tluk, tap, tsp, GameConstants.getSkillBook(job.getId()));
+        } else {
+            log.warn("Chr {} tried to have its stats reset without enough AP available");
+        }
     }
 
     public void resetBattleshipHp() {
@@ -8014,29 +7714,26 @@ public class Character extends AbstractCharacterObject {
                     ps.setInt(1, level);    // thanks CanIGetaPR for noticing an unnecessary "level" limitation when persisting DB data
                     ps.setInt(2, fame);
 
-                    try {
-                        ps.setInt(3, str);
-                        ps.setInt(4, dex);
-                        ps.setInt(5, luk);
-                        ps.setInt(6, int_);
-                        ps.setInt(7, Math.abs(exp.get()));
-                        ps.setInt(8, Math.abs(gachaexp.get()));
-                        ps.setInt(9, hp);
-                        ps.setInt(10, mp);
-                        ps.setInt(11, maxhp);
-                        ps.setInt(12, maxmp);
+                    ps.setInt(3, str);
+                    ps.setInt(4, dex);
+                    ps.setInt(5, luk);
+                    ps.setInt(6, int_);
+                    ps.setInt(7, Math.abs(exp.get()));
+                    ps.setInt(8, Math.abs(gachaexp.get()));
+                    ps.setInt(9, hp);
+                    ps.setInt(10, mp);
+                    ps.setInt(11, maxhp);
+                    ps.setInt(12, maxmp);
 
-                        StringBuilder sps = new StringBuilder();
-                        for (int j : remainingSp) {
-                            sps.append(j);
-                            sps.append(",");
-                        }
-                        String sp = sps.toString();
-                        ps.setString(13, sp.substring(0, sp.length() - 1));
+                    StringBuilder sps = new StringBuilder();
+                    for (int j : remainingSp) {
+                        sps.append(j);
+                        sps.append(",");
+                    }
+                    String sp = sps.toString();
+                    ps.setString(13, sp.substring(0, sp.length() - 1));
 
-                        ps.setInt(14, remainingAp);
-                    } finally {
-                        }
+                    ps.setInt(14, remainingAp);
 
                     ps.setInt(15, gmLevel);
                     ps.setInt(16, skinColor.getId());
@@ -8066,14 +7763,11 @@ public class Character extends AbstractCharacterObject {
                         }
                     }
 
-                    try {
-                        if (party != null) {
-                            ps.setInt(25, party.getId());
-                        } else {
-                            ps.setInt(25, -1);
-                        }
-                    } finally {
-                        }
+                    if (party != null) {
+                        ps.setInt(25, party.getId());
+                    } else {
+                        ps.setInt(25, -1);
+                    }
 
                     ps.setInt(26, buddylist.getCapacity());
                     if (messenger != null) {
@@ -8127,14 +7821,11 @@ public class Character extends AbstractCharacterObject {
                 }
 
                 List<Pet> petList = new LinkedList<>();
-                try {
-                    for (int i = 0; i < 3; i++) {
-                        if (pets[i] != null) {
-                            petList.add(pets[i]);
-                        }
+                for (int i = 0; i < 3; i++) {
+                    if (pets[i] != null) {
+                        petList.add(pets[i]);
                     }
-                } finally {
-                    }
+                }
 
                 for (Pet pet : petList) {
                     pet.saveToDb();
@@ -8462,14 +8153,11 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void setBuffedValue(BuffStat effect, int value) {
-        try {
-            BuffStatValueHolder mbsvh = effects.get(effect);
-            if (mbsvh == null) {
-                return;
-            }
-            mbsvh.value = value;
-        } finally {
-            }
+        BuffStatValueHolder mbsvh = effects.get(effect);
+        if (mbsvh == null) {
+            return;
+        }
+        mbsvh.value = value;
     }
 
     public void setChalkboard(String text) {
@@ -8493,10 +8181,7 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void setEventInstance(EventInstanceManager eventInstance) {
-        try {
-            this.eventInstance = eventInstance;
-        } finally {
-            }
+        this.eventInstance = eventInstance;
     }
 
     public void setExp(int amount) {
@@ -8702,24 +8387,21 @@ public class Character extends AbstractCharacterObject {
     public boolean applyHpMpChange(int hpCon, int hpchange, int mpchange) {
         boolean zombify = hasDisease(Disease.ZOMBIFY);
 
-        try {
-            int nextHp = hp + hpchange, nextMp = mp + mpchange;
-            boolean cannotApplyHp = hpchange != 0 && nextHp <= 0 && (!zombify || hpCon > 0);
-            boolean cannotApplyMp = mpchange != 0 && nextMp < 0;
+        int nextHp = hp + hpchange, nextMp = mp + mpchange;
+        boolean cannotApplyHp = hpchange != 0 && nextHp <= 0 && (!zombify || hpCon > 0);
+        boolean cannotApplyMp = mpchange != 0 && nextMp < 0;
 
-            if (cannotApplyHp || cannotApplyMp) {
-                if (!isGM()) {
-                    return false;
-                }
-
-                if (cannotApplyHp) {
-                    nextHp = 1;
-                }
+        if (cannotApplyHp || cannotApplyMp) {
+            if (!isGM()) {
+                return false;
             }
 
-            updateHpMp(nextHp, nextMp);
-        } finally {
+            if (cannotApplyHp) {
+                nextHp = 1;
             }
+        }
+
+        updateHpMp(nextHp, nextMp);
 
         // autopot on HPMP deplete... thanks shavit for finding out D. Roar doesn't trigger autopot request
         if (hpchange < 0) {
@@ -8849,25 +8531,19 @@ public class Character extends AbstractCharacterObject {
     }
 
     public int fetchDoorSlot() {
-        try {
-            doorSlot = (party == null) ? 0 : party.getPartyDoor(this.getId());
-            return doorSlot;
-        } finally {
-            }
+        doorSlot = (party == null) ? 0 : party.getPartyDoor(this.getId());
+        return doorSlot;
     }
 
     public void setParty(Party p) {
-        try {
-            if (p == null) {
-                this.mpc = null;
-                doorSlot = -1;
+        if (p == null) {
+            this.mpc = null;
+            doorSlot = -1;
 
-                party = null;
-            } else {
-                party = p;
-            }
-        } finally {
-            }
+            party = null;
+        } else {
+            party = p;
+        }
     }
 
     public void setPlayerShop(PlayerShop playerShop) {
@@ -9187,14 +8863,11 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void shiftPetsRight() {
-        try {
-            if (pets[2] == null) {
-                pets[2] = pets[1];
-                pets[1] = pets[0];
-                pets[0] = null;
-            }
-        } finally {
-            }
+        if (pets[2] == null) {
+            pets[2] = pets[1];
+            pets[1] = pets[0];
+            pets[0] = null;
+        }
     }
 
     private long getDojoTimeLeft() {
@@ -9281,10 +8954,7 @@ public class Character extends AbstractCharacterObject {
     }
 
     public boolean skillIsCooling(int skillId) {
-        try {
-            return coolDowns.containsKey(Integer.valueOf(skillId));
-        } finally {
-            }
+        return coolDowns.containsKey(Integer.valueOf(skillId));
     }
 
     public void runFullnessSchedule(int petSlot) {
@@ -9377,10 +9047,7 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void updatePartyMemberHP() {
-        try {
-            updatePartyMemberHPInternal();
-        } finally {
-            }
+        updatePartyMemberHPInternal();
     }
 
     private void updatePartyMemberHPInternal() {
@@ -9517,70 +9184,22 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void cancelQuestExpirationTask() {
-        try {
-            if (questExpireTask != null) {
-                questExpireTask.cancel(false);
-                questExpireTask = null;
-            }
-        } finally {
-            }
+        if (questExpireTask != null) {
+            questExpireTask.cancel(false);
+            questExpireTask = null;
+        }
     }
 
     public void forfeitExpirableQuests() {
-        try {
-            for (Quest quest : questExpirations.keySet()) {
-                quest.forfeit(this);
-            }
+        for (Quest quest : questExpirations.keySet()) {
+            quest.forfeit(this);
+        }
 
-            questExpirations.clear();
-        } finally {
-            }
+        questExpirations.clear();
     }
 
     public void questExpirationTask() {
-        try {
-            if (!questExpirations.isEmpty()) {
-                if (questExpireTask == null) {
-                    questExpireTask = TimerManager.getInstance().register(new Runnable() {
-                        @Override
-                        public void run() {
-                            runQuestExpireTask();
-                        }
-                    }, SECONDS.toMillis(10));
-                }
-            }
-        } finally {
-            }
-    }
-
-    private void runQuestExpireTask() {
-        try {
-            long timeNow = Server.getInstance().getCurrentTime();
-            List<Quest> expireList = new LinkedList<>();
-
-            for (Entry<Quest, Long> qe : questExpirations.entrySet()) {
-                if (qe.getValue() <= timeNow) {
-                    expireList.add(qe.getKey());
-                }
-            }
-
-            if (!expireList.isEmpty()) {
-                for (Quest quest : expireList) {
-                    expireQuest(quest);
-                    questExpirations.remove(quest);
-                }
-
-                if (questExpirations.isEmpty()) {
-                    questExpireTask.cancel(false);
-                    questExpireTask = null;
-                }
-            }
-        } finally {
-            }
-    }
-
-    private void registerQuestExpire(Quest quest, long time) {
-        try {
+        if (!questExpirations.isEmpty()) {
             if (questExpireTask == null) {
                 questExpireTask = TimerManager.getInstance().register(new Runnable() {
                     @Override
@@ -9589,10 +9208,43 @@ public class Character extends AbstractCharacterObject {
                     }
                 }, SECONDS.toMillis(10));
             }
+        }
+    }
 
-            questExpirations.put(quest, Server.getInstance().getCurrentTime() + time);
-        } finally {
+    private void runQuestExpireTask() {
+        long timeNow = Server.getInstance().getCurrentTime();
+        List<Quest> expireList = new LinkedList<>();
+
+        for (Entry<Quest, Long> qe : questExpirations.entrySet()) {
+            if (qe.getValue() <= timeNow) {
+                expireList.add(qe.getKey());
             }
+        }
+
+        if (!expireList.isEmpty()) {
+            for (Quest quest : expireList) {
+                expireQuest(quest);
+                questExpirations.remove(quest);
+            }
+
+            if (questExpirations.isEmpty()) {
+                questExpireTask.cancel(false);
+                questExpireTask = null;
+            }
+        }
+    }
+
+    private void registerQuestExpire(Quest quest, long time) {
+        if (questExpireTask == null) {
+            questExpireTask = TimerManager.getInstance().register(new Runnable() {
+                @Override
+                public void run() {
+                    runQuestExpireTask();
+                }
+            }, SECONDS.toMillis(10));
+        }
+
+        questExpirations.put(quest, Server.getInstance().getCurrentTime() + time);
     }
 
     public void questTimeLimit(final Quest quest, int seconds) {
@@ -10072,16 +9724,13 @@ public class Character extends AbstractCharacterObject {
 
         clearCpqTimer();
 
-        try {
-            if (questExpireTask != null) {
-                questExpireTask.cancel(false);
-                questExpireTask = null;
+        if (questExpireTask != null) {
+            questExpireTask.cancel(false);
+            questExpireTask = null;
 
-                questExpirations.clear();
-                questExpirations = null;
-            }
-        } finally {
-            }
+            questExpirations.clear();
+            questExpirations = null;
+        }
 
         if (maplemount != null) {
             maplemount.empty();

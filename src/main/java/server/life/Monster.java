@@ -330,23 +330,20 @@ public class Monster extends AbstractLoadedLife {
             return false;
         }
 
-        try {
-            long animationTime;
+        long animationTime;
 
-            if (skill == null) {
-                animationTime = MonsterInformationProvider.getInstance().getMobAttackAnimationTime(this.getId(), attackPos);
-            } else {
-                animationTime = MonsterInformationProvider.getInstance().getMobSkillAnimationTime(skill);
-            }
+        if (skill == null) {
+            animationTime = MonsterInformationProvider.getInstance().getMobAttackAnimationTime(this.getId(), attackPos);
+        } else {
+            animationTime = MonsterInformationProvider.getInstance().getMobSkillAnimationTime(skill);
+        }
 
-            if (animationTime > 0) {
-                MobAnimationService service = (MobAnimationService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_ANIMATION);
-                return service.registerMobOnAnimationEffect(map.getId(), this.hashCode(), animationTime);
-            } else {
-                return true;
-            }
-        } finally {
-            }
+        if (animationTime > 0) {
+            MobAnimationService service = (MobAnimationService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_ANIMATION);
+            return service.registerMobOnAnimationEffect(map.getId(), this.hashCode(), animationTime);
+        } else {
+            return true;
+        }
     }
 
     public synchronized Integer applyAndGetHpDamage(int delta, boolean stayAlive) {
@@ -700,13 +697,10 @@ public class Monster extends AbstractLoadedLife {
             }
         }
 
-        try {
-            MonsterStatusEffect mse = stati.get(MonsterStatus.SHOWDOWN);
-            if (mse != null) {
-                multiplier *= (1.0 + (mse.getStati().get(MonsterStatus.SHOWDOWN).doubleValue() / 100.0));
-            }
-        } finally {
-            }
+        MonsterStatusEffect mse = stati.get(MonsterStatus.SHOWDOWN);
+        if (mse != null) {
+            multiplier *= (1.0 + (mse.getStati().get(MonsterStatus.SHOWDOWN).doubleValue() / 100.0));
+        }
 
         return multiplier;
     }
@@ -912,29 +906,20 @@ public class Monster extends AbstractLoadedLife {
         this.dispatchClearSummons();
 
         MonsterListener[] listenersList;
-        try {
-            listenersList = listeners.toArray(new MonsterListener[listeners.size()]);
-        } finally {
-            }
+        listenersList = listeners.toArray(new MonsterListener[listeners.size()]);
 
         for (MonsterListener listener : listenersList) {
             listener.monsterKilled(getAnimationTime("die1"));
         }
 
-        try {
-            stati.clear();
-            alreadyBuffed.clear();
-            listeners.clear();
-        } finally {
-            }
+        stati.clear();
+        alreadyBuffed.clear();
+        listeners.clear();
     }
 
     private void dispatchMonsterDamaged(Character from, int trueDmg) {
         MonsterListener[] listenersList;
-        try {
-            listenersList = listeners.toArray(new MonsterListener[listeners.size()]);
-        } finally {
-            }
+        listenersList = listeners.toArray(new MonsterListener[listeners.size()]);
 
         for (MonsterListener listener : listenersList) {
             listener.monsterDamaged(from, trueDmg);
@@ -943,10 +928,7 @@ public class Monster extends AbstractLoadedLife {
 
     private void dispatchMonsterHealed(int trueHeal) {
         MonsterListener[] listenersList;
-        try {
-            listenersList = listeners.toArray(new MonsterListener[listeners.size()]);
-        } finally {
-            }
+        listenersList = listeners.toArray(new MonsterListener[listeners.size()]);
 
         for (MonsterListener listener : listenersList) {
             listener.monsterHealed(trueHeal);
@@ -980,10 +962,7 @@ public class Monster extends AbstractLoadedLife {
     }
 
     public void addListener(MonsterListener listener) {
-        try {
-            listeners.add(listener);
-        } finally {
-            }
+        listeners.add(listener);
     }
 
     public Character getController() {
@@ -1068,21 +1047,15 @@ public class Monster extends AbstractLoadedLife {
     }
 
     public ElementalEffectiveness getElementalEffectiveness(Element e) {
-        try {
-            if (stati.get(MonsterStatus.DOOM) != null) {
-                return ElementalEffectiveness.NORMAL; // like blue snails
-            }
-        } finally {
-            }
+        if (stati.get(MonsterStatus.DOOM) != null) {
+            return ElementalEffectiveness.NORMAL; // like blue snails
+        }
 
         return getMonsterEffectiveness(e);
     }
 
     private ElementalEffectiveness getMonsterEffectiveness(Element e) {
-        try {
-            return stats.getEffectiveness(e);
-        } finally {
-            }
+        return stats.getEffectiveness(e);
     }
 
     private Character getActiveController() {
@@ -1162,19 +1135,16 @@ public class Monster extends AbstractLoadedLife {
         final Channel ch = map.getChannelServer();
         final int mapid = map.getId();
         if (statis.size() > 0) {
-            try {
-                for (MonsterStatus stat : statis.keySet()) {
-                    final MonsterStatusEffect oldEffect = stati.get(stat);
-                    if (oldEffect != null) {
-                        oldEffect.removeActiveStatus(stat);
-                        if (oldEffect.getStati().isEmpty()) {
-                            MobStatusService service = (MobStatusService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_STATUS);
-                            service.interruptMobStatus(mapid, oldEffect);
-                        }
+            for (MonsterStatus stat : statis.keySet()) {
+                final MonsterStatusEffect oldEffect = stati.get(stat);
+                if (oldEffect != null) {
+                    oldEffect.removeActiveStatus(stat);
+                    if (oldEffect.getStati().isEmpty()) {
+                        MobStatusService service = (MobStatusService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_STATUS);
+                        service.interruptMobStatus(mapid, oldEffect);
                     }
                 }
-            } finally {
-                }
+            }
         }
 
         final Runnable cancelTask = () -> {
@@ -1183,12 +1153,9 @@ public class Monster extends AbstractLoadedLife {
                 broadcastMonsterStatusMessage(packet);
             }
 
-            try {
-                for (MonsterStatus stat : status.getStati().keySet()) {
-                    stati.remove(stat);
-                }
-            } finally {
-                }
+            for (MonsterStatus stat : status.getStati().keySet()) {
+                stati.remove(stat);
+            }
 
             setVenomMulti(0);
         };
@@ -1258,13 +1225,10 @@ public class Monster extends AbstractLoadedLife {
             animationTime = broadcastStatusEffect(status);
         }
 
-        try {
-            for (MonsterStatus stat : status.getStati().keySet()) {
-                stati.put(stat, status);
-                alreadyBuffed.add(stat);
-            }
-        } finally {
-            }
+        for (MonsterStatus stat : status.getStati().keySet()) {
+            stati.put(stat, status);
+            alreadyBuffed.add(stat);
+        }
 
         MobStatusService service = (MobStatusService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_STATUS);
         service.registerMobStatus(mapid, status, cancelTask, duration + animationTime - 100, overtimeAction, overtimeDelay);
@@ -1290,25 +1254,19 @@ public class Monster extends AbstractLoadedLife {
                 Packet packet = PacketCreator.cancelMonsterStatus(getObjectId(), stats);
                 broadcastMonsterStatusMessage(packet);
 
-                try {
-                    for (final MonsterStatus stat : stats.keySet()) {
-                        stati.remove(stat);
-                    }
-                } finally {
-                    }
+                for (final MonsterStatus stat : stats.keySet()) {
+                    stati.remove(stat);
+                }
             }
         };
         final MonsterStatusEffect effect = new MonsterStatusEffect(stats, null, skill, true);
         Packet packet = PacketCreator.applyMonsterStatus(getObjectId(), effect, reflection);
         broadcastMonsterStatusMessage(packet);
 
-        try {
-            for (MonsterStatus stat : stats.keySet()) {
-                stati.put(stat, effect);
-                alreadyBuffed.add(stat);
-            }
-        } finally {
-            }
+        for (MonsterStatus stat : stats.keySet()) {
+            stati.put(stat, effect);
+            alreadyBuffed.add(stat);
+        }
 
         MobStatusService service = (MobStatusService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_STATUS);
         service.registerMobStatus(map.getId(), effect, cancelTask, duration);
@@ -1330,10 +1288,7 @@ public class Monster extends AbstractLoadedLife {
 
     private void debuffMobStat(MonsterStatus stat) {
         MonsterStatusEffect oldEffect;
-        try {
-            oldEffect = stati.remove(stat);
-        } finally {
-            }
+        oldEffect = stati.remove(stat);
 
         if (oldEffect != null) {
             Packet packet = PacketCreator.cancelMonsterStatus(getObjectId(), oldEffect.getStati());
@@ -1343,60 +1298,48 @@ public class Monster extends AbstractLoadedLife {
 
     public void debuffMob(int skillid) {
         MonsterStatus[] statups = {MonsterStatus.WEAPON_ATTACK_UP, MonsterStatus.WEAPON_DEFENSE_UP, MonsterStatus.MAGIC_ATTACK_UP, MonsterStatus.MAGIC_DEFENSE_UP};
-        try {
-            if (skillid == Hermit.SHADOW_MESO) {
-                debuffMobStat(statups[1]);
-                debuffMobStat(statups[3]);
-            } else if (skillid == Priest.DISPEL) {
-                for (MonsterStatus ms : statups) {
-                    debuffMobStat(ms);
-                }
-            } else {    // is a crash skill
-                int i = (skillid == Crusader.ARMOR_CRASH ? 1 : (skillid == WhiteKnight.MAGIC_CRASH ? 2 : 0));
-                debuffMobStat(statups[i]);
+        if (skillid == Hermit.SHADOW_MESO) {
+            debuffMobStat(statups[1]);
+            debuffMobStat(statups[3]);
+        } else if (skillid == Priest.DISPEL) {
+            for (MonsterStatus ms : statups) {
+                debuffMobStat(ms);
+            }
+        } else {    // is a crash skill
+            int i = (skillid == Crusader.ARMOR_CRASH ? 1 : (skillid == WhiteKnight.MAGIC_CRASH ? 2 : 0));
+            debuffMobStat(statups[i]);
 
-                if (YamlConfig.config.server.USE_ANTI_IMMUNITY_CRASH) {
-                    if (skillid == Crusader.ARMOR_CRASH) {
-                        if (!isBuffed(MonsterStatus.WEAPON_REFLECT)) {
-                            debuffMobStat(MonsterStatus.WEAPON_IMMUNITY);
-                        }
-                        if (!isBuffed(MonsterStatus.MAGIC_REFLECT)) {
-                            debuffMobStat(MonsterStatus.MAGIC_IMMUNITY);
-                        }
-                    } else if (skillid == WhiteKnight.MAGIC_CRASH) {
-                        if (!isBuffed(MonsterStatus.MAGIC_REFLECT)) {
-                            debuffMobStat(MonsterStatus.MAGIC_IMMUNITY);
-                        }
-                    } else {
-                        if (!isBuffed(MonsterStatus.WEAPON_REFLECT)) {
-                            debuffMobStat(MonsterStatus.WEAPON_IMMUNITY);
-                        }
+            if (YamlConfig.config.server.USE_ANTI_IMMUNITY_CRASH) {
+                if (skillid == Crusader.ARMOR_CRASH) {
+                    if (!isBuffed(MonsterStatus.WEAPON_REFLECT)) {
+                        debuffMobStat(MonsterStatus.WEAPON_IMMUNITY);
+                    }
+                    if (!isBuffed(MonsterStatus.MAGIC_REFLECT)) {
+                        debuffMobStat(MonsterStatus.MAGIC_IMMUNITY);
+                    }
+                } else if (skillid == WhiteKnight.MAGIC_CRASH) {
+                    if (!isBuffed(MonsterStatus.MAGIC_REFLECT)) {
+                        debuffMobStat(MonsterStatus.MAGIC_IMMUNITY);
+                    }
+                } else {
+                    if (!isBuffed(MonsterStatus.WEAPON_REFLECT)) {
+                        debuffMobStat(MonsterStatus.WEAPON_IMMUNITY);
                     }
                 }
             }
-        } finally {
-            }
+        }
     }
 
     public boolean isBuffed(MonsterStatus status) {
-        try {
-            return stati.containsKey(status);
-        } finally {
-            }
+        return stati.containsKey(status);
     }
 
     public void setFake(boolean fake) {
-        try {
-            this.fake = fake;
-        } finally {
-            }
+        this.fake = fake;
     }
 
     public boolean isFake() {
-        try {
-            return fake;
-        } finally {
-            }
+        return fake;
     }
 
     public MapleMap getMap() {
@@ -1426,27 +1369,24 @@ public class Monster extends AbstractLoadedLife {
             }
         }
 
-        try {
-            if (usedSkills.contains(toUse.getId())) {
-                return false;
-            }
+        if (usedSkills.contains(toUse.getId())) {
+            return false;
+        }
 
-            int mpCon = toUse.getMpCon();
-            if (mp < mpCon) {
-                return false;
-            }
-            
+        int mpCon = toUse.getMpCon();
+        if (mp < mpCon) {
+            return false;
+        }
+
             /*
             if (!this.applyAnimationIfRoaming(-1, toUse)) {
                 return false;
             }
             */
 
-            if (apply) {
-                this.usedSkill(toUse);
-            }
-        } finally {
-            }
+        if (apply) {
+            this.usedSkill(toUse);
+        }
 
         return true;
     }
@@ -1460,12 +1400,9 @@ public class Monster extends AbstractLoadedLife {
 
     private void usedSkill(MobSkill skill) {
         final MobSkillId msId = skill.getId();
-        try {
-            mp -= skill.getMpCon();
+        mp -= skill.getMpCon();
 
-            this.usedSkills.add(msId);
-        } finally {
-            }
+        this.usedSkills.add(msId);
 
         final Monster mons = this;
         MapleMap mmap = mons.getMap();
@@ -1476,62 +1413,50 @@ public class Monster extends AbstractLoadedLife {
     }
 
     private void clearSkill(MobSkillId msId) {
-        try {
-            usedSkills.remove(msId);
-        } finally {
-            }
+        usedSkills.remove(msId);
     }
 
     public int canUseAttack(int attackPos, boolean isSkill) {
-        try {
-            /*
-            if (usedAttacks.contains(attackPos)) {
-                return -1;
-            }
-            */
+        /*
+        if (usedAttacks.contains(attackPos)) {
+            return -1;
+        }
+        */
 
-            Pair<Integer, Integer> attackInfo = MonsterInformationProvider.getInstance().getMobAttackInfo(this.getId(), attackPos);
-            if (attackInfo == null) {
-                return -1;
-            }
+        Pair<Integer, Integer> attackInfo = MonsterInformationProvider.getInstance().getMobAttackInfo(this.getId(), attackPos);
+        if (attackInfo == null) {
+            return -1;
+        }
 
-            int mpCon = attackInfo.getLeft();
-            if (mp < mpCon) {
-                return -1;
-            }
-            
+        int mpCon = attackInfo.getLeft();
+        if (mp < mpCon) {
+            return -1;
+        }
+
             /*
             if (!this.applyAnimationIfRoaming(attackPos, null)) {
                 return -1;
             }
             */
 
-            usedAttack(attackPos, mpCon, attackInfo.getRight());
-            return 1;
-        } finally {
-            }
+        usedAttack(attackPos, mpCon, attackInfo.getRight());
+        return 1;
     }
 
     private void usedAttack(final int attackPos, int mpCon, int cooltime) {
-        try {
-            mp -= mpCon;
-            usedAttacks.add(attackPos);
+        mp -= mpCon;
+        usedAttacks.add(attackPos);
 
-            final Monster mons = this;
-            MapleMap mmap = mons.getMap();
-            Runnable r = () -> mons.clearAttack(attackPos);
+        final Monster mons = this;
+        MapleMap mmap = mons.getMap();
+        Runnable r = () -> mons.clearAttack(attackPos);
 
-            MobClearSkillService service = (MobClearSkillService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_CLEAR_SKILL);
-            service.registerMobClearSkillAction(mmap.getId(), r, cooltime);
-        } finally {
-            }
+        MobClearSkillService service = (MobClearSkillService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_CLEAR_SKILL);
+        service.registerMobClearSkillAction(mmap.getId(), r, cooltime);
     }
 
     private void clearAttack(int attackPos) {
-        try {
-            usedAttacks.remove(attackPos);
-        } finally {
-            }
+        usedAttacks.remove(attackPos);
     }
 
     public boolean hasAnySkill() {
@@ -1623,33 +1548,27 @@ public class Monster extends AbstractLoadedLife {
     }
 
     public void setTempEffectiveness(Element e, ElementalEffectiveness ee, long milli) {
-        try {
-            final Element fE = e;
-            final ElementalEffectiveness fEE = stats.getEffectiveness(e);
-            if (!fEE.equals(ElementalEffectiveness.WEAK)) {
-                stats.setEffectiveness(e, ee);
+        final Element fE = e;
+        final ElementalEffectiveness fEE = stats.getEffectiveness(e);
+        if (!fEE.equals(ElementalEffectiveness.WEAK)) {
+            stats.setEffectiveness(e, ee);
 
-                MapleMap mmap = this.getMap();
-                Runnable r = () -> {
-                    try {
-                        stats.removeEffectiveness(fE);
-                        stats.setEffectiveness(fE, fEE);
-                    } finally {
-                        }
-                };
+            MapleMap mmap = this.getMap();
+            Runnable r = () -> {
+                try {
+                    stats.removeEffectiveness(fE);
+                    stats.setEffectiveness(fE, fEE);
+                } finally {
+                    }
+            };
 
-                MobClearSkillService service = (MobClearSkillService) mmap.getChannelServer().getServiceAccess(ChannelServices.MOB_CLEAR_SKILL);
-                service.registerMobClearSkillAction(mmap.getId(), r, milli);
-            }
-        } finally {
-            }
+            MobClearSkillService service = (MobClearSkillService) mmap.getChannelServer().getServiceAccess(ChannelServices.MOB_CLEAR_SKILL);
+            service.registerMobClearSkillAction(mmap.getId(), r, milli);
+        }
     }
 
     public Collection<MonsterStatus> alreadyBuffedStats() {
-        try {
-            return Collections.unmodifiableCollection(alreadyBuffed);
-        } finally {
-            }
+        return Collections.unmodifiableCollection(alreadyBuffed);
     }
 
     public BanishInfo getBanish() {
@@ -1669,17 +1588,11 @@ public class Monster extends AbstractLoadedLife {
     }
 
     public Map<MonsterStatus, MonsterStatusEffect> getStati() {
-        try {
-            return new HashMap<>(stati);
-        } finally {
-            }
+        return new HashMap<>(stati);
     }
 
     public MonsterStatusEffect getStati(MonsterStatus ms) {
-        try {
-            return stati.get(ms);
-        } finally {
-            }
+        return stati.get(ms);
     }
 
     // ---- one can always have fun trying these pieces of codes below in-game rofl ----
@@ -1817,15 +1730,12 @@ public class Monster extends AbstractLoadedLife {
         Character chrController;
         boolean hadAggro;
 
-        try {
-            chrController = getActiveController();
-            hadAggro = isControllerHasAggro();
+        chrController = getActiveController();
+        hadAggro = isControllerHasAggro();
 
-            this.setController(null);
-            this.setControllerHasAggro(false);
-            this.setControllerKnowsAboutAggro(false);
-        } finally {
-            }
+        this.setController(null);
+        this.setControllerHasAggro(false);
+        this.setControllerKnowsAboutAggro(false);
 
         if (chrController != null) { // this can/should only happen when a hidden gm attacks the monster
             if (!this.isFake()) {
@@ -1843,23 +1753,20 @@ public class Monster extends AbstractLoadedLife {
      */
     public void aggroSwitchController(Character newController, boolean immediateAggro) {
         if (aggroUpdateLock.tryLock()) {
-            try {
-                Character prevController = getController();
-                if (prevController == newController) {
-                    return;
-                }
+            Character prevController = getController();
+            if (prevController == newController) {
+                return;
+            }
 
-                aggroRemoveController();
-                if (!(newController != null && newController.isLoggedinWorld() && newController.getMap() == this.getMap())) {
-                    return;
-                }
+            aggroRemoveController();
+            if (!(newController != null && newController.isLoggedinWorld() && newController.getMap() == this.getMap())) {
+                return;
+            }
 
-                this.setController(newController);
-                this.setControllerHasAggro(immediateAggro);
-                this.setControllerKnowsAboutAggro(false);
-                this.setControllerHasPuppet(false);
-            } finally {
-                }
+            this.setController(newController);
+            this.setControllerHasAggro(immediateAggro);
+            this.setControllerKnowsAboutAggro(false);
+            this.setControllerHasPuppet(false);
 
             this.aggroUpdatePuppetVisibility();
             aggroMonsterControl(newController.getClient(), this, immediateAggro);
@@ -2114,11 +2021,8 @@ public class Monster extends AbstractLoadedLife {
      * Clears this mob aggro on the current controller.
      */
     public void aggroResetAggro() {
-        try {
-            this.setControllerHasAggro(false);
-            this.setControllerKnowsAboutAggro(false);
-        } finally {
-            }
+        this.setControllerHasAggro(false);
+        this.setControllerKnowsAboutAggro(false);
     }
 
     public final int getRemoveAfter() {

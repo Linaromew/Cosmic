@@ -46,10 +46,7 @@ public class InventoryProof extends Inventory {
     }
 
     public void flushContents() {
-        try {
-            inventory.clear();
-        } finally {
-            }
+        inventory.clear();
     }
 
     @Override
@@ -58,31 +55,22 @@ public class InventoryProof extends Inventory {
             return -1;
         }
 
-        try {
-            short slotId = getNextFreeSlot();
-            if (slotId < 0) {
-                return -1;
-            }
-            inventory.put(slotId, item);
+        short slotId = getNextFreeSlot();
+        if (slotId < 0) {
+            return -1;
+        }
+        inventory.put(slotId, item);
 
-            return slotId;
-        } finally {
-            }
+        return slotId;
     }
 
     @Override
     protected void addSlotFromDB(short slot, Item item) {
-        try {
-            inventory.put(slot, item);
-        } finally {
-            }
+        inventory.put(slot, item);
     }
 
     @Override
     public void removeSlot(short slot) {
-        try {
-            inventory.remove(slot);
-        } finally {
-            }
+        inventory.remove(slot);
     }
 }

@@ -308,17 +308,11 @@ public class Expedition {
     }
 
     public void setProperty(String key, String value) {
-        try {
-            props.setProperty(key, value);
-        } finally {
-            }
+        props.setProperty(key, value);
     }
 
     public String getProperty(String key) {
-        try {
-            return props.getProperty(key);
-        } finally {
-            }
+        return props.getProperty(key);
     }
 
     public ExpeditionType getType() {

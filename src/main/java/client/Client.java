@@ -558,14 +558,11 @@ public class Client extends ChannelInboundHandlerAdapter {
     }
 
     public int finishLogin() {
-        try {
-            if (getLoginState() > LOGIN_NOTLOGGEDIN) { // 0 = LOGIN_NOTLOGGEDIN, 1= LOGIN_SERVER_TRANSITION, 2 = LOGIN_LOGGEDIN
-                loggedIn = false;
-                return 7;
-            }
-            updateLoginState(Client.LOGIN_LOGGEDIN);
-        } finally {
-            }
+        if (getLoginState() > LOGIN_NOTLOGGEDIN) { // 0 = LOGIN_NOTLOGGEDIN, 1= LOGIN_SERVER_TRANSITION, 2 = LOGIN_LOGGEDIN
+            loggedIn = false;
+            return 7;
+        }
+        updateLoginState(Client.LOGIN_LOGGEDIN);
 
         return 0;
     }
@@ -1457,10 +1454,7 @@ public class Client extends ChannelInboundHandlerAdapter {
     }
 
     public void sendPacket(Packet packet) {
-        try {
-            ioChannel.writeAndFlush(packet);
-        } finally {
-            }
+        ioChannel.writeAndFlush(packet);
     }
 
     public void announceHint(String msg, int length) {

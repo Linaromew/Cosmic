@@ -65,27 +65,21 @@ public class MobAnimationService extends BaseService {
 
         public MobAnimationScheduler() {
             super.addListener((toRemove, update) -> {
-                try {
-                    for (Object hashObj : toRemove) {
-                        Integer mobHash = (Integer) hashObj;
-                        onAnimationMobs.remove(mobHash);
-                    }
-                } finally {
-                    }
+                for (Object hashObj : toRemove) {
+                    Integer mobHash = (Integer) hashObj;
+                    onAnimationMobs.remove(mobHash);
+                }
             });
         }
 
         public boolean registerAnimationMode(Integer mobHash, long animationTime) {
-            try {
-                if (onAnimationMobs.contains(mobHash)) {
-                    return false;
-                }
+            if (onAnimationMobs.contains(mobHash)) {
+                return false;
+            }
 
-                registerEntry(mobHash, r, animationTime);
-                onAnimationMobs.add(mobHash);
-                return true;
-            } finally {
-                }
+            registerEntry(mobHash, r, animationTime);
+            onAnimationMobs.add(mobHash);
+            return true;
         }
 
         @Override

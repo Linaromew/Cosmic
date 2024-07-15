@@ -45,35 +45,29 @@ public final class MonsterBook {
     private final Lock lock = new ReentrantLock();
 
     public Set<Entry<Integer, Integer>> getCardSet() {
-        try {
-            return new HashSet<>(cards.entrySet());
-        } finally {
-            }
+        return new HashSet<>(cards.entrySet());
     }
 
     public void addCard(final Client c, final int cardid) {
         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), PacketCreator.showForeignCardEffect(c.getPlayer().getId()), false);
 
         Integer qty;
-        try {
-            qty = cards.get(cardid);
+        qty = cards.get(cardid);
 
-            if (qty != null) {
-                if (qty < 5) {
-                    cards.put(cardid, qty + 1);
-                }
+        if (qty != null) {
+            if (qty < 5) {
+                cards.put(cardid, qty + 1);
+            }
+        } else {
+            cards.put(cardid, 1);
+            qty = 0;
+
+            if (cardid / 1000 >= 2388) {
+                specialCard++;
             } else {
-                cards.put(cardid, 1);
-                qty = 0;
-
-                if (cardid / 1000 >= 2388) {
-                    specialCard++;
-                } else {
-                    normalCard++;
-                }
+                normalCard++;
             }
-        } finally {
-            }
+        }
 
         if (qty < 5) {
             if (qty == 0) {     // leveling system only accounts unique cards
@@ -88,53 +82,35 @@ public final class MonsterBook {
     }
 
     private void calculateLevel() {
-        try {
-            int collectionExp = (normalCard + specialCard);
+        int collectionExp = (normalCard + specialCard);
 
-            int level = 0, expToNextlevel = 1;
-            do {
-                level++;
-                expToNextlevel += level * 10;
-            } while (collectionExp >= expToNextlevel);
+        int level = 0, expToNextlevel = 1;
+        do {
+            level++;
+            expToNextlevel += level * 10;
+        } while (collectionExp >= expToNextlevel);
 
-            bookLevel = level;  // thanks IxianMace for noticing book level differing between book UI and character info UI
-        } finally {
-            }
+        bookLevel = level;  // thanks IxianMace for noticing book level differing between book UI and character info UI
     }
 
     public int getBookLevel() {
-        try {
-            return bookLevel;
-        } finally {
-            }
+        return bookLevel;
     }
 
     public Map<Integer, Integer> getCards() {
-        try {
-            return Collections.unmodifiableMap(cards);
-        } finally {
-            }
+        return Collections.unmodifiableMap(cards);
     }
 
     public int getTotalCards() {
-        try {
-            return specialCard + normalCard;
-        } finally {
-            }
+        return specialCard + normalCard;
     }
 
     public int getNormalCard() {
-        try {
-            return normalCard;
-        } finally {
-            }
+        return normalCard;
     }
 
     public int getSpecialCard() {
-        try {
-            return specialCard;
-        } finally {
-            }
+        return specialCard;
     }
 
     public void loadCards(final int charid) throws SQLException {

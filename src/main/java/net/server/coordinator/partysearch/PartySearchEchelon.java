@@ -47,34 +47,25 @@ public class PartySearchEchelon {
 
     public List<Character> exportEchelon() {
         // reversing read/write actually could provide a lax yet sure performance/precision trade-off here
-        try {
-            List<Character> players = new ArrayList<>(echelon.size());
+        List<Character> players = new ArrayList<>(echelon.size());
 
-            for (WeakReference<Character> chrRef : echelon.values()) {
-                Character chr = chrRef.get();
-                if (chr != null) {
-                    players.add(chr);
-                }
+        for (WeakReference<Character> chrRef : echelon.values()) {
+            Character chr = chrRef.get();
+            if (chr != null) {
+                players.add(chr);
             }
+        }
 
-            echelon.clear();
-            return players;
-        } finally {
-            }
+        echelon.clear();
+        return players;
     }
 
     public void attachPlayer(Character chr) {
-        try {
-            echelon.put(chr.getId(), new WeakReference<>(chr));
-        } finally {
-            }
+        echelon.put(chr.getId(), new WeakReference<>(chr));
     }
 
     public boolean detachPlayer(Character chr) {
-        try {
-            return echelon.remove(chr.getId()) != null;
-        } finally {
-            }
+        return echelon.remove(chr.getId()) != null;
     }
 
 }
