@@ -50,15 +50,6 @@ public enum ItemFactory {
     private final int value;
     private final boolean account;
 
-    private static final int lockCount = 400;
-    private static final Lock[] locks = new Lock[lockCount];  // thanks Masterrulax for pointing out a bottleneck issue here
-
-    static {
-        for (int i = 0; i < lockCount; i++) {
-            locks[i] = new ReentrantLock(true);
-        }
-    }
-
     ItemFactory(int value, boolean account) {
         this.value = value;
         this.account = account;
@@ -195,7 +186,6 @@ public enum ItemFactory {
     }
 
     private void saveItemsCommon(List<Pair<Item, InventoryType>> items, int id, Connection con) throws SQLException {
-        Lock lock = locks[id % lockCount];
         StringBuilder query = new StringBuilder();
         query.append("DELETE `inventoryitems`, `inventoryequipment` FROM `inventoryitems` LEFT JOIN `inventoryequipment` USING(`inventoryitemid`) WHERE `type` = ? AND `");
         query.append(account ? "accountid" : "characterid").append("` = ?");
@@ -322,7 +312,6 @@ public enum ItemFactory {
     }
 
     private void saveItemsMerchant(List<Pair<Item, InventoryType>> items, List<Short> bundlesList, int id, Connection con) throws SQLException {
-        Lock lock = locks[id % lockCount];
         try (PreparedStatement ps = con.prepareStatement("DELETE FROM `inventorymerchant` WHERE `characterid` = ?")) {
             ps.setInt(1, id);
             ps.executeUpdate();

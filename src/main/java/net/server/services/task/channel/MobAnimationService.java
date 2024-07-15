@@ -61,7 +61,6 @@ public class MobAnimationService extends BaseService {
 
     private class MobAnimationScheduler extends BaseScheduler {
         Set<Integer> onAnimationMobs = new HashSet<>(1000);
-        private final Lock animationLock = new ReentrantLock(true);
 
         public MobAnimationScheduler() {
             super.addListener((toRemove, update) -> {

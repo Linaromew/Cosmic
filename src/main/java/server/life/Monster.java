@@ -116,12 +116,6 @@ public class Monster extends AbstractLoadedLife {
     private Runnable removeAfterAction = null;
     private boolean availablePuppetUpdate = true;
 
-    private final Lock externalLock = new ReentrantLock();
-    private final Lock monsterLock = new ReentrantLock(true);
-    private final Lock statiLock = new ReentrantLock();
-    private final Lock animationLock = new ReentrantLock();
-    private final Lock aggroUpdateLock = new ReentrantLock();
-
     public Monster(int id, MonsterStats stats) {
         super(id);
         initWithStats(stats);
@@ -326,9 +320,6 @@ public class Monster extends AbstractLoadedLife {
     }
 
     private boolean applyAnimationIfRoaming(int attackPos, MobSkill skill) {   // roam: not casting attack or skill animations
-        if (!animationLock.tryLock()) {
-            return false;
-        }
 
         long animationTime;
 
@@ -1752,7 +1743,6 @@ public class Monster extends AbstractLoadedLife {
      * player controller.
      */
     public void aggroSwitchController(Character newController, boolean immediateAggro) {
-        if (aggroUpdateLock.tryLock()) {
             Character prevController = getController();
             if (prevController == newController) {
                 return;
@@ -1771,7 +1761,6 @@ public class Monster extends AbstractLoadedLife {
             this.aggroUpdatePuppetVisibility();
             aggroMonsterControl(newController.getClient(), this, immediateAggro);
             newController.controlMonster(this);
-        }
     }
 
     public void aggroAddPuppet(Character player) {

@@ -311,11 +311,6 @@ public class Character extends AbstractCharacterObject {
     private ScheduledFuture<?> chairRecoveryTask = null;
     private ScheduledFuture<?> pendantOfSpirit = null; //1122017
     private ScheduledFuture<?> cpqSchedule = null;
-    private final Lock chrLock = new ReentrantLock(true);
-    private final Lock evtLock = new ReentrantLock(true);
-    private final Lock petLock = new ReentrantLock(true);
-    private final Lock prtLock = new ReentrantLock();
-    private final Lock cpnLock = new ReentrantLock();
     private final Map<Integer, Set<Integer>> excluded = new LinkedHashMap<>();
     private final Set<Integer> excludedItems = new LinkedHashSet<>();
     private final Set<Integer> disabledPartySearchInvites = new LinkedHashSet<>();
@@ -1871,15 +1866,11 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void controlMonster(Monster monster) {
-        if (cpnLock.tryLock()) {
             controlled.add(monster);
-        }
     }
 
     public void stopControllingMonster(Monster monster) {
-        if (cpnLock.tryLock()) {
             controlled.remove(monster);
-        }
     }
 
     public int getNumControlledMonsters() {

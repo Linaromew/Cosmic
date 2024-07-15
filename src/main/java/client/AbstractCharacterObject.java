@@ -46,15 +46,7 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     private AbstractCharacterListener listener = null;
     protected Map<Stat, Integer> statUpdates = new HashMap<>();
 
-    protected final Lock effLock = new ReentrantLock(true);
-    protected final Lock statRlock;
-    protected final Lock statWlock;
-
     protected AbstractCharacterObject() {
-        ReadWriteLock statLock = new ReentrantReadWriteLock(true);
-        this.statRlock = statLock.readLock();
-        this.statWlock = statLock.writeLock();
-
         for (int i = 0; i < remainingSp.length; i++) {
             remainingSp[i] = 0;
         }

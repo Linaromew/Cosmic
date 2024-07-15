@@ -50,7 +50,6 @@ public class Inventory implements Iterable<Item> {
     private static final Logger log = LoggerFactory.getLogger(Inventory.class);
     protected final Map<Short, Item> inventory;
     protected final InventoryType type;
-    protected final Lock lock = new ReentrantLock(true);
 
     protected Character owner;
     protected byte slotLimit;
@@ -572,12 +571,6 @@ public class Inventory implements Iterable<Item> {
     public void checked(boolean yes) {
         checked = yes;
     }
-
-    public void lockInventory() {
-        }
-
-    public void unlockInventory() {
-        }
 
     public void dispose() {
         owner = null;

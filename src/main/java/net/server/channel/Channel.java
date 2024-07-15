@@ -118,7 +118,6 @@ public final class Channel {
     private Set<Integer> ongoingCathedralGuests = null;
     private long ongoingStartTime;
 
-    private final Lock lock = new ReentrantLock(true);;
     private final Lock merchRlock;
     private final Lock merchWlock;
 

@@ -69,7 +69,6 @@ public class MobStatusService extends BaseService {
     private class MobStatusScheduler extends BaseScheduler {
 
         private final Map<MonsterStatusEffect, MobStatusOvertimeEntry> registeredMobStatusOvertime = new HashMap<>();
-        private final Lock overtimeStatusLock = new ReentrantLock(true);
 
         private class MobStatusOvertimeEntry {
             private int procCount;

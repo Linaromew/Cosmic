@@ -61,7 +61,6 @@ public class Storage {
     private byte slots;
     private final Map<InventoryType, List<Item>> typeItems = new HashMap<>();
     private List<Item> items = new LinkedList<>();
-    private final Lock lock = new ReentrantLock(true);
 
     private Storage(int id, byte slots, int meso) {
         this.id = id;

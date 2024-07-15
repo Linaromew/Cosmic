@@ -60,7 +60,6 @@ public class PlayerShop extends AbstractMapObject {
     private final List<String> bannedList = new ArrayList<>();
     private final List<Pair<Character, String>> chatLog = new LinkedList<>();
     private final Map<Integer, Byte> chatSlot = new LinkedHashMap<>();
-    private final Lock visitorLock = new ReentrantLock(true);
 
     public PlayerShop(Character owner, String description, int itemid) {
         this.setPosition(owner.getPosition());

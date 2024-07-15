@@ -138,9 +138,6 @@ public class Client extends ChannelInboundHandlerAdapter {
     private byte gender = -1;
     private boolean disconnecting = false;
     private final Semaphore actionsSemaphore = new Semaphore(7);
-    private final Lock lock = new ReentrantLock(true);
-    private final Lock encoderLock = new ReentrantLock(true);
-    private final Lock announcerLock = new ReentrantLock(true);
     // thanks Masterrulax & try2hack for pointing out a bottleneck issue with shared locks, shavit for noticing an opportunity for improvement
     private Calendar tempBanCalendar;
     private int votePoints;

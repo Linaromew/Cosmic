@@ -848,7 +848,7 @@ public class Server {
     private void initializeTimelyTasks(ChannelDependencies channelDependencies) {
         TimerManager tMan = TimerManager.getInstance();
         tMan.start();
-        tMan.register(tMan.purge(), YamlConfig.config.server.PURGING_INTERVAL);//Purging ftw...
+        //tMan.register(tMan.purge(), YamlConfig.config.server.PURGING_INTERVAL);//Purging ftw...
         disconnectIdlesOnLoginTask();
 
         long timeLeft = getTimeLeftForNextHour();
@@ -1709,7 +1709,7 @@ public class Server {
         resetServerWorlds();
 
         ThreadManager.getInstance().stop();
-        TimerManager.getInstance().purge();
+        //TimerManager.getInstance().purge();
         TimerManager.getInstance().stop();
 
         log.info("Worlds and channels are offline.");

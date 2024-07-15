@@ -57,8 +57,6 @@ public class Reactor extends AbstractMapObject {
     private Runnable delayedRespawnRun = null;
     private GuardianSpawnPoint guardian = null;
     private byte facingDirection = 0;
-    private final Lock reactorLock = new ReentrantLock(true);
-    private final Lock hitLock = new ReentrantLock(true);
 
     public Reactor(ReactorStats stats, int rid) {
         this.evstate = (byte) 0;
@@ -198,10 +196,6 @@ public class Reactor extends AbstractMapObject {
     }
 
     private void tryForceHitReactor(final byte newState) {  // weak hit state signal, if already changed reactor state before timeout then drop this
-        if (!reactorLock.tryLock()) {
-            return;
-        }
-
         this.resetReactorActions(newState);
         map.broadcastMessage(PacketCreator.triggerReactor(this, (short) 0));
     }
@@ -239,8 +233,6 @@ public class Reactor extends AbstractMapObject {
                 return;
             }
 
-            if (hitLock.tryLock()) {
-                this.lockReactor();
                 try {
                     cancelReactorTimeout();
                     attackHit = wHit;
@@ -308,14 +300,12 @@ public class Reactor extends AbstractMapObject {
                     this.unlockReactor();
                     // non-encapsulated unlock found thanks to MiLin
                 }
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public boolean destroy() {
-        if (reactorLock.tryLock()) {
             boolean alive = this.isAlive();
             // reactor neither alive nor in delayed respawn, remove map object allowed
             if (alive) {
@@ -328,7 +318,6 @@ public class Reactor extends AbstractMapObject {
             } else {
                 return !this.inDelayedRespawn();
             }
-        }
 
         map.broadcastMessage(PacketCreator.destroyReactor(this));
         return false;

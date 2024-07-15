@@ -37,7 +37,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class PlayerBuffStorage {
     private final int id = (int) (Math.random() * 100);
-    private final Lock lock = new ReentrantLock(true);
     private final Map<Integer, List<PlayerBuffValueHolder>> buffs = new HashMap<>();
     private final Map<Integer, Map<Disease, Pair<Long, MobSkill>>> diseases = new HashMap<>();
 

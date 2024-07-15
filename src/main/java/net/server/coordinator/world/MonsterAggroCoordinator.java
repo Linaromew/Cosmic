@@ -42,9 +42,8 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author Ronan
  */
-public class MonsterAggroCoordinator {
-    private final Lock lock = new ReentrantLock();
-    private final Lock idleLock = new ReentrantLock(true);
+public class MonsterAggroCoordinator
+{
     private long lastStopTime = Server.getInstance().getCurrentTime();
 
     private ScheduledFuture<?> aggroMonitor = null;
@@ -54,7 +53,8 @@ public class MonsterAggroCoordinator {
 
     private final Set<Integer> mapPuppetEntries = new HashSet<>();
 
-    private class PlayerAggroEntry {
+    private class PlayerAggroEntry
+    {
         protected int cid;
         protected int averageDamage = 0;
         protected int currentDamageInstances = 0;
@@ -65,13 +65,16 @@ public class MonsterAggroCoordinator {
         protected int toNextUpdate = 0;
         protected int entryRank = -1;
 
-        protected PlayerAggroEntry(int cid) {
+        protected PlayerAggroEntry(int cid)
+        {
             this.cid = cid;
         }
     }
 
-    public void stopAggroCoordinator() {
-        if (aggroMonitor == null) {
+    public void stopAggroCoordinator()
+    {
+        if (aggroMonitor == null)
+        {
             return;
         }
 
@@ -81,193 +84,238 @@ public class MonsterAggroCoordinator {
         lastStopTime = Server.getInstance().getCurrentTime();
     }
 
-    public void startAggroCoordinator() {
-        if (aggroMonitor != null) {
+    public void startAggroCoordinator()
+    {
+        if (aggroMonitor != null)
+        {
             return;
         }
 
-        aggroMonitor = TimerManager.getInstance().register(() -> {
+        aggroMonitor = TimerManager.getInstance().register(() ->
+        {
             runAggroUpdate(1);
             runSortLeadingCharactersAggro();
         }, YamlConfig.config.server.MOB_STATUS_AGGRO_INTERVAL, YamlConfig.config.server.MOB_STATUS_AGGRO_INTERVAL);
 
         int timeDelta = (int) Math.ceil((Server.getInstance().getCurrentTime() - lastStopTime) / YamlConfig.config.server.MOB_STATUS_AGGRO_INTERVAL);
-        if (timeDelta > 0) {
+        if (timeDelta > 0)
+        {
             runAggroUpdate(timeDelta);
         }
     }
 
-    private static void updateEntryExpiration(PlayerAggroEntry pae) {
+    private static void updateEntryExpiration(PlayerAggroEntry pae)
+    {
         pae.toNextUpdate = (int) Math.ceil((120000L / YamlConfig.config.server.MOB_STATUS_AGGRO_INTERVAL) / Math.pow(2, pae.expireStreak + pae.currentDamageInstances));
     }
 
-    private static void insertEntryDamage(PlayerAggroEntry pae, int damage) {
+    private static void insertEntryDamage(PlayerAggroEntry pae, int damage)
+    {
 
-            long totalDamage = pae.averageDamage;
-            totalDamage *= pae.currentDamageInstances;
-            totalDamage += damage;
+        long totalDamage = pae.averageDamage;
+        totalDamage *= pae.currentDamageInstances;
+        totalDamage += damage;
 
-            pae.expireStreak = 0;
-            pae.updateStreak = 0;
+        pae.expireStreak = 0;
+        pae.updateStreak = 0;
+        updateEntryExpiration(pae);
+
+        pae.currentDamageInstances += 1;
+        pae.averageDamage = (int) (totalDamage / pae.currentDamageInstances);
+        pae.accumulatedDamage = totalDamage;
+
+    }
+
+    private static boolean expiredAfterUpdateEntryDamage(PlayerAggroEntry pae, int deltaTime)
+    {
+
+        pae.updateStreak += 1;
+        pae.toNextUpdate -= deltaTime;
+
+        if (pae.toNextUpdate <= 0)
+        {    // reached dmg instance expire time
+            pae.expireStreak += 1;
             updateEntryExpiration(pae);
 
-            pae.currentDamageInstances += 1;
-            pae.averageDamage = (int) (totalDamage / pae.currentDamageInstances);
-            pae.accumulatedDamage = totalDamage;
-
-    }
-
-    private static boolean expiredAfterUpdateEntryDamage(PlayerAggroEntry pae, int deltaTime) {
-
-            pae.updateStreak += 1;
-            pae.toNextUpdate -= deltaTime;
-
-            if (pae.toNextUpdate <= 0) {    // reached dmg instance expire time
-                pae.expireStreak += 1;
-                updateEntryExpiration(pae);
-
-                pae.currentDamageInstances -= 1;
-                if (pae.currentDamageInstances < 1) {   // expired aggro for this player
-                    return true;
-                }
-                pae.accumulatedDamage = pae.averageDamage * pae.currentDamageInstances;
+            pae.currentDamageInstances -= 1;
+            if (pae.currentDamageInstances < 1)
+            {   // expired aggro for this player
+                return true;
             }
+            pae.accumulatedDamage = pae.averageDamage * pae.currentDamageInstances;
+        }
 
-            return false;
+        return false;
     }
 
-    public void addAggroDamage(Monster mob, int cid, int damage) { // assumption: should not trigger after dispose()
-        if (!mob.isAlive()) {
+    public void addAggroDamage(Monster mob, int cid, int damage)
+    { // assumption: should not trigger after dispose()
+        if (!mob.isAlive())
+        {
             return;
         }
 
         List<PlayerAggroEntry> sortedAggro = mobSortedAggros.get(mob);
         Map<Integer, PlayerAggroEntry> mobAggro = mobAggroEntries.get(mob);
-        if (mobAggro == null) {
-            if (lock.tryLock()) {   // can run unreliably, as fast as possible... try lock that is!
-                mobAggro = mobAggroEntries.get(mob);
-                if (mobAggro == null) {
-                    mobAggro = new HashMap<>();
-                    mobAggroEntries.put(mob, mobAggro);
+        if (mobAggro == null)
+        {
+            mobAggro = mobAggroEntries.get(mob);
+            if (mobAggro == null)
+            {
+                mobAggro = new HashMap<>();
+                mobAggroEntries.put(mob, mobAggro);
 
-                    sortedAggro = new LinkedList<>();
-                    mobSortedAggros.put(mob, sortedAggro);
-                } else {
-                    sortedAggro = mobSortedAggros.get(mob);
-                }
-            } else {
-                return;
+                sortedAggro = new LinkedList<>();
+                mobSortedAggros.put(mob, sortedAggro);
+            }
+            else
+            {
+                sortedAggro = mobSortedAggros.get(mob);
             }
         }
 
         PlayerAggroEntry aggroEntry = mobAggro.get(cid);
-        if (aggroEntry == null) {
+        if (aggroEntry == null)
+        {
             aggroEntry = new PlayerAggroEntry(cid);
 
-                    PlayerAggroEntry mappedEntry = mobAggro.get(cid);
+            PlayerAggroEntry mappedEntry = mobAggro.get(cid);
 
-                    if (mappedEntry == null) {
-                        mobAggro.put(aggroEntry.cid, aggroEntry);
-                        sortedAggro.add(aggroEntry);
-                    } else {
-                        aggroEntry = mappedEntry;
-                    }
-        } else if (damage < 1) {
+            if (mappedEntry == null)
+            {
+                mobAggro.put(aggroEntry.cid, aggroEntry);
+                sortedAggro.add(aggroEntry);
+            }
+            else
+            {
+                aggroEntry = mappedEntry;
+            }
+        }
+        else if (damage < 1)
+        {
             return;
         }
 
         insertEntryDamage(aggroEntry, damage);
     }
 
-    private void runAggroUpdate(int deltaTime) {
+    private void runAggroUpdate(int deltaTime)
+    {
         List<Pair<Monster, Map<Integer, PlayerAggroEntry>>> aggroMobs = new LinkedList<>();
-        for (Entry<Monster, Map<Integer, PlayerAggroEntry>> e : mobAggroEntries.entrySet()) {
+        for (Entry<Monster, Map<Integer, PlayerAggroEntry>> e : mobAggroEntries.entrySet())
+        {
             aggroMobs.add(new Pair<>(e.getKey(), e.getValue()));
         }
 
-        for (Pair<Monster, Map<Integer, PlayerAggroEntry>> am : aggroMobs) {
+        for (Pair<Monster, Map<Integer, PlayerAggroEntry>> am : aggroMobs)
+        {
             Map<Integer, PlayerAggroEntry> mobAggro = am.getRight();
             List<PlayerAggroEntry> sortedAggro = mobSortedAggros.get(am.getLeft());
 
-            if (sortedAggro != null) {
+            if (sortedAggro != null)
+            {
                 List<Integer> toRemove = new LinkedList<>();
                 List<Integer> toRemoveIdx = new ArrayList<>(mobAggro.size());
                 List<Integer> toRemoveByFetch = new LinkedList<>();
 
-                        for (PlayerAggroEntry pae : mobAggro.values()) {
-                            if (expiredAfterUpdateEntryDamage(pae, deltaTime)) {
-                                toRemove.add(pae.cid);
-                                if (pae.entryRank > -1) {
-                                    toRemoveIdx.add(pae.entryRank);
-                                } else {
-                                    toRemoveByFetch.add(pae.cid);
-                                }
+                for (PlayerAggroEntry pae : mobAggro.values())
+                {
+                    if (expiredAfterUpdateEntryDamage(pae, deltaTime))
+                    {
+                        toRemove.add(pae.cid);
+                        if (pae.entryRank > -1)
+                        {
+                            toRemoveIdx.add(pae.entryRank);
+                        }
+                        else
+                        {
+                            toRemoveByFetch.add(pae.cid);
+                        }
+                    }
+                }
+
+                if (!toRemove.isEmpty())
+                {
+                    for (Integer cid : toRemove)
+                    {
+                        mobAggro.remove(cid);
+                    }
+
+                    if (mobAggro.isEmpty())
+                    {   // all aggro on this mob expired
+                        if (!am.getLeft().isBoss())
+                        {
+                            am.getLeft().aggroResetAggro();
+                        }
+                    }
+                }
+
+                if (!toRemoveIdx.isEmpty())
+                {
+                    // last to first indexes
+                    toRemoveIdx.sort((p1, p2) -> p1 < p2 ? 1 : p1.equals(p2) ? 0 : -1);
+
+                    for (int idx : toRemoveIdx)
+                    {
+                        sortedAggro.remove(idx);
+                    }
+                }
+
+                if (!toRemoveByFetch.isEmpty())
+                {
+                    for (Integer cid : toRemoveByFetch)
+                    {
+                        for (int i = 0; i < sortedAggro.size(); i++)
+                        {
+                            if (cid.equals(sortedAggro.get(i).cid))
+                            {
+                                sortedAggro.remove(i);
+                                break;
                             }
                         }
-
-                        if (!toRemove.isEmpty()) {
-                            for (Integer cid : toRemove) {
-                                mobAggro.remove(cid);
-                            }
-
-                            if (mobAggro.isEmpty()) {   // all aggro on this mob expired
-                                if (!am.getLeft().isBoss()) {
-                                    am.getLeft().aggroResetAggro();
-                                }
-                            }
-                        }
-
-                        if (!toRemoveIdx.isEmpty()) {
-                            // last to first indexes
-                            toRemoveIdx.sort((p1, p2) -> p1 < p2 ? 1 : p1.equals(p2) ? 0 : -1);
-
-                            for (int idx : toRemoveIdx) {
-                                sortedAggro.remove(idx);
-                            }
-                        }
-
-                        if (!toRemoveByFetch.isEmpty()) {
-                            for (Integer cid : toRemoveByFetch) {
-                                for (int i = 0; i < sortedAggro.size(); i++) {
-                                    if (cid.equals(sortedAggro.get(i).cid)) {
-                                        sortedAggro.remove(i);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                    }
+                }
             }
         }
     }
 
-    private static void insertionSortAggroList(List<PlayerAggroEntry> paeList) {
-        for (int i = 1; i < paeList.size(); i++) {
+    private static void insertionSortAggroList(List<PlayerAggroEntry> paeList)
+    {
+        for (int i = 1; i < paeList.size(); i++)
+        {
             PlayerAggroEntry pae = paeList.get(i);
             long curAccDmg = pae.accumulatedDamage;
 
             int j = i - 1;
-            while (j >= 0 && curAccDmg > paeList.get(j).accumulatedDamage) {
+            while (j >= 0 && curAccDmg > paeList.get(j).accumulatedDamage)
+            {
                 j -= 1;
             }
 
             j += 1;
-            if (j != i) {
+            if (j != i)
+            {
                 paeList.remove(i);
                 paeList.add(j, pae);
             }
         }
 
         int i = 0;
-        for (PlayerAggroEntry pae : paeList) {
+        for (PlayerAggroEntry pae : paeList)
+        {
             pae.entryRank = i;
             i += 1;
         }
     }
 
-    public boolean isLeadingCharacterAggro(Monster mob, Character player) {
-        if (mob.isLeadingPuppetInVicinity()) {
+    public boolean isLeadingCharacterAggro(Monster mob, Character player)
+    {
+        if (mob.isLeadingPuppetInVicinity())
+        {
             return false;
-        } else if (mob.isCharacterPuppetInVicinity(player)) {
+        }
+        else if (mob.isCharacterPuppetInVicinity(player))
+        {
             return true;
         }
 
@@ -275,18 +323,24 @@ public class MonsterAggroCoordinator {
         // returns whether the player given as parameter can be elected as next aggro leader
 
         List<PlayerAggroEntry> mobAggroList = mobSortedAggros.get(mob);
-        if (mobAggroList != null) {
+        if (mobAggroList != null)
+        {
 
-                mobAggroList = new ArrayList<>(mobAggroList.subList(0, Math.min(mobAggroList.size(), 5)));
+            mobAggroList = new ArrayList<>(mobAggroList.subList(0, Math.min(mobAggroList.size(), 5)));
 
 
             MapleMap map = mob.getMap();
-            for (PlayerAggroEntry pae : mobAggroList) {
+            for (PlayerAggroEntry pae : mobAggroList)
+            {
                 Character chr = map.getCharacterById(pae.cid);
-                if (chr != null) {
-                    if (player.getId() == pae.cid) {
+                if (chr != null)
+                {
+                    if (player.getId() == pae.cid)
+                    {
                         return true;
-                    } else if (pae.updateStreak < YamlConfig.config.server.MOB_STATUS_AGGRO_PERSISTENCE && chr.isAlive()) {  // verifies currently leading players activity
+                    }
+                    else if (pae.updateStreak < YamlConfig.config.server.MOB_STATUS_AGGRO_PERSISTENCE && chr.isAlive())
+                    {  // verifies currently leading players activity
                         return false;
                     }
                 }
@@ -296,41 +350,48 @@ public class MonsterAggroCoordinator {
         return false;
     }
 
-    public void runSortLeadingCharactersAggro() {
+    public void runSortLeadingCharactersAggro()
+    {
         List<List<PlayerAggroEntry>> aggroList;
         aggroList = new ArrayList<>(mobSortedAggros.values());
 
-        for (List<PlayerAggroEntry> mobAggroList : aggroList) {
+        for (List<PlayerAggroEntry> mobAggroList : aggroList)
+        {
 
-                insertionSortAggroList(mobAggroList);
+            insertionSortAggroList(mobAggroList);
 
         }
     }
 
-    public void removeAggroEntries(Monster mob) {
+    public void removeAggroEntries(Monster mob)
+    {
         mobAggroEntries.remove(mob);
         mobSortedAggros.remove(mob);
     }
 
-    public void addPuppetAggro(Character player) {
+    public void addPuppetAggro(Character player)
+    {
 
-            mapPuppetEntries.add(player.getId());
-
-    }
-
-    public void removePuppetAggro(Integer cid) {
-
-            mapPuppetEntries.remove(cid);
+        mapPuppetEntries.add(player.getId());
 
     }
 
-    public List<Integer> getPuppetAggroList() {
+    public void removePuppetAggro(Integer cid)
+    {
 
-            return new ArrayList<>(mapPuppetEntries);
+        mapPuppetEntries.remove(cid);
 
     }
 
-    public void dispose() {
+    public List<Integer> getPuppetAggroList()
+    {
+
+        return new ArrayList<>(mapPuppetEntries);
+
+    }
+
+    public void dispose()
+    {
         stopAggroCoordinator();
 
         mobAggroEntries.clear();

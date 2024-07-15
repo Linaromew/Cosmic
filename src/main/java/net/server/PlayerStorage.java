@@ -36,13 +36,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class PlayerStorage {
     private final Map<Integer, Character> storage = new LinkedHashMap<>();
     private final Map<String, Character> nameStorage = new LinkedHashMap<>();
-    private final Lock rlock;
-    private final Lock wlock;
 
     public PlayerStorage() {
-        ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-        this.rlock = readWriteLock.readLock();
-        this.wlock = readWriteLock.writeLock();
     }
 
     public void addPlayer(Character chr) {

@@ -37,7 +37,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class MiniDungeon {
     List<Character> players = new ArrayList<>();
     ScheduledFuture<?> timeoutTask = null;
-    private final Lock lock = new ReentrantLock(true);
 
     int baseMap;
     long expireTime;

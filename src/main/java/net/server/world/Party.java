@@ -55,8 +55,6 @@ public class Party {
 
     private final Map<Integer, Door> doors = new HashMap<>();
 
-    private final Lock lock = new ReentrantLock(true);
-
     public Party(int id, PartyCharacter chrfor) {
         this.leaderId = chrfor.getId();
         this.id = id;

@@ -191,7 +191,7 @@ public class MapleMap {
     private final Lock lootLock = new ReentrantLock(true);
 
     // due to the nature of loadMapFromWz (synchronized), sole function that calls 'generateMapDropRangeCache', this lock remains optional.
-    private static final Lock bndLock = new ReentrantLock(true);
+    //private static final Lock bndLock = new ReentrantLock(true);
 
     public MapleMap(int mapid, int world, int channel, int returnMapId, float monsterRate) {
         this.mapid = mapid;

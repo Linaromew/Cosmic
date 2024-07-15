@@ -60,7 +60,6 @@ public class Guild {
     }
 
     private final List<GuildCharacter> members;
-    private final Lock membersLock = new ReentrantLock(true);
 
     private final String[] rankTitles = new String[5]; // 1 = master, 2 = jr, 5 = lowest member
     private String name, notice;

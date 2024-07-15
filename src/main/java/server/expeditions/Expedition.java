@@ -105,7 +105,6 @@ public class Expedition {
     private final boolean silent;
     private final int minSize;
     private final int maxSize;
-    private final Lock pL = new ReentrantLock(true);
 
     public Expedition(Character player, ExpeditionType met, boolean sil, int minPlayers, int maxPlayers) {
         leader = player;

@@ -80,7 +80,6 @@ public class HiredMerchant extends AbstractMapObject {
     private final Visitor[] visitors = new Visitor[3];
     private final LinkedList<PastVisitor> visitorHistory = new LinkedList<>();
     private final LinkedHashSet<String> blacklist = new LinkedHashSet<>(); // case-sensitive character names
-    private final Lock visitorLock = new ReentrantLock(true);
 
     private record Visitor(Character chr, Instant enteredAt) {}
 
