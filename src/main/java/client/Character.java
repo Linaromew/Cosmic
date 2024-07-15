@@ -4361,9 +4361,9 @@ public class Character extends AbstractCharacterObject {
     }
 
     private List<QuestStatus> getQuests() {
-        synchronized (quests) {
+
             return new ArrayList<>(quests.values());
-        }
+
     }
 
     public final List<QuestStatus> getCompletedQuests() {
@@ -5352,15 +5352,15 @@ public class Character extends AbstractCharacterObject {
     }
 
     public final QuestStatus getQuestNoAdd(final Quest quest) {
-        synchronized (quests) {
+
             return quests.get(quest.getId());
-        }
+
     }
 
     public final QuestStatus getQuestRemove(final Quest quest) {
-        synchronized (quests) {
+
             return quests.remove(quest.getId());
-        }
+
     }
 
     //---- /\ /\ /\ /\ /\ /\ /\  NOT TESTED  /\ /\ /\ /\ /\ /\ /\ /\ /\ ----
@@ -9084,12 +9084,12 @@ public class Character extends AbstractCharacterObject {
         }
 
         int delta;
-        synchronized (quests) {
+
             quest_fame += awardedPoints;
 
             delta = quest_fame / YamlConfig.config.server.QUEST_POINT_REQUIREMENT;
             quest_fame %= YamlConfig.config.server.QUEST_POINT_REQUIREMENT;
-        }
+
 
         if (delta > 0) {
             gainFame(delta);
@@ -9127,9 +9127,9 @@ public class Character extends AbstractCharacterObject {
         Pair<DelayedQuestUpdate, Object[]> p = new Pair<>(questUpdateType, params);
         Client c = this.getClient();
         if (c.getQM() != null || c.getCM() != null) {
-            synchronized (npcUpdateQuests) {
+
                 npcUpdateQuests.add(p);
-            }
+
         } else {
             announceUpdateQuestInternal(this, p);
         }
@@ -9138,10 +9138,10 @@ public class Character extends AbstractCharacterObject {
     public void flushDelayedUpdateQuests() {
         List<Pair<DelayedQuestUpdate, Object[]>> qmQuestUpdateList;
 
-        synchronized (npcUpdateQuests) {
+
             qmQuestUpdateList = new ArrayList<>(npcUpdateQuests);
             npcUpdateQuests.clear();
-        }
+
 
         for (Pair<DelayedQuestUpdate, Object[]> q : qmQuestUpdateList) {
             announceUpdateQuestInternal(this, q);
@@ -9149,9 +9149,9 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void updateQuestStatus(QuestStatus qs) {
-        synchronized (quests) {
+
             quests.put(qs.getQuestID(), qs);
-        }
+
         if (qs.getStatus().equals(QuestStatus.Status.STARTED)) {
             announceUpdateQuest(DelayedQuestUpdate.UPDATE, qs, false);
             if (qs.getInfoNumber() > 0) {

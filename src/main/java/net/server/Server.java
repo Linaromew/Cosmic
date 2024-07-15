@@ -545,9 +545,9 @@ public class Server {
     }
 
     public List<Integer> getActiveCoupons() {
-        synchronized (activeCoupons) {
+
             return activeCoupons;
-        }
+
     }
 
     public void commitActiveCoupons() {
@@ -1115,11 +1115,11 @@ public class Server {
     }
 
     public void disbandGuild(int gid) {
-        synchronized (guilds) {
+
             Guild g = guilds.get(gid);
             g.disbandGuild();
             guilds.remove(gid);
-        }
+
     }
 
     public boolean increaseGuildCapacity(int gid) {

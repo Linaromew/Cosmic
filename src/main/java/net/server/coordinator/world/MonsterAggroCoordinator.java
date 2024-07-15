@@ -102,7 +102,7 @@ public class MonsterAggroCoordinator {
     }
 
     private static void insertEntryDamage(PlayerAggroEntry pae, int damage) {
-        synchronized (pae) {
+
             long totalDamage = pae.averageDamage;
             totalDamage *= pae.currentDamageInstances;
             totalDamage += damage;
@@ -114,7 +114,7 @@ public class MonsterAggroCoordinator {
             pae.currentDamageInstances += 1;
             pae.averageDamage = (int) (totalDamage / pae.currentDamageInstances);
             pae.accumulatedDamage = totalDamage;
-        }
+
     }
 
     private static boolean expiredAfterUpdateEntryDamage(PlayerAggroEntry pae, int deltaTime) {
@@ -285,9 +285,9 @@ public class MonsterAggroCoordinator {
 
         List<PlayerAggroEntry> mobAggroList = mobSortedAggros.get(mob);
         if (mobAggroList != null) {
-            synchronized (mobAggroList) {
+
                 mobAggroList = new ArrayList<>(mobAggroList.subList(0, Math.min(mobAggroList.size(), 5)));
-            }
+
 
             MapleMap map = mob.getMap();
             for (PlayerAggroEntry pae : mobAggroList) {
@@ -310,9 +310,9 @@ public class MonsterAggroCoordinator {
         aggroList = new ArrayList<>(mobSortedAggros.values());
 
         for (List<PlayerAggroEntry> mobAggroList : aggroList) {
-            synchronized (mobAggroList) {
+
                 insertionSortAggroList(mobAggroList);
-            }
+
         }
     }
 
@@ -322,21 +322,21 @@ public class MonsterAggroCoordinator {
     }
 
     public void addPuppetAggro(Character player) {
-        synchronized (mapPuppetEntries) {
+
             mapPuppetEntries.add(player.getId());
-        }
+
     }
 
     public void removePuppetAggro(Integer cid) {
-        synchronized (mapPuppetEntries) {
+
             mapPuppetEntries.remove(cid);
-        }
+
     }
 
     public List<Integer> getPuppetAggroList() {
-        synchronized (mapPuppetEntries) {
+
             return new ArrayList<>(mapPuppetEntries);
-        }
+
     }
 
     public void dispose() {

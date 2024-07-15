@@ -109,10 +109,10 @@ public class EventManager {
         }
 
         Collection<EventInstanceManager> eimList;
-        synchronized (instances) {
+
             eimList = getInstances();
             instances.clear();
-        }
+
 
         for (EventInstanceManager eim : eimList) {
             eim.dispose(true);
@@ -205,9 +205,9 @@ public class EventManager {
     }
 
     public Collection<EventInstanceManager> getInstances() {
-        synchronized (instances) {
+
             return new LinkedList<>(instances.values());
-        }
+
     }
 
     public EventInstanceManager newInstance(String name) throws EventInstanceInProgressException {
@@ -246,9 +246,9 @@ public class EventManager {
         ess.registerEntry(() -> {
             freeLobbyInstance(name);
 
-            synchronized (instances) {
+
                 instances.remove(name);
-            }
+
         }, SECONDS.toMillis(YamlConfig.config.server.EVENT_LOBBY_DELAY));
     }
 
@@ -774,15 +774,15 @@ public class EventManager {
     }
 
     public boolean isQueueFull() {
-        synchronized (queuedGuilds) {
+
             return queuedGuilds.size() >= YamlConfig.config.server.EVENT_MAX_GUILD_QUEUE;
-        }
+
     }
 
     public int getQueueSize() {
-        synchronized (queuedGuilds) {
+
             return queuedGuilds.size();
-        }
+
     }
 
     public byte addGuildToQueue(Integer guildId, Integer leaderId) {
@@ -792,7 +792,7 @@ public class EventManager {
 
         if (!isQueueFull()) {
             boolean canStartAhead;
-            synchronized (queuedGuilds) {
+
                 canStartAhead = queuedGuilds.isEmpty();
 
                 queuedGuilds.add(guildId);
@@ -801,15 +801,15 @@ public class EventManager {
 
                 int place = queuedGuilds.size();
                 exportMovedQueueToGuild(guildId, place);
-            }
+
 
             if (canStartAhead) {
                 if (!attemptStartGuildInstance()) {
-                    synchronized (queuedGuilds) {
+
                         queuedGuilds.add(guildId);
                         wserv.putGuildQueued(guildId);
                         queuedGuildLeaders.put(guildId, leaderId);
-                    }
+
                 } else {
                     return 2;
                 }

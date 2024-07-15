@@ -55,16 +55,16 @@ public class BuddyList {
     }
 
     public boolean contains(int characterId) {
-        synchronized (buddies) {
+
             return buddies.containsKey(characterId);
-        }
+
     }
 
     public boolean containsVisible(int characterId) {
         BuddylistEntry ble;
-        synchronized (buddies) {
+
             ble = buddies.get(characterId);
-        }
+
 
         if (ble == null) {
             return false;
@@ -82,9 +82,9 @@ public class BuddyList {
     }
 
     public BuddylistEntry get(int characterId) {
-        synchronized (buddies) {
+
             return buddies.get(characterId);
-        }
+
     }
 
     public BuddylistEntry get(String characterName) {
@@ -99,27 +99,27 @@ public class BuddyList {
     }
 
     public void put(BuddylistEntry entry) {
-        synchronized (buddies) {
+
             buddies.put(entry.getCharacterId(), entry);
-        }
+
     }
 
     public void remove(int characterId) {
-        synchronized (buddies) {
+
             buddies.remove(characterId);
-        }
+
     }
 
     public Collection<BuddylistEntry> getBuddies() {
-        synchronized (buddies) {
+
             return Collections.unmodifiableCollection(buddies.values());
-        }
+
     }
 
     public boolean isFull() {
-        synchronized (buddies) {
+
             return buddies.size() >= capacity;
-        }
+
     }
 
     public int[] getBuddyIds() {

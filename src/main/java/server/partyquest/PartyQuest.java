@@ -67,11 +67,11 @@ public class PartyQuest {
     }
 
     public void removeParticipant(Character chr) throws Throwable {
-        synchronized (participants) {
+
             participants.remove(chr);
             chr.setPartyQuest(null);
             //System.gc();
-        }
+
     }
 
     public static int getExp(String PQ, int level) {

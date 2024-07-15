@@ -390,9 +390,9 @@ public final class Channel {
     }
 
     public void removeExpedition(Expedition exped) {
-        synchronized (expeditions) {
+
             expeditions.remove(exped.getType());
-        }
+
     }
 
     public Expedition getExpedition(ExpeditionType type) {
@@ -400,9 +400,9 @@ public final class Channel {
     }
 
     public List<Expedition> getExpeditions() {
-        synchronized (expeditions) {
+
             return new ArrayList<>(expeditions.values());
-        }
+
     }
 
     public boolean isConnected(String name) {
@@ -890,9 +890,9 @@ public final class Channel {
         if (!ownedMaps.isEmpty()) {
             List<MapleMap> ownedMapsList;
 
-            synchronized (ownedMaps) {
+
                 ownedMapsList = new ArrayList<>(ownedMaps);
-            }
+
 
             for (MapleMap map : ownedMapsList) {
                 map.checkMapOwnerActivity();

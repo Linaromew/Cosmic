@@ -266,9 +266,9 @@ public class PlayerShop extends AbstractMapObject {
                         SoldItem soldItem = new SoldItem(c.getPlayer().getName(), pItem.getItem().getItemId(), quantity, price);
                         owner.sendPacket(PacketCreator.getPlayerShopOwnerUpdate(soldItem, item));
 
-                        synchronized (sold) {
+
                             sold.add(soldItem);
-                        }
+
 
                         pItem.setBundles((short) (pItem.getBundles() - quantity));
                         if (pItem.getBundles() < 1) {
@@ -394,9 +394,9 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     private void clearChatLog() {
-        synchronized (chatLog) {
+
             chatLog.clear();
-        }
+
     }
 
     public void closeShop() {
@@ -423,9 +423,9 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public List<PlayerShopItem> getItems() {
-        synchronized (items) {
+
             return Collections.unmodifiableList(items);
-        }
+
     }
 
     public boolean hasItem(int itemid) {
@@ -495,9 +495,9 @@ public class PlayerShop extends AbstractMapObject {
         List<PlayerShopItem> list = new LinkedList<>();
         List<PlayerShopItem> all = new ArrayList<>();
 
-        synchronized (items) {
+
             all.addAll(items);
-        }
+
 
         for (PlayerShopItem mpsi : all) {
             if (mpsi.getItem().getItemId() == itemid && mpsi.getBundles() > 0 && mpsi.isExist()) {
@@ -508,9 +508,9 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public List<SoldItem> getSold() {
-        synchronized (sold) {
+
             return Collections.unmodifiableList(sold);
-        }
+
     }
 
     @Override

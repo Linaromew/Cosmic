@@ -99,9 +99,9 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
     }
 
     private void releaseAccount(int accId) {
-        synchronized (attemptingLoginAccounts) {
+
             attemptingLoginAccounts.remove(accId);
-        }
+
     }
 
     @Override

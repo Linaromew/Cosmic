@@ -69,9 +69,9 @@ public class Marriage extends EventInstanceManager {
 
     public List<Item> getGiftItems(Client c, boolean groom) {
         List<Item> gifts = getGiftItemsList(groom);
-        synchronized (gifts) {
+
             return new LinkedList<>(gifts);
-        }
+
     }
 
     private List<Item> getGiftItemsList(boolean groom) {
@@ -88,16 +88,16 @@ public class Marriage extends EventInstanceManager {
 
     public void addGiftItem(boolean groom, Item item) {
         List<Item> gifts = getGiftItemsList(groom);
-        synchronized (gifts) {
+
             gifts.add(item);
-        }
+
     }
 
     public void removeGiftItem(boolean groom, Item item) {
         List<Item> gifts = getGiftItemsList(groom);
-        synchronized (gifts) {
+
             gifts.remove(item);
-        }
+
     }
 
     public Boolean isMarriageGroom(Character chr) {

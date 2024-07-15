@@ -139,9 +139,9 @@ public class Guild {
             }
 
             List<Integer> chl;
-            synchronized (notifications) {
+
                 chl = notifications.get(mgc.getChannel());
-            }
+
             if (chl != null) {
                 chl.add(mgc.getId());
             }

@@ -201,9 +201,9 @@ public class HiredMerchant extends AbstractMapObject {
 
     public void withdrawMesos(Character chr) {
         if (isOwner(chr)) {
-            synchronized (items) {
+
                 chr.withdrawMerchantMesos();
-            }
+
         }
     }
 
@@ -274,9 +274,9 @@ public class HiredMerchant extends AbstractMapObject {
                     c.getPlayer().gainMeso(-price, false);
                     price -= Trade.getFee(price);  // thanks BHB for pointing out trade fees not applying here
 
-                    synchronized (sold) {
+
                         sold.add(new SoldItem(c.getPlayer().getName(), pItem.getItem().getItemId(), newItem.getQuantity(), price));
-                    }
+
 
                     pItem.setBundles((short) (pItem.getBundles() - quantity));
                     if (pItem.getBundles() < 1) {
@@ -357,9 +357,9 @@ public class HiredMerchant extends AbstractMapObject {
 
         try {
             saveItems(true);
-            synchronized (items) {
+
                 items.clear();
-            }
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -408,9 +408,9 @@ public class HiredMerchant extends AbstractMapObject {
                     }
                 }
 
-                synchronized (items) {
+
                     items.clear();
-                }
+
             }
 
             try {
@@ -435,9 +435,9 @@ public class HiredMerchant extends AbstractMapObject {
                 c.getPlayer().saveCharToDB(false);
             }
 
-            synchronized (items) {
+
                 items.clear();
-            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -471,9 +471,9 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public void clearItems() {
-        synchronized (items) {
+
             items.clear();
-        }
+
     }
 
     public int getOwnerId() {
@@ -497,9 +497,9 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public List<PlayerShopItem> getItems() {
-        synchronized (items) {
+
             return Collections.unmodifiableList(items);
-        }
+
     }
 
     public boolean hasItem(int itemid) {
@@ -587,9 +587,9 @@ public class HiredMerchant extends AbstractMapObject {
         String message = chr.getName() + " : " + msg;
         byte slot = (byte) (getVisitorSlot(chr) + 1);
 
-        synchronized (messages) {
+
             messages.add(new Pair<>(message, slot));
-        }
+
         broadcastToVisitorsThreadsafe(PacketCreator.hiredMerchantChat(message, slot));
     }
 
@@ -601,9 +601,9 @@ public class HiredMerchant extends AbstractMapObject {
             return list;
         }
 
-        synchronized (items) {
+
             all.addAll(items);
-        }
+
 
         for (PlayerShopItem mpsi : all) {
             if (mpsi.getItem().getItemId() == itemid && mpsi.getBundles() > 0 && mpsi.isExist()) {
@@ -664,18 +664,18 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public void clearMessages() {
-        synchronized (messages) {
+
             messages.clear();
-        }
+
     }
 
     public List<Pair<String, Byte>> getMessages() {
-        synchronized (messages) {
+
             List<Pair<String, Byte>> msgList = new LinkedList<>();
             msgList.addAll(messages);
 
             return msgList;
-        }
+
     }
 
     public List<PastVisitor> getVisitorHistory() {
@@ -710,9 +710,9 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public List<SoldItem> getSold() {
-        synchronized (sold) {
+
             return Collections.unmodifiableList(sold);
-        }
+
     }
 
     public int getMesos() {

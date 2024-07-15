@@ -1743,15 +1743,15 @@ public class MapleMap {
     }
 
     private List<SpawnPoint> getMonsterSpawn() {
-        synchronized (monsterSpawn) {
+
             return new ArrayList<>(monsterSpawn);
-        }
+
     }
 
     private List<SpawnPoint> getAllMonsterSpawn() {
-        synchronized (allMonsterSpawn) {
+
             return new ArrayList<>(allMonsterSpawn);
-        }
+
     }
 
     public void spawnAllMonsterIdFromMapSpawnList(int id) {
