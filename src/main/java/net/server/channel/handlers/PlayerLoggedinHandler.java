@@ -88,14 +88,12 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
     }
 
     private boolean tryAcquireAccount(int accId) {
-        synchronized (attemptingLoginAccounts) {
             if (attemptingLoginAccounts.contains(accId)) {
                 return false;
             }
 
             attemptingLoginAccounts.add(accId);
             return true;
-        }
     }
 
     private void releaseAccount(int accId) {

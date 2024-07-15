@@ -118,7 +118,7 @@ public class MonsterAggroCoordinator {
     }
 
     private static boolean expiredAfterUpdateEntryDamage(PlayerAggroEntry pae, int deltaTime) {
-        synchronized (pae) {
+
             pae.updateStreak += 1;
             pae.toNextUpdate -= deltaTime;
 
@@ -134,7 +134,6 @@ public class MonsterAggroCoordinator {
             }
 
             return false;
-        }
     }
 
     public void addAggroDamage(Monster mob, int cid, int damage) { // assumption: should not trigger after dispose()
@@ -165,8 +164,6 @@ public class MonsterAggroCoordinator {
         if (aggroEntry == null) {
             aggroEntry = new PlayerAggroEntry(cid);
 
-            synchronized (mobAggro) {
-                synchronized (sortedAggro) {
                     PlayerAggroEntry mappedEntry = mobAggro.get(cid);
 
                     if (mappedEntry == null) {
@@ -175,8 +172,6 @@ public class MonsterAggroCoordinator {
                     } else {
                         aggroEntry = mappedEntry;
                     }
-                }
-            }
         } else if (damage < 1) {
             return;
         }
@@ -199,8 +194,6 @@ public class MonsterAggroCoordinator {
                 List<Integer> toRemoveIdx = new ArrayList<>(mobAggro.size());
                 List<Integer> toRemoveByFetch = new LinkedList<>();
 
-                synchronized (mobAggro) {
-                    synchronized (sortedAggro) {
                         for (PlayerAggroEntry pae : mobAggro.values()) {
                             if (expiredAfterUpdateEntryDamage(pae, deltaTime)) {
                                 toRemove.add(pae.cid);
@@ -243,8 +236,6 @@ public class MonsterAggroCoordinator {
                                 }
                             }
                         }
-                    }
-                }
             }
         }
     }

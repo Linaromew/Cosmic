@@ -184,14 +184,13 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public boolean addItem(PlayerShopItem item) {
-        synchronized (items) {
+
             if (items.size() >= 16) {
                 return false;
             }
 
             items.add(item);
             return true;
-        }
     }
 
     private void removeFromSlot(int slot) {
@@ -203,7 +202,7 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public void takeItemBack(int slot, Character chr) {
-        synchronized (items) {
+
             PlayerShopItem shopItem = items.get(slot);
             if (shopItem.isExist()) {
                 if (shopItem.getBundles() > 0) {
@@ -222,7 +221,6 @@ public class PlayerShop extends AbstractMapObject {
                 removeFromSlot(slot);
                 chr.sendPacket(PacketCreator.getPlayerShopItemUpdate(this));
             }
-        }
     }
 
     /**
@@ -233,7 +231,7 @@ public class PlayerShop extends AbstractMapObject {
      * @param quantity
      */
     public boolean buy(Client c, int item, short quantity) {
-        synchronized (items) {
+
             if (isVisitor(c.getPlayer())) {
                 PlayerShopItem pItem = items.get(item);
                 Item newItem = pItem.getItem().copy();
@@ -295,7 +293,6 @@ public class PlayerShop extends AbstractMapObject {
             } else {
                 return false;
             }
-        }
     }
 
     public void broadcastToVisitors(Packet packet) {
@@ -371,26 +368,22 @@ public class PlayerShop extends AbstractMapObject {
     public void chat(Client c, String chat) {
         byte s = getVisitorSlot(c.getPlayer());
 
-        synchronized (chatLog) {
             chatLog.add(new Pair<>(c.getPlayer(), chat));
             if (chatLog.size() > 25) {
                 chatLog.remove(0);
             }
             chatSlot.put(c.getPlayer().getId(), s);
-        }
 
         broadcast(PacketCreator.getPlayerShopChat(c.getPlayer(), chat, s));
     }
 
     private void recoverChatLog() {
-        synchronized (chatLog) {
             for (Pair<Character, String> it : chatLog) {
                 Character chr = it.getLeft();
                 Byte pos = chatSlot.get(chr.getId());
 
                 broadcastToVisitors(PacketCreator.getPlayerShopChat(chr, it.getRight(), pos));
             }
-        }
     }
 
     private void clearChatLog() {

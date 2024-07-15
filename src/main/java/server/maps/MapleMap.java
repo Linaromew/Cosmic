@@ -2861,11 +2861,9 @@ public class MapleMap {
         }
 
         if (!toRemove.isEmpty()) {
-            synchronized (monsterSpawn) {
                 for (SpawnPoint sp : toRemove) {
                     monsterSpawn.remove(sp);
                 }
-            }
         }
     }
 
@@ -2884,11 +2882,9 @@ public class MapleMap {
         }
 
         if (!toRemove.isEmpty()) {
-            synchronized (allMonsterSpawn) {
                 for (SpawnPoint sp : toRemove) {
                     allMonsterSpawn.remove(sp);
                 }
-            }
         }
     }
 

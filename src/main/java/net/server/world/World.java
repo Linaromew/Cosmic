@@ -622,32 +622,24 @@ public class World {
     }
 
     public void addFamily(int id, Family f) {
-        synchronized (families) {
             if (!families.containsKey(id)) {
                 families.put(id, f);
             }
-        }
     }
 
     public void removeFamily(int id) {
-        synchronized (families) {
             families.remove(id);
-        }
     }
 
     public Family getFamily(int id) {
-        synchronized (families) {
             if (families.containsKey(id)) {
                 return families.get(id);
             }
             return null;
-        }
     }
 
     public Collection<Family> getFamilies() {
-        synchronized (families) {
             return Collections.unmodifiableCollection(families.values());
-        }
     }
 
     public Guild getGuild(GuildCharacter mgc) {
@@ -2083,14 +2075,13 @@ public class World {
     }
 
     public boolean registerFisherPlayer(Character chr, int baitLevel) {
-        synchronized (fishingAttempters) {
+
             if (fishingAttempters.containsKey(chr)) {
                 return false;
             }
 
             fishingAttempters.put(chr, baitLevel);
             return true;
-        }
     }
 
     public int unregisterFisherPlayer(Character chr) {
@@ -2109,9 +2100,8 @@ public class World {
         if (!fishingAttempters.isEmpty()) {
             List<Character> fishingAttemptersList;
 
-            synchronized (fishingAttempters) {
                 fishingAttemptersList = new ArrayList<>(fishingAttempters.keySet());
-            }
+
 
             for (Character chr : fishingAttemptersList) {
                 int baitLevel = unregisterFisherPlayer(chr);

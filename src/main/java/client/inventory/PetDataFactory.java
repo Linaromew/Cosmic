@@ -43,7 +43,6 @@ public class PetDataFactory {
         if (ret != null) {
             return ret;
         }
-        synchronized (petCommands) {
             ret = petCommands.get(petId + "" + skillId);
             if (ret == null) {
                 Data skillData = dataRoot.getData("Pet/" + petId + ".img");
@@ -57,7 +56,6 @@ public class PetDataFactory {
                 petCommands.put(petId + "" + skillId, ret);
             }
             return ret;
-        }
     }
 
     public static int getHunger(int petId) {
@@ -65,12 +63,10 @@ public class PetDataFactory {
         if (ret != null) {
             return ret;
         }
-        synchronized (petHunger) {
             ret = petHunger.get(petId);
             if (ret == null) {
                 ret = DataTool.getInt(dataRoot.getData("Pet/" + petId + ".img").getChildByPath("info/hungry"), 1);
             }
             return ret;
-        }
     }
 }

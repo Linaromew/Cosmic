@@ -5302,14 +5302,12 @@ public class Character extends AbstractCharacterObject {
     }
 
     public final byte getQuestStatus(final int quest) {
-        synchronized (quests) {
             QuestStatus mqs = quests.get((short) quest);
             if (mqs != null) {
                 return (byte) mqs.getStatus().getId();
             } else {
                 return 0;
             }
-        }
     }
 
     public QuestStatus getQuest(final int quest) {
@@ -5317,7 +5315,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public QuestStatus getQuest(Quest quest) {
-        synchronized (quests) {
             short questid = quest.getId();
             QuestStatus qs = quests.get(questid);
             if (qs == null) {
@@ -5325,30 +5322,25 @@ public class Character extends AbstractCharacterObject {
                 quests.put(questid, qs);
             }
             return qs;
-        }
     }
 
     //---- \/ \/ \/ \/ \/ \/ \/  NOT TESTED  \/ \/ \/ \/ \/ \/ \/ \/ \/ ----
 
     public final void setQuestAdd(final Quest quest, final byte status, final String customData) {
-        synchronized (quests) {
             if (!quests.containsKey(quest.getId())) {
                 final QuestStatus stat = new QuestStatus(quest, QuestStatus.Status.getById(status));
                 stat.setCustomData(customData);
                 quests.put(quest.getId(), stat);
             }
-        }
     }
 
     public final QuestStatus getQuestNAdd(final Quest quest) {
-        synchronized (quests) {
             if (!quests.containsKey(quest.getId())) {
                 final QuestStatus status = new QuestStatus(quest, QuestStatus.Status.NOT_STARTED);
                 quests.put(quest.getId(), status);
                 return status;
             }
             return quests.get(quest.getId());
-        }
     }
 
     public final QuestStatus getQuestNoAdd(final Quest quest) {
@@ -6931,7 +6923,6 @@ public class Character extends AbstractCharacterObject {
 
         int lastQuestProcessed = 0;
         try {
-            synchronized (quests) {
                 for (QuestStatus qs : getQuests()) {
                     lastQuestProcessed = qs.getQuest().getId();
                     if (qs.getStatus() == QuestStatus.Status.COMPLETED || qs.getQuest().canComplete(this, null)) {
@@ -6945,7 +6936,6 @@ public class Character extends AbstractCharacterObject {
                         }
                     }
                 }
-            }
         } catch (Exception e) {
             log.warn("Character.mobKilled. chrId {}, last quest processed: {}", this.id, lastQuestProcessed, e);
         }

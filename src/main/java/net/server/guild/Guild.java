@@ -120,7 +120,6 @@ public class Guild {
             return;
         }
         Set<Integer> chs = Server.getInstance().getOpenChannels(world);
-        synchronized (notifications) {
             if (notifications.keySet().size() != chs.size()) {
                 notifications.clear();
                 for (Integer ch : chs) {
@@ -131,7 +130,6 @@ public class Guild {
                     l.clear();
                 }
             }
-        }
 
         for (GuildCharacter mgc : members) {
             if (!mgc.isOnline()) {
@@ -315,7 +313,6 @@ public class Guild {
 
     public void broadcast(Packet packet, int exceptionId, BCOp bcop) {
         // membersLock awareness thanks to ProjectNano dev team
-        synchronized (notifications) {
             if (bDirty) {
                 buildNotifications();
             }
@@ -334,7 +331,6 @@ public class Guild {
             } catch (Exception re) {
                 log.error("Failed to contact channel(s) for broadcast.", re);
             }
-        }
     }
 
     public void guildMessage(Packet serverNotice) {

@@ -25,7 +25,11 @@ import net.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.ScheduledFuture;
@@ -40,55 +44,73 @@ public class TimerManager implements TimerManagerMBean {
     private static final Logger log = LoggerFactory.getLogger(TimerManager.class);
     private static final TimerManager instance = new TimerManager();
 
+    private ScheduledThreadPoolExecutor ses;
+
     public static TimerManager getInstance() {
         return instance;
     }
 
-    private ScheduledThreadPoolExecutor ses;
-
-    private TimerManager() {
+    private TimerManager()
+    {
+        System.out.println("Initializing TimerManager");
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        try {
-            mBeanServer.registerMBean(this, new ObjectName("server:type=TimerManger"));
-        } catch (Exception e) {
-            e.printStackTrace();
+        try
+        {
+            mBeanServer.registerMBean(this, new ObjectName("server:type=TimerManager"));
+        }
+        catch (MalformedObjectNameException | InstanceAlreadyExistsException | MBeanRegistrationException |
+               NotCompliantMBeanException e)
+        {
+            log.error("Error registering MBean", e);
         }
     }
 
-    public void start() {
-        if (ses != null && !ses.isShutdown() && !ses.isTerminated()) {
-            return;
-        }
-        ScheduledThreadPoolExecutor stpe = new ScheduledThreadPoolExecutor(4, new ThreadFactory() {
-            private final AtomicInteger threadNumber = new AtomicInteger(1);
-
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("TimerManager-Worker-" + threadNumber.getAndIncrement());
-                return t;
+    public void start()
+    {
+        synchronized (this)
+        {
+            if (ses != null && !ses.isShutdown() && !ses.isTerminated())
+            {
+                return;
             }
-        });
-        //this is a no-no, it actually does nothing..then why the fuck are you doing it?
-        stpe.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-        stpe.setRemoveOnCancelPolicy(true);
 
-        stpe.setKeepAliveTime(5, MINUTES);
-        stpe.allowCoreThreadTimeOut(true);
+            ScheduledThreadPoolExecutor stpe = new ScheduledThreadPoolExecutor( 4, new ThreadFactory()
+            {
+                private final AtomicInteger threadNumber = new AtomicInteger( 1 );
 
-        ses = stpe;
+                @Override
+                public Thread newThread(Runnable r)
+                {
+                    Thread t = new Thread( r );
+                    t.setName( "Timermanager-Worker-" + threadNumber.getAndIncrement() );
+                    return t;
+                }
+            } );
+
+            stpe.setContinueExistingPeriodicTasksAfterShutdownPolicy( false );
+            ses = stpe;
+        }
     }
 
-    public void stop() {
-        ses.shutdownNow();
+    public void stop()
+    {
+        synchronized (this)
+        {
+            if (ses != null && !ses.isShutdown() && !ses.isTerminated())
+            {
+                return;
+            }
+            ses.shutdown();
+        }
     }
 
-    public Runnable purge() {//Yay?
-        return () -> {
-            Server.getInstance().forceUpdateCurrentTime();
-            ses.purge();
-        };
-    }
+    // no?
+    //public Runnable purge() {//Yay?
+    //    return () -> {
+    //        Server.getInstance().forceUpdateCurrentTime();
+    //        ses.purge();
+    //    };
+    //}
 
     public ScheduledFuture<?> register(Runnable r, long repeatTime, long delay) {
         return ses.scheduleAtFixedRate(new LoggingSaveRunnable(r), delay, repeatTime, MILLISECONDS);

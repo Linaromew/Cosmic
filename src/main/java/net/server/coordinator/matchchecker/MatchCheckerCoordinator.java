@@ -220,11 +220,9 @@ public class MatchCheckerCoordinator {
             MatchCheckingElement mmce = matchEntries.get(cid);
 
             if (mmce != null) {
-                synchronized (mmce) {
                     if (!mmce.isMatchActive()) {
                         matchEntries.remove(cid);
                     }
-                }
             }
         }
     }
@@ -351,7 +349,6 @@ public class MatchCheckerCoordinator {
                             mmce = matchEntries.get(cid);
 
                             if (mmce != null) {
-                                synchronized (mmce) {
                                     if (!mmce.isMatchActive()) {    // thanks Alex (Alex-0000) for noticing that exploiters could stall on match checking
                                         matchEntries.remove(cid);
                                         mmce = null;
@@ -367,7 +364,6 @@ public class MatchCheckerCoordinator {
                                             matchEntries.remove(cid);
                                         }
                                     }
-                                }
                             }
                         } finally {
                             unpoolMatchPlayer(cid);
@@ -399,13 +395,11 @@ public class MatchCheckerCoordinator {
                             mmce = matchEntries.get(cid);
 
                             if (mmce != null) {
-                                synchronized (mmce) {
                                     if (!mmce.isMatchActive()) {
                                         mmce = null;
                                     } else {
                                         dismissMatchElement(mmce, cid);
                                     }
-                                }
                             }
                         } finally {
                             unpoolMatchPlayer(cid);

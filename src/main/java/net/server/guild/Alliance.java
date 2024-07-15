@@ -318,7 +318,6 @@ public class Alliance {
     }
 
     public boolean removeGuild(int gid) {
-        synchronized (guilds) {
             int index = getGuildIndex(gid);
             if (index == -1) {
                 return false;
@@ -326,29 +325,24 @@ public class Alliance {
 
             guilds.remove(index);
             return true;
-        }
     }
 
     public boolean addGuild(int gid) {
-        synchronized (guilds) {
             if (guilds.size() == capacity || getGuildIndex(gid) > -1) {
                 return false;
             }
 
             guilds.add(gid);
             return true;
-        }
     }
 
     private int getGuildIndex(int gid) {
-        synchronized (guilds) {
             for (int i = 0; i < guilds.size(); i++) {
                 if (guilds.get(i) == gid) {
                     return i;
                 }
             }
             return -1;
-        }
     }
 
     public void setRankTitle(String[] ranks) {
@@ -360,7 +354,6 @@ public class Alliance {
     }
 
     public List<Integer> getGuilds() {
-        synchronized (guilds) {
             List<Integer> guilds_ = new LinkedList<>();
             for (int guild : guilds) {
                 if (guild != -1) {
@@ -368,7 +361,6 @@ public class Alliance {
                 }
             }
             return guilds_;
-        }
     }
 
     public String getAllianceNotice() {
@@ -404,7 +396,6 @@ public class Alliance {
     }
 
     public GuildCharacter getLeader() {
-        synchronized (guilds) {
             for (Integer gId : guilds) {
                 Guild guild = Server.getInstance().getGuild(gId);
                 GuildCharacter mgc = guild.getMGC(guild.getLeaderId());
@@ -415,7 +406,6 @@ public class Alliance {
             }
 
             return null;
-        }
     }
 
     public void dropMessage(String message) {
@@ -423,12 +413,10 @@ public class Alliance {
     }
 
     public void dropMessage(int type, String message) {
-        synchronized (guilds) {
             for (Integer gId : guilds) {
                 Guild guild = Server.getInstance().getGuild(gId);
                 guild.dropMessage(type, message);
             }
-        }
     }
 
     public void broadcastMessage(Packet packet) {

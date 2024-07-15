@@ -219,26 +219,22 @@ public class EventManager {
             ret.setName(name);
         }
 
-        synchronized (instances) {
             if (instances.containsKey(name)) {
                 throw new EventInstanceInProgressException(name, this.getName());
             }
 
             instances.put(name, ret);
-        }
         return ret;
     }
 
     public Marriage newMarriage(String name) throws EventInstanceInProgressException {
         Marriage ret = new Marriage(this, name);
 
-        synchronized (instances) {
             if (instances.containsKey(name)) {
                 throw new EventInstanceInProgressException(name, this.getName());
             }
 
             instances.put(name, ret);
-        }
         return ret;
     }
 
@@ -751,7 +747,6 @@ public class EventManager {
     }
 
     private List<Integer> getNextGuildQueue() {
-        synchronized (queuedGuilds) {
             Integer guildId = queuedGuilds.poll();
             if (guildId == null) {
                 return null;
@@ -770,7 +765,6 @@ public class EventManager {
             list.add(guildId);
             list.add(leaderId);
             return list;
-        }
     }
 
     public boolean isQueueFull() {

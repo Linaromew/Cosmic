@@ -197,7 +197,6 @@ public class Trade {
     }
 
     public boolean addItem(Item item) {
-        synchronized (items) {
             if (items.size() > 9) {
                 return false;
             }
@@ -208,7 +207,6 @@ public class Trade {
             }
 
             items.add(item);
-        }
 
         return true;
     }

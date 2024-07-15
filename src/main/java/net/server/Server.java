@@ -564,7 +564,6 @@ public class Server {
 
     public void toggleCoupon(Integer couponId) {
         if (ItemConstants.isRateCoupon(couponId)) {
-            synchronized (activeCoupons) {
                 if (activeCoupons.contains(couponId)) {
                     activeCoupons.remove(couponId);
                 } else {
@@ -572,12 +571,10 @@ public class Server {
                 }
 
                 commitActiveCoupons();
-            }
         }
     }
 
     public void updateActiveCoupons(Connection con) throws SQLException {
-        synchronized (activeCoupons) {
             activeCoupons.clear();
             Calendar c = Calendar.getInstance();
 
@@ -596,8 +593,6 @@ public class Server {
                     activeCoupons.add(rs.getInt("couponid"));
                 }
             }
-
-        }
     }
 
     public void runAnnouncePlayerDiseasesSchedule() {
@@ -756,7 +751,7 @@ public class Server {
         futures.add(initExecutor.submit(SkillbookInformationProvider::loadAllSkillbookInformation));
         initExecutor.shutdown();
 
-        TimeZone.setDefault(TimeZone.getTimeZone(YamlConfig.config.server.TIMEZONE));
+        // TimeZone.setDefault(TimeZone.getTimeZone(YamlConfig.config.server.TIMEZONE));
 
         final int worldCount = Math.min(GameConstants.WORLD_NAMES.length, YamlConfig.config.server.WORLDS);
         try (Connection con = DatabaseConnection.getConnection()) {
@@ -883,24 +878,19 @@ public class Server {
     }
 
     public Alliance getAlliance(int id) {
-        synchronized (alliances) {
             if (alliances.containsKey(id)) {
                 return alliances.get(id);
             }
             return null;
-        }
     }
 
     public void addAlliance(int id, Alliance alliance) {
-        synchronized (alliances) {
             if (!alliances.containsKey(id)) {
                 alliances.put(id, alliance);
             }
-        }
     }
 
     public void disbandAlliance(int id) {
-        synchronized (alliances) {
             Alliance alliance = alliances.get(id);
             if (alliance != null) {
                 for (Integer gid : alliance.getGuilds()) {
@@ -908,7 +898,6 @@ public class Server {
                 }
                 alliances.remove(id);
             }
-        }
     }
 
     public void allianceMessage(int id, Packet packet, int exception, int guildex) {
@@ -978,7 +967,6 @@ public class Server {
     }
 
     public Guild getGuildByName(String name) {
-        synchronized (guilds) {
             for (Guild mg : guilds.values()) {
                 if (mg.getName().equalsIgnoreCase(name)) {
                     return mg;
@@ -986,17 +974,14 @@ public class Server {
             }
 
             return null;
-        }
     }
 
     public Guild getGuild(int id) {
-        synchronized (guilds) {
             if (guilds.get(id) != null) {
                 return guilds.get(id);
             }
 
             return null;
-        }
     }
 
     public Guild getGuild(int id, int world) {
@@ -1004,7 +989,6 @@ public class Server {
     }
 
     public Guild getGuild(int id, int world, Character mc) {
-        synchronized (guilds) {
             Guild g = guilds.get(id);
             if (g != null) {
                 return g;
@@ -1029,7 +1013,6 @@ public class Server {
 
             guilds.put(id, g);
             return g;
-        }
     }
 
     public void setGuildMemberOnline(Character mc, boolean bOnline, int channel) {

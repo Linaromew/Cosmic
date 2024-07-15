@@ -123,14 +123,12 @@ public class BuddyList {
     }
 
     public int[] getBuddyIds() {
-        synchronized (buddies) {
             int[] buddyIds = new int[buddies.size()];
             int i = 0;
             for (BuddylistEntry ble : buddies.values()) {
                 buddyIds[i++] = ble.getCharacterId();
             }
             return buddyIds;
-        }
     }
 
     public void broadcast(Packet packet, PlayerStorage pstorage) {

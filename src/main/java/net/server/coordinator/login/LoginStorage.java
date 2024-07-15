@@ -39,7 +39,6 @@ public class LoginStorage {
     public boolean registerLogin(int accountId) {
         List<Instant> attempts = loginHistory.computeIfAbsent(accountId, k -> new ArrayList<>());
 
-        synchronized (attempts) {
             final Instant attemptExpiry = Instant.ofEpochMilli(Server.getInstance().getCurrentTime() + YamlConfig.config.server.LOGIN_ATTEMPT_DURATION);
 
             if (attempts.size() > YamlConfig.config.server.MAX_ACCOUNT_LOGIN_ATTEMPT) {
@@ -49,7 +48,6 @@ public class LoginStorage {
 
             attempts.add(attemptExpiry);
             return true;
-        }
     }
 
     public void clearExpiredAttempts() {
@@ -58,7 +56,7 @@ public class LoginStorage {
 
         for (Entry<Integer, List<Instant>> loginEntries : loginHistory.entrySet()) {
             final List<Instant> attempts = loginEntries.getValue();
-            synchronized (attempts) {
+
                 List<Instant> attemptsToRemove = attempts.stream()
                         .filter(attempt -> attempt.isBefore(now))
                         .collect(Collectors.toList());
@@ -70,7 +68,6 @@ public class LoginStorage {
                 if (attempts.isEmpty()) {
                     accountIdsToClear.add(loginEntries.getKey());
                 }
-            }
         }
 
         for (Integer accountId : accountIdsToClear) {

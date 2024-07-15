@@ -36,8 +36,8 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author Ronan
  */
-public class EventScriptScheduler {
-
+public class EventScriptScheduler
+{
     private boolean disposed = false;
     private int idleProcs = 0;
     private final Map<Runnable, Long> registeredEntries = new HashMap<>();
@@ -46,15 +46,19 @@ public class EventScriptScheduler {
     private final Lock schedulerLock = new ReentrantLock(true);
     private final Runnable monitorTask = () -> runBaseSchedule();
 
-    private void runBaseSchedule() {
+    private void runBaseSchedule()
+    {
         List<Runnable> toRemove;
         Map<Runnable, Long> registeredEntriesCopy;
 
-        if (registeredEntries.isEmpty()) {
+        if (registeredEntries.isEmpty())
+        {
             idleProcs++;
 
-            if (idleProcs >= YamlConfig.config.server.MOB_STATUS_MONITOR_LIFE) {
-                if (schedulerTask != null) {
+            if (idleProcs >= YamlConfig.config.server.MOB_STATUS_MONITOR_LIFE)
+            {
+                if (schedulerTask != null)
+                {
                     schedulerTask.cancel(false);
                     schedulerTask = null;
                 }
@@ -68,8 +72,10 @@ public class EventScriptScheduler {
 
         long timeNow = Server.getInstance().getCurrentTime();
         toRemove = new LinkedList<>();
-        for (Entry<Runnable, Long> rmd : registeredEntriesCopy.entrySet()) {
-            if (rmd.getValue() < timeNow) {
+        for (Entry<Runnable, Long> rmd : registeredEntriesCopy.entrySet())
+        {
+            if (rmd.getValue() < timeNow)
+            {
                 Runnable r = rmd.getKey();
 
                 r.run();  // runs the scheduled action
@@ -77,19 +83,24 @@ public class EventScriptScheduler {
             }
         }
 
-        if (!toRemove.isEmpty()) {
-            for (Runnable r : toRemove) {
+        if (!toRemove.isEmpty())
+        {
+            for (Runnable r : toRemove)
+            {
                 registeredEntries.remove(r);
             }
         }
     }
 
-    public void registerEntry(final Runnable scheduledAction, final long duration) {
-
-        ThreadManager.getInstance().newTask(() -> {
+    public void registerEntry(final Runnable scheduledAction, final long duration)
+    {
+        ThreadManager.getInstance().newTask(() ->
+        {
             idleProcs = 0;
-            if (schedulerTask == null) {
-                if (disposed) {
+            if (schedulerTask == null)
+            {
+                if (disposed)
+                {
                     return;
                 }
 
@@ -100,17 +111,20 @@ public class EventScriptScheduler {
         });
     }
 
-    public void cancelEntry(final Runnable scheduledAction) {
-
-        ThreadManager.getInstance().newTask(() -> {
+    public void cancelEntry(final Runnable scheduledAction)
+    {
+        ThreadManager.getInstance().newTask(() ->
+        {
             registeredEntries.remove(scheduledAction);
         });
     }
 
-    public void dispose() {
-
-        ThreadManager.getInstance().newTask(() -> {
-            if (schedulerTask != null) {
+    public void dispose()
+    {
+        ThreadManager.getInstance().newTask(() ->
+        {
+            if (schedulerTask != null)
+            {
                 schedulerTask.cancel(false);
                 schedulerTask = null;
             }

@@ -208,7 +208,6 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public void takeItemBack(int slot, Character chr) {
-        synchronized (items) {
             PlayerShopItem shopItem = items.get(slot);
             if (shopItem.isExist()) {
                 if (shopItem.getBundles() > 0) {
@@ -231,7 +230,6 @@ public class HiredMerchant extends AbstractMapObject {
             if (YamlConfig.config.server.USE_ENFORCE_MERCHANT_SAVE) {
                 chr.saveCharToDB(false);
             }
-        }
     }
 
     private static boolean canBuy(Client c, Item newItem) {    // thanks xiaokelvin (Conrad) for noticing a leaked test code here
@@ -239,7 +237,6 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     private int getQuantityLeft(int itemid) {
-        synchronized (items) {
             int count = 0;
 
             for (PlayerShopItem mpsi : items) {
@@ -249,11 +246,9 @@ public class HiredMerchant extends AbstractMapObject {
             }
 
             return count;
-        }
     }
 
     public void buy(Client c, int item, short quantity) {
-        synchronized (items) {
             PlayerShopItem pItem = items.get(item);
             Item newItem = pItem.getItem().copy();
 
@@ -327,7 +322,6 @@ public class HiredMerchant extends AbstractMapObject {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
     }
 
     private void announceItemSold(Item item, int mesos, int inStore) {
@@ -513,18 +507,15 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public boolean addItem(PlayerShopItem item) {
-        synchronized (items) {
             if (items.size() >= 16) {
                 return false;
             }
 
             items.add(item);
             return true;
-        }
     }
 
     public void clearInexistentItems() {
-        synchronized (items) {
             for (int i = items.size() - 1; i >= 0; i--) {
                 if (!items.get(i).isExist()) {
                     items.remove(i);
@@ -536,7 +527,6 @@ public class HiredMerchant extends AbstractMapObject {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-        }
     }
 
     private void removeFromSlot(int slot) {

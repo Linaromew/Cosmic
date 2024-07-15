@@ -43,7 +43,6 @@ public class MobAttackInfoFactory {
         if (ret != null) {
             return ret;
         }
-        synchronized (mobAttacks) {
             ret = mobAttacks.get(mob.getId() + "" + attack);
             if (ret == null) {
                 Data mobData = dataSource.getData(StringUtil.getLeftPaddedStr(mob.getId() + ".img", '0', 11));
@@ -75,5 +74,4 @@ public class MobAttackInfoFactory {
             }
             return ret;
         }
-    }
 }
