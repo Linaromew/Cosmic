@@ -153,8 +153,7 @@ public class StorageProcessor {
                     } else {
                         Item item;
 
-                        inv.lockInventory(); // thanks imbee for pointing a dupe within storage
-                        try {
+
                             item = inv.getItem(slot);
                             if (item != null && item.getItemId() == itemId
                                     && (item.getQuantity() >= quantity || ItemConstants.isRechargeable(itemId))) {
@@ -174,9 +173,6 @@ public class StorageProcessor {
                             }
 
                             item = item.copy(); // thanks Robin Schulz & BHB88 for noticing a inventory glitch when storing items
-                        } finally {
-                            inv.unlockInventory();
-                        }
 
                         chr.gainMeso(-storeFee, false, true, false);
 

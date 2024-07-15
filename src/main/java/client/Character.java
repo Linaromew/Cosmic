@@ -991,17 +991,12 @@ public class Character extends AbstractCharacterObject {
         for (InventoryType invType : InventoryType.values()) {
             Inventory inv = this.getInventory(invType);
 
-            inv.lockInventory();
-            try {
                 for (Item item : new ArrayList<>(inv.list())) {
                     if (InventoryManipulator.isSandboxItem(item)) {
                         InventoryManipulator.removeFromSlot(client, invType, item.getPosition(), item.getQuantity(), false);
                         dropMessage(5, "[" + ii.getName(item.getItemId()) + "] has passed its trial conditions and will be removed from your inventory.");
                     }
                 }
-            } finally {
-                inv.unlockInventory();
-            }
         }
 
         hasSandboxItem = false;
@@ -6073,13 +6068,8 @@ public class Character extends AbstractCharacterObject {
             return;
         }
 
-        cashInv.lockInventory();
-        try {
             revertCouponRates();
             setCouponRates();
-        } finally {
-            cashInv.unlockInventory();
-            }
     }
 
     public void resetPlayerRates() {
@@ -8566,8 +8556,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     private int gainSlotsInternal(int type, int slots) {
-        inventory[type].lockInventory();
-        try {
             if (canGainSlots(type, slots)) {
                 int newLimit = inventory[type].getSlotLimit() + slots;
                 inventory[type].setSlotLimit(newLimit);
@@ -8575,9 +8563,6 @@ public class Character extends AbstractCharacterObject {
             } else {
                 return -1;
             }
-        } finally {
-            inventory[type].unlockInventory();
-        }
     }
 
     public int sellAllItemsFromName(byte invTypeId, String name) {
@@ -8585,8 +8570,7 @@ public class Character extends AbstractCharacterObject {
         InventoryType type = InventoryType.getByType(invTypeId);
 
         Inventory inv = getInventory(type);
-        inv.lockInventory();
-        try {
+
             Item it = inv.findByName(name);
             if (it == null) {
                 return (-1);
@@ -8594,26 +8578,20 @@ public class Character extends AbstractCharacterObject {
 
             ItemInformationProvider ii = ItemInformationProvider.getInstance();
             return (sellAllItemsFromPosition(ii, type, it.getPosition()));
-        } finally {
-            inv.unlockInventory();
-        }
+
     }
 
     public int sellAllItemsFromPosition(ItemInformationProvider ii, InventoryType type, short pos) {
         int mesoGain = 0;
 
         Inventory inv = getInventory(type);
-        inv.lockInventory();
-        try {
-            for (short i = pos; i <= inv.getSlotLimit(); i++) {
-                if (inv.getItem(i) == null) {
-                    continue;
-                }
-                mesoGain += standaloneSell(getClient(), ii, type, i, inv.getItem(i).getQuantity());
+        for (short i = pos; i <= inv.getSlotLimit(); i++) {
+            if (inv.getItem(i) == null) {
+                continue;
             }
-        } finally {
-            inv.unlockInventory();
+            mesoGain += standaloneSell(getClient(), ii, type, i, inv.getItem(i).getQuantity());
         }
+
 
         return (mesoGain);
     }
@@ -8624,8 +8602,7 @@ public class Character extends AbstractCharacterObject {
         }
 
         Inventory inv = getInventory(type);
-        inv.lockInventory();
-        try {
+
             Item item = inv.getItem(slot);
             if (item == null) { //Basic check
                 return (0);
@@ -8656,9 +8633,6 @@ public class Character extends AbstractCharacterObject {
             }
 
             return (0);
-        } finally {
-            inv.unlockInventory();
-        }
     }
 
     private static boolean hasMergeFlag(Item item) {
@@ -8701,8 +8675,7 @@ public class Character extends AbstractCharacterObject {
         InventoryType type = InventoryType.EQUIP;
 
         Inventory inv = getInventory(type);
-        inv.lockInventory();
-        try {
+
             Item it = inv.findByName(name);
             if (it == null) {
                 return false;
@@ -8769,21 +8742,14 @@ public class Character extends AbstractCharacterObject {
             }
 
             return true;
-        } finally {
-            inv.unlockInventory();
-        }
     }
 
     public void mergeAllItemsFromPosition(Map<StatUpgrade, Float> statups, short pos) {
         Inventory inv = getInventory(InventoryType.EQUIP);
-        inv.lockInventory();
-        try {
+
             for (short i = pos; i <= inv.getSlotLimit(); i++) {
                 standaloneMerge(statups, getClient(), InventoryType.EQUIP, i, inv.getItem(i));
             }
-        } finally {
-            inv.unlockInventory();
-        }
     }
 
     private void standaloneMerge(Map<StatUpgrade, Float> statups, Client c, InventoryType type, short slot, Item item) {

@@ -1008,8 +1008,7 @@ public class StatEffect {
             short projectileConsume = this.getBulletConsume();  // noticed by shavit
 
             Inventory use = applyto.getInventory(InventoryType.USE);
-            use.lockInventory();
-            try {
+
                 Item projectile = null;
                 for (int i = 1; i <= use.getSlotLimit(); i++) { // impose order...
                     Item item = use.getItem((short) i);
@@ -1025,9 +1024,7 @@ public class StatEffect {
                 } else {
                     InventoryManipulator.removeFromSlot(applyto.getClient(), InventoryType.USE, projectile.getPosition(), projectileConsume, false, true);
                 }
-            } finally {
-                use.unlockInventory();
-            }
+
         }
         SummonMovementType summonMovementType = getSummonMovementType();
         if (overTime || isCygnusFA() || summonMovementType != null) {

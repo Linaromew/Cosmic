@@ -310,8 +310,7 @@ public final class InventorySortHandler extends AbstractPacketHandler {
         List<ModifyInventory> mods = new ArrayList<>();
 
         Inventory inventory = chr.getInventory(InventoryType.getByType(invType));
-        inventory.lockInventory();
-        try {
+
             for (short i = 1; i <= inventory.getSlotLimit(); i++) {
                 Item item = inventory.getItem(i);
                 if (item != null) {
@@ -333,9 +332,7 @@ public final class InventorySortHandler extends AbstractPacketHandler {
                 mods.add(new ModifyInventory(0, item.copy()));//to prevent crashes
             }
             itemarray.clear();
-        } finally {
-            inventory.unlockInventory();
-        }
+
 
         c.sendPacket(PacketCreator.modifyInventory(true, mods));
         c.sendPacket(PacketCreator.finishedSort2(invType));

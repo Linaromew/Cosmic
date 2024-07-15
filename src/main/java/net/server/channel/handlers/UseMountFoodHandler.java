@@ -52,8 +52,7 @@ public final class UseMountFoodHandler extends AbstractPacketHandler {
             try {
                 Boolean mountLevelup = null;
 
-                useInv.lockInventory();
-                try {
+
                     Item item = useInv.getItem(pos);
                     if (item != null && item.getItemId() == itemid && mount != null) {
                         int curTiredness = mount.getTiredness();
@@ -75,9 +74,6 @@ public final class UseMountFoodHandler extends AbstractPacketHandler {
 
                         InventoryManipulator.removeById(c, InventoryType.USE, itemid, 1, true, false);
                     }
-                } finally {
-                    useInv.unlockInventory();
-                }
 
                 if (mountLevelup != null) {
                     chr.getMap().broadcastMessage(PacketCreator.updateMount(chr.getId(), mount, mountLevelup));

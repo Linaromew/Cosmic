@@ -69,17 +69,13 @@ public final class SkillBookHandler extends AbstractPacketHandler {
                 if (skilldata.get("skillid") == 0) {
                     canuse = false;
                 } else if ((player.getSkillLevel(skill2) >= skilldata.get("reqSkillLevel") || skilldata.get("reqSkillLevel") == 0) && player.getMasterLevel(skill2) < skilldata.get("masterLevel")) {
-                    inv.lockInventory();
-                    try {
+
                         Item used = inv.getItem(slot);
                         if (used != toUse || toUse.getQuantity() < 1) {    // thanks ClouD for noticing skillbooks not being usable when stacked
                             return;
                         }
 
                         InventoryManipulator.removeFromSlot(c, InventoryType.USE, slot, (short) 1, false);
-                    } finally {
-                        inv.unlockInventory();
-                    }
 
                     canuse = true;
                     if (ItemInformationProvider.rollSuccessChance(skilldata.get("success"))) {

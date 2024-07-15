@@ -62,8 +62,7 @@ public final class WeddingHandler extends AbstractPacketHandler {
                                         Inventory chrInv = chr.getInventory(type);
 
                                         Item newItem = null;
-                                        chrInv.lockInventory();
-                                        try {
+
                                             Item item = chrInv.getItem((byte) slot);
                                             if (item != null) {
                                                 if (!item.isUntradeable()) {
@@ -82,9 +81,7 @@ public final class WeddingHandler extends AbstractPacketHandler {
                                                     c.sendPacket(WeddingPackets.onWeddingGiftResult((byte) 0xE, marriage.getWishlistItems(groomWishlist), null));
                                                 }
                                             }
-                                        } finally {
-                                            chrInv.unlockInventory();
-                                        }
+
 
                                         if (newItem != null) {
                                             if (YamlConfig.config.server.USE_ENFORCE_MERCHANT_SAVE) {

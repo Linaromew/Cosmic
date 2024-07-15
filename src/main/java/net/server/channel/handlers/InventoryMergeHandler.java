@@ -55,8 +55,7 @@ public final class InventoryMergeHandler extends AbstractPacketHandler {
 
         InventoryType inventoryType = InventoryType.getByType(invType);
         Inventory inventory = c.getPlayer().getInventory(inventoryType);
-        inventory.lockInventory();
-        try {
+
             //------------------- RonanLana's SLOT MERGER -----------------
 
             ItemInformationProvider ii = ItemInformationProvider.getInstance();
@@ -110,9 +109,6 @@ public final class InventoryMergeHandler extends AbstractPacketHandler {
                     sorted = true;
                 }
             }
-        } finally {
-            inventory.unlockInventory();
-        }
 
         c.sendPacket(PacketCreator.finishedSort(inventoryType.getType()));
         c.sendPacket(PacketCreator.enableActions());

@@ -111,8 +111,6 @@ public final class ScrollHandler extends AbstractPacketHandler {
                     scrollSuccess = Equip.ScrollResult.SUCCESS;
                 }
 
-                useInventory.lockInventory();
-                try {
                     if (scroll.getQuantity() < 1) {
                         announceCannotScroll(c, legendarySpirit);
                         return;
@@ -128,9 +126,6 @@ public final class ScrollHandler extends AbstractPacketHandler {
                     }
 
                     InventoryManipulator.removeFromSlot(c, InventoryType.USE, scroll.getPosition(), (short) 1, false);
-                } finally {
-                    useInventory.unlockInventory();
-                }
 
                 final List<ModifyInventory> mods = new ArrayList<>();
                 if (scrollSuccess == Equip.ScrollResult.CURSE) {
@@ -139,22 +134,14 @@ public final class ScrollHandler extends AbstractPacketHandler {
                         if (equipSlot < 0) {
                             Inventory inv = chr.getInventory(InventoryType.EQUIPPED);
 
-                            inv.lockInventory();
-                            try {
                                 chr.unequippedItem(toScroll);
                                 inv.removeItem(toScroll.getPosition());
-                            } finally {
-                                inv.unlockInventory();
-                            }
+
                         } else {
                             Inventory inv = chr.getInventory(InventoryType.EQUIP);
 
-                            inv.lockInventory();
-                            try {
                                 inv.removeItem(toScroll.getPosition());
-                            } finally {
-                                inv.unlockInventory();
-                            }
+
                         }
                     } else {
                         scrolled = toScroll;

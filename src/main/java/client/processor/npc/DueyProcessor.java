@@ -254,8 +254,7 @@ public class DueyProcessor {
             Inventory inv = c.getPlayer().getInventory(invType);
 
             Item item;
-            inv.lockInventory();
-            try {
+
                 item = inv.getItem(itemPos);
                 if (item != null && item.getQuantity() >= amount) {
                     if (item.isUntradeable() || ii.isUnmerchable(item.getItemId())) {
@@ -272,9 +271,7 @@ public class DueyProcessor {
                 } else {
                     return -2;
                 }
-            } finally {
-                inv.unlockInventory();
-            }
+
 
             KarmaManipulator.toggleKarmaFlagToUntradeable(item);
             item.setQuantity(amount);

@@ -533,7 +533,6 @@ public final class PlayerInteractionHandler extends AbstractPacketHandler {
                         }
 
                         Inventory inv = chr.getInventory(ivType);
-                        inv.lockInventory();
                         try {
                             Item checkItem = chr.getInventory(ivType).getItem(pos);
                             if (checkItem != item || checkItem.getPosition() != item.getPosition()) {
@@ -560,8 +559,6 @@ public final class PlayerInteractionHandler extends AbstractPacketHandler {
                             }
                         } catch (Exception e) {
                             log.warn("Chr {} tried to add {}x {} in trade (slot {}), then exception occurred", chr, ii.getName(item.getItemId()), item.getQuantity(), targetSlot, e);
-                        } finally {
-                            inv.unlockInventory();
                         }
                     }
                 }

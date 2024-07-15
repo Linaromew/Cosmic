@@ -635,8 +635,6 @@ public final class UseCashItemHandler extends AbstractPacketHandler {
 
     private static void remove(Client c, short position, int itemid) {
         Inventory cashInv = c.getPlayer().getInventory(InventoryType.CASH);
-        cashInv.lockInventory();
-        try {
             Item it = cashInv.getItem(position);
             if (it == null || it.getItemId() != itemid) {
                 it = cashInv.findById(itemid);
@@ -646,9 +644,6 @@ public final class UseCashItemHandler extends AbstractPacketHandler {
             }
 
             InventoryManipulator.removeFromSlot(c, InventoryType.CASH, position, (short) 1, true, false);
-        } finally {
-            cashInv.unlockInventory();
-        }
     }
 
     private static boolean getIncubatedItem(Client c, int id) {

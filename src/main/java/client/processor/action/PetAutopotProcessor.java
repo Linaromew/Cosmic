@@ -96,8 +96,7 @@ public class PetAutopotProcessor {
             curMp = chr.getMp();
 
             Inventory useInv = chr.getInventory(InventoryType.USE);
-            useInv.lockInventory();
-            try {
+
                 toUse = useInv.getItem(slot);
                 if (toUse != null) {
                     if (toUse.getItemId() != itemId) {
@@ -172,9 +171,6 @@ public class PetAutopotProcessor {
                         }
                     }
                 }
-            } finally {
-                useInv.unlockInventory();
-            }
 
             if (stat != null) {
                 for (int i = 0; i < useCount; i++) {

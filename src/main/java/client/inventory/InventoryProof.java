@@ -31,8 +31,7 @@ public class InventoryProof extends Inventory {
     }
 
     public void cloneContents(Inventory inv) {
-        inv.lockInventory();
-        try {
+
             inventory.clear();
             this.setSlotLimit(inv.getSlotLimit());
 
@@ -40,9 +39,7 @@ public class InventoryProof extends Inventory {
                 Item item = new Item(it.getItemId(), it.getPosition(), it.getQuantity());
                 inventory.put(item.getPosition(), item);
             }
-        } finally {
-            inv.unlockInventory();
-        }
+
     }
 
     public void flushContents() {

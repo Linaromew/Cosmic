@@ -340,15 +340,9 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
             }
 
             Inventory eqpInv = player.getInventory(InventoryType.EQUIPPED);
-            eqpInv.lockInventory();
-            try {
                 for (Item it : eqpInv.list()) {
                     player.equippedItem((Equip) it);
                 }
-            } finally {
-                eqpInv.unlockInventory();
-            }
-
             c.sendPacket(PacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
 
             CharacterNameAndId pendingBuddyRequest = c.getPlayer().getBuddylist().pollPendingRequest();

@@ -47,17 +47,14 @@ public class RaiseIncExpHandler extends AbstractPacketHandler {
 
                 int consId;
                 Inventory inv = chr.getInventory(InventoryType.getByType(inventorytype));
-                inv.lockInventory();
-                try {
+
                     consId = inv.getItem(slot).getItemId();
                     if (!consumables.containsKey(consId) || !chr.haveItem(consId)) {
                         return;
                     }
 
                     InventoryManipulator.removeFromSlot(c, InventoryType.getByType(inventorytype), slot, (short) 1, false, true);
-                } finally {
-                    inv.unlockInventory();
-                }
+
 
                 int questid = quest.getId();
                 int nextValue = Math.min(consumables.get(consId) + c.getAbstractPlayerInteraction().getQuestProgressInt(questid, infoNumber), consItem.exp * consItem.grade);

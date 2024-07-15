@@ -308,34 +308,30 @@ public class AbstractPlayerInteraction {
         List<List<Pair<Integer, Integer>>> toRemoveItemList = prepareInventoryItemList(toRemoveItemids, toRemoveQuantity);
 
         InventoryProof prfInv = (InventoryProof) this.getInventory(InventoryType.CANHOLD);
-        prfInv.lockInventory();
-        try {
-            for (int i = InventoryType.EQUIP.getType(); i < InventoryType.CASH.getType(); i++) {
-                List<Pair<Integer, Integer>> toAdd = toAddItemList.get(i);
+        for (int i = InventoryType.EQUIP.getType(); i < InventoryType.CASH.getType(); i++) {
+            List<Pair<Integer, Integer>> toAdd = toAddItemList.get(i);
 
-                if (!toAdd.isEmpty()) {
-                    List<Pair<Integer, Integer>> toRemove = toRemoveItemList.get(i);
+            if (!toAdd.isEmpty()) {
+                List<Pair<Integer, Integer>> toRemove = toRemoveItemList.get(i);
 
-                    Inventory inv = this.getInventory(i);
-                    prfInv.cloneContents(inv);
+                Inventory inv = this.getInventory(i);
+                prfInv.cloneContents(inv);
 
-                    for (Pair<Integer, Integer> p : toRemove) {
-                        InventoryManipulator.removeById(c, InventoryType.CANHOLD, p.getLeft(), p.getRight(), false, false);
-                    }
+                for (Pair<Integer, Integer> p : toRemove) {
+                    InventoryManipulator.removeById(c, InventoryType.CANHOLD, p.getLeft(), p.getRight(), false, false);
+                }
 
-                    List<Pair<Item, InventoryType>> addItems = prepareProofInventoryItems(toAdd);
+                List<Pair<Item, InventoryType>> addItems = prepareProofInventoryItems(toAdd);
 
-                    boolean canHold = Inventory.checkSpots(c.getPlayer(), addItems, true);
-                    if (!canHold) {
-                        return false;
-                    }
+                boolean canHold = Inventory.checkSpots(c.getPlayer(), addItems, true);
+                if (!canHold) {
+                    prfInv.flushContents();
+                    return false;
                 }
             }
-        } finally {
-            prfInv.flushContents();
-            prfInv.unlockInventory();
         }
 
+        prfInv.flushContents();
         return true;
     }
 

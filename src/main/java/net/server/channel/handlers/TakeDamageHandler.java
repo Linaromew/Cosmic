@@ -118,13 +118,9 @@ public final class TakeDamageHandler extends AbstractPacketHandler {
                                         int qty;
 
                                         Inventory inv = chr.getInventory(type);
-                                        inv.lockInventory();
-                                        try {
+
                                             qty = Math.min(chr.countItem(loseItem.getId()), dropCount);
                                             InventoryManipulator.removeById(c, type, loseItem.getId(), qty, false, false);
-                                        } finally {
-                                            inv.unlockInventory();
-                                        }
 
                                         if (loseItem.getId() == 4031868) {
                                             chr.updateAriantScore();

@@ -74,8 +74,7 @@ public final class PetFoodHandler extends AbstractPacketHandler {
         if (c.tryacquireClient()) {
             try {
                 Inventory useInv = chr.getInventory(InventoryType.USE);
-                useInv.lockInventory();
-                try {
+
                     Item use = useInv.getItem(pos);
                     if (use == null || (itemId / 10000) != 212 || use.getItemId() != itemId || use.getQuantity() < 1) {
                         return;
@@ -83,9 +82,7 @@ public final class PetFoodHandler extends AbstractPacketHandler {
 
                     pet.gainTamenessFullness(chr, (pet.getFullness() <= 75) ? 1 : 0, 30, 1);   // 25+ "emptyness" to get +1 tameness
                     InventoryManipulator.removeFromSlot(c, InventoryType.USE, pos, (short) 1, false);
-                } finally {
-                    useInv.unlockInventory();
-                }
+
             } finally {
                 c.releaseClient();
             }

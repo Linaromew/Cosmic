@@ -74,12 +74,9 @@ public class InventoryManipulator {
         InventoryType type = ItemConstants.getInventoryType(itemId);
 
         Inventory inv = chr.getInventory(type);
-        inv.lockInventory();
-        try {
+
             return addByIdInternal(c, chr, type, inv, itemId, quantity, owner, petid, flag, expiration);
-        } finally {
-            inv.unlockInventory();
-        }
+
     }
 
     private static boolean addByIdInternal(Client c, Character chr, InventoryType type, Inventory inv, int itemId, short quantity, String owner, int petid, short flag, long expiration) {
@@ -183,12 +180,9 @@ public class InventoryManipulator {
         InventoryType type = item.getInventoryType();
 
         Inventory inv = chr.getInventory(type);
-        inv.lockInventory();
-        try {
+
             return addFromDropInternal(c, chr, type, inv, item, show, petId);
-        } finally {
-            inv.unlockInventory();
-        }
+
     }
 
     private static boolean addFromDropInternal(Client c, Character chr, InventoryType type, Inventory inv, Item item, boolean show, int petId) {
@@ -413,13 +407,9 @@ public class InventoryManipulator {
         boolean allowZero = consume && ItemConstants.isRechargeable(item.getItemId());
 
         if (type == InventoryType.EQUIPPED) {
-            inv.lockInventory();
-            try {
+
                 chr.unequippedItem((Equip) item);
                 inv.removeItem(slot, quantity, allowZero);
-            } finally {
-                inv.unlockInventory();
-            }
 
             announceModifyInventory(c, item, fromDrop, allowZero);
         } else {
@@ -600,16 +590,13 @@ public class InventoryManipulator {
         eqpInv.removeSlot(src);
 
         Equip target;
-        eqpdInv.lockInventory();
-        try {
+
             target = (Equip) eqpdInv.getItem(dst);
             if (target != null) {
                 chr.unequippedItem(target);
                 eqpdInv.removeSlot(dst);
             }
-        } finally {
-            eqpdInv.unlockInventory();
-        }
+
 
         final List<ModifyInventory> mods = new ArrayList<>();
         if (itemChanged) {
@@ -619,16 +606,13 @@ public class InventoryManipulator {
 
         source.setPosition(dst);
 
-        eqpdInv.lockInventory();
-        try {
+
             if (source.getRingId() > -1) {
                 chr.getRingById(source.getRingId()).equip();
             }
             chr.equippedItem(source);
             eqpdInv.addItemFromDB(source);
-        } finally {
-            eqpdInv.unlockInventory();
-        }
+
 
         if (target != null) {
             target.setPosition(src);
@@ -661,16 +645,11 @@ public class InventoryManipulator {
             return;
         }
 
-        eqpdInv.lockInventory();
-        try {
             if (source.getRingId() > -1) {
                 chr.getRingById(source.getRingId()).unequip();
             }
             chr.unequippedItem(source);
             eqpdInv.removeSlot(src);
-        } finally {
-            eqpdInv.unlockInventory();
-        }
 
         if (target != null) {
             eqpInv.removeSlot(dst);
@@ -760,13 +739,8 @@ public class InventoryManipulator {
             }
         } else {
             if (type == InventoryType.EQUIPPED) {
-                inv.lockInventory();
-                try {
                     chr.unequippedItem((Equip) source);
                     inv.removeSlot(src);
-                } finally {
-                    inv.unlockInventory();
-                }
             } else {
                 inv.removeSlot(src);
             }

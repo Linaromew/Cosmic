@@ -47,11 +47,9 @@ public final class UseSolomonHandler extends AbstractPacketHandler {
         ItemInformationProvider ii = ItemInformationProvider.getInstance();
 
         if (c.tryacquireClient()) {
-            try {
                 Character chr = c.getPlayer();
                 Inventory inv = chr.getInventory(InventoryType.USE);
-                inv.lockInventory();
-                try {
+
                     Item slotItem = inv.getItem(slot);
                     if (slotItem == null) {
                         return;
@@ -66,12 +64,8 @@ public final class UseSolomonHandler extends AbstractPacketHandler {
                     }
                     chr.addGachaExp((int) gachaexp);
                     InventoryManipulator.removeFromSlot(c, InventoryType.USE, slot, (short) 1, false);
-                } finally {
-                    inv.unlockInventory();
-                }
-            } finally {
-                c.releaseClient();
-            }
+
+
         }
 
         c.sendPacket(PacketCreator.enableActions());
