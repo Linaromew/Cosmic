@@ -72,16 +72,13 @@ public class Inventory implements Iterable<Item> {
     }
 
     public byte getSlotLimit() {
-        lock.lock();
         try {
             return slotLimit;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void setSlotLimit(int newLimit) {
-        lock.lock();
         try {
             if (newLimit < slotLimit) {
                 List<Short> toRemove = new LinkedList<>();
@@ -98,17 +95,14 @@ public class Inventory implements Iterable<Item> {
 
             slotLimit = (byte) newLimit;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Collection<Item> list() {
-        lock.lock();
         try {
             return Collections.unmodifiableCollection(inventory.values());
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Item findById(int itemId) {
@@ -242,7 +236,6 @@ public class Inventory implements Iterable<Item> {
     }
 
     public void move(short sSlot, short dSlot, short slotMax) {
-        lock.lock();
         try {
             Item source = inventory.get(sSlot);
             Item target = inventory.get(dSlot);
@@ -268,8 +261,7 @@ public class Inventory implements Iterable<Item> {
                 swap(target, source);
             }
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     private void swap(Item source, Item target) {
@@ -283,12 +275,10 @@ public class Inventory implements Iterable<Item> {
     }
 
     public Item getItem(short slot) {
-        lock.lock();
         try {
             return inventory.get(slot);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void removeItem(short slot) {
@@ -315,7 +305,6 @@ public class Inventory implements Iterable<Item> {
         }
 
         short slotId;
-        lock.lock();
         try {
             slotId = getNextFreeSlot();
             if (slotId < 0) {
@@ -324,8 +313,7 @@ public class Inventory implements Iterable<Item> {
 
             inventory.put(slotId, item);
         } finally {
-            lock.unlock();
-        }
+            }
 
         if (ItemConstants.isRateCoupon(item.getItemId())) {
             // deadlocks with coupons rates found thanks to GabrielSin & Masterrulax
@@ -336,12 +324,10 @@ public class Inventory implements Iterable<Item> {
     }
 
     protected void addSlotFromDB(short slot, Item item) {
-        lock.lock();
         try {
             inventory.put(slot, item);
         } finally {
-            lock.unlock();
-        }
+            }
 
         if (ItemConstants.isRateCoupon(item.getItemId())) {
             ThreadManager.getInstance().newTask(() -> owner.updateCouponRates());
@@ -350,12 +336,10 @@ public class Inventory implements Iterable<Item> {
 
     public void removeSlot(short slot) {
         Item item;
-        lock.lock();
         try {
             item = inventory.remove(slot);
         } finally {
-            lock.unlock();
-        }
+            }
 
         if (item != null && ItemConstants.isRateCoupon(item.getItemId())) {
             ThreadManager.getInstance().newTask(() -> owner.updateCouponRates());
@@ -363,32 +347,26 @@ public class Inventory implements Iterable<Item> {
     }
 
     public boolean isFull() {
-        lock.lock();
         try {
             return inventory.size() >= slotLimit;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public boolean isFull(int margin) {
-        lock.lock();
         try {
             //System.out.print("(" + inventory.size() + " " + margin + " <> " + slotLimit + ")");
             return inventory.size() + margin >= slotLimit;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public boolean isFullAfterSomeItems(int margin, int used) {
-        lock.lock();
         try {
             //System.out.print("(" + inventory.size() + " " + margin + " <> " + slotLimit + " -" + used + ")");
             return inventory.size() + margin >= slotLimit - used;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public short getNextFreeSlot() {
@@ -396,7 +374,6 @@ public class Inventory implements Iterable<Item> {
             return -1;
         }
 
-        lock.lock();
         try {
             for (short i = 1; i <= slotLimit; i++) {
                 if (!inventory.containsKey(i)) {
@@ -405,8 +382,7 @@ public class Inventory implements Iterable<Item> {
             }
             return -1;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public short getNumFreeSlot() {
@@ -414,7 +390,6 @@ public class Inventory implements Iterable<Item> {
             return 0;
         }
 
-        lock.lock();
         try {
             short free = 0;
             for (short i = 1; i <= slotLimit; i++) {
@@ -424,8 +399,7 @@ public class Inventory implements Iterable<Item> {
             }
             return free;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     private static boolean checkItemRestricted(List<Pair<Item, InventoryType>> items) {
@@ -631,30 +605,24 @@ public class Inventory implements Iterable<Item> {
     }
 
     public boolean checked() {
-        lock.lock();
         try {
             return checked;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void checked(boolean yes) {
-        lock.lock();
         try {
             checked = yes;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void lockInventory() {
-        lock.lock();
-    }
+        }
 
     public void unlockInventory() {
-        lock.unlock();
-    }
+        }
 
     public void dispose() {
         owner = null;

@@ -558,7 +558,6 @@ public class Client extends ChannelInboundHandlerAdapter {
     }
 
     public int finishLogin() {
-        encoderLock.lock();
         try {
             if (getLoginState() > LOGIN_NOTLOGGEDIN) { // 0 = LOGIN_NOTLOGGEDIN, 1= LOGIN_SERVER_TRANSITION, 2 = LOGIN_LOGGEDIN
                 loggedIn = false;
@@ -566,8 +565,7 @@ public class Client extends ChannelInboundHandlerAdapter {
             }
             updateLoginState(Client.LOGIN_LOGGEDIN);
         } finally {
-            encoderLock.unlock();
-        }
+            }
 
         return 0;
     }
@@ -1301,12 +1299,10 @@ public class Client extends ChannelInboundHandlerAdapter {
     }
 
     public void lockClient() {
-        lock.lock();
-    }
+        }
 
     public void unlockClient() {
-        lock.unlock();
-    }
+        }
 
     public boolean tryacquireClient() {
         if (actionsSemaphore.tryAcquire()) {
@@ -1324,7 +1320,6 @@ public class Client extends ChannelInboundHandlerAdapter {
 
     public boolean tryacquireEncoder() {
         if (actionsSemaphore.tryAcquire()) {
-            encoderLock.lock();
             return true;
         } else {
             return false;
@@ -1332,7 +1327,6 @@ public class Client extends ChannelInboundHandlerAdapter {
     }
 
     public void unlockEncoder() {
-        encoderLock.unlock();
         actionsSemaphore.release();
     }
 
@@ -1463,12 +1457,10 @@ public class Client extends ChannelInboundHandlerAdapter {
     }
 
     public void sendPacket(Packet packet) {
-        announcerLock.lock();
         try {
             ioChannel.writeAndFlush(packet);
         } finally {
-            announcerLock.unlock();
-        }
+            }
     }
 
     public void announceHint(String msg, int length) {

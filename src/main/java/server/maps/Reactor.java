@@ -76,22 +76,16 @@ public class Reactor extends AbstractMapObject {
     }
 
     public void lockReactor() {
-        reactorLock.lock();
-    }
+        }
 
     public void unlockReactor() {
-        reactorLock.unlock();
-    }
+        }
 
     public void hitLockReactor() {
-        hitLock.lock();
-        reactorLock.lock();
-    }
+        }
 
     public void hitUnlockReactor() {
-        reactorLock.unlock();
-        hitLock.unlock();
-    }
+        }
 
     public void setState(byte state) {
         this.state = state;
@@ -212,8 +206,7 @@ public class Reactor extends AbstractMapObject {
             this.resetReactorActions(newState);
             map.broadcastMessage(PacketCreator.triggerReactor(this, (short) 0));
         } finally {
-            reactorLock.unlock();
-        }
+            }
     }
 
     public void cancelReactorTimeout() {
@@ -316,7 +309,7 @@ public class Reactor extends AbstractMapObject {
                     }
                 } finally {
                     this.unlockReactor();
-                    hitLock.unlock();   // non-encapsulated unlock found thanks to MiLin
+                    // non-encapsulated unlock found thanks to MiLin
                 }
             }
         } catch (Exception e) {
@@ -340,8 +333,7 @@ public class Reactor extends AbstractMapObject {
                     return !this.inDelayedRespawn();
                 }
             } finally {
-                reactorLock.unlock();
-            }
+                }
         }
 
         map.broadcastMessage(PacketCreator.destroyReactor(this));

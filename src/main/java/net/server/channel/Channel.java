@@ -215,7 +215,6 @@ public final class Channel {
     }
 
     private void closeChannelSchedules() {
-        lock.lock();
         try {
             for (int i = 0; i < dojoTask.length; i++) {
                 if (dojoTask[i] != null) {
@@ -224,8 +223,7 @@ public final class Channel {
                 }
             }
         } finally {
-            lock.unlock();
-        }
+            }
 
         closeChannelServices();
     }
@@ -234,13 +232,11 @@ public final class Channel {
         try {
             List<HiredMerchant> merchs;
 
-            merchWlock.lock();
             try {
                 merchs = new ArrayList<>(hiredMerchants.values());
                 hiredMerchants.clear();
             } finally {
-                merchWlock.unlock();
-            }
+                }
 
             for (HiredMerchant merch : merchs) {
                 merch.forceClose();
@@ -357,30 +353,24 @@ public final class Channel {
     }
 
     public Map<Integer, HiredMerchant> getHiredMerchants() {
-        merchRlock.lock();
         try {
             return Collections.unmodifiableMap(hiredMerchants);
         } finally {
-            merchRlock.unlock();
-        }
+            }
     }
 
     public void addHiredMerchant(int chrid, HiredMerchant hm) {
-        merchWlock.lock();
         try {
             hiredMerchants.put(chrid, hm);
         } finally {
-            merchWlock.unlock();
-        }
+            }
     }
 
     public void removeHiredMerchant(int chrid) {
-        merchWlock.lock();
         try {
             hiredMerchants.remove(chrid);
         } finally {
-            merchWlock.unlock();
-        }
+            }
     }
 
     public int[] multiBuddyFind(int charIdFrom, int[] characterIds) {
@@ -489,7 +479,6 @@ public final class Channel {
     }
 
     public int ingressDojo(boolean isPartyDojo, Party party, int fromStage) {
-        lock.lock();
         try {
             int dojoList = this.usedDojo;
             int range, slot = 0;
@@ -526,20 +515,17 @@ public final class Channel {
                 return -1;
             }
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     private void freeDojoSlot(int slot, Party party) {
         int mask = 0b11111111111111111111;
         mask ^= (1 << slot);
 
-        lock.lock();
         try {
             usedDojo &= mask;
         } finally {
-            lock.unlock();
-        }
+            }
 
         if (party != null) {
             if (dojoParty.remove(party.hashCode()) != null) {
@@ -606,7 +592,6 @@ public final class Channel {
 
         long clockTime = (stage > 36 ? 15 : (stage / 6) + 5) * 60000;
 
-        lock.lock();
         try {
             if (this.dojoTask[slot] != null) {
                 this.dojoTask[slot].cancel(false);
@@ -633,8 +618,7 @@ public final class Channel {
                 freeDojoSlot(slot, party);
             }, clockTime + 3000);   // let the TIMES UP display for 3 seconds, then warp
         } finally {
-            lock.unlock();
-        }
+            }
 
         dojoFinishTime[slot] = Server.getInstance().getCurrentTime() + clockTime;
     }
@@ -646,15 +630,13 @@ public final class Channel {
             return;
         }
 
-        lock.lock();
         try {
             if (this.dojoTask[slot] != null) {
                 this.dojoTask[slot].cancel(false);
                 this.dojoTask[slot] = null;
             }
         } finally {
-            lock.unlock();
-        }
+            }
 
         freeDojoSlot(slot, party);
     }
@@ -676,7 +658,6 @@ public final class Channel {
     }
 
     public boolean addMiniDungeon(int dungeonid) {
-        lock.lock();
         try {
             if (dungeons.containsKey(dungeonid)) {
                 return false;
@@ -688,32 +669,26 @@ public final class Channel {
             dungeons.put(dungeonid, mmd);
             return true;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public MiniDungeon getMiniDungeon(int dungeonid) {
-        lock.lock();
         try {
             return dungeons.get(dungeonid);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void removeMiniDungeon(int dungeonid) {
-        lock.lock();
         try {
             dungeons.remove(dungeonid);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Pair<Boolean, Pair<Integer, Set<Integer>>> getNextWeddingReservation(boolean cathedral) {
         Integer ret;
 
-        lock.lock();
         try {
             List<Integer> weddingReservationQueue = (cathedral ? cathedralReservationQueue : chapelReservationQueue);
             if (weddingReservationQueue.isEmpty()) {
@@ -725,8 +700,7 @@ public final class Channel {
                 return null;
             }
         } finally {
-            lock.unlock();
-        }
+            }
 
         World wserv = getWorldServer();
 
@@ -742,12 +716,10 @@ public final class Channel {
     public boolean isWeddingReserved(Integer weddingId) {
         World wserv = getWorldServer();
 
-        lock.lock();
         try {
             return wserv.isMarriageQueued(weddingId) || weddingId.equals(ongoingCathedral) || weddingId.equals(ongoingChapel);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public int getWeddingReservationStatus(Integer weddingId, boolean cathedral) {
@@ -755,7 +727,6 @@ public final class Channel {
             return -1;
         }
 
-        lock.lock();
         try {
             if (cathedral) {
                 if (weddingId.equals(ongoingCathedral)) {
@@ -781,8 +752,7 @@ public final class Channel {
 
             return -1;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public int pushWeddingReservation(Integer weddingId, boolean cathedral, boolean premium, Integer groomId, Integer brideId) {
@@ -793,7 +763,6 @@ public final class Channel {
         World wserv = getWorldServer();
         wserv.putMarriageQueued(weddingId, cathedral, premium, groomId, brideId);
 
-        lock.lock();
         try {
             List<Integer> weddingReservationQueue = (cathedral ? cathedralReservationQueue : chapelReservationQueue);
 
@@ -805,12 +774,10 @@ public final class Channel {
             weddingReservationQueue.add(weddingId);
             return weddingReservationQueue.size();
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public boolean isOngoingWeddingGuest(boolean cathedral, int playerId) {
-        lock.lock();
         try {
             if (cathedral) {
                 return ongoingCathedralGuests != null && ongoingCathedralGuests.contains(playerId);
@@ -818,30 +785,24 @@ public final class Channel {
                 return ongoingChapelGuests != null && ongoingChapelGuests.contains(playerId);
             }
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Integer getOngoingWedding(boolean cathedral) {
-        lock.lock();
         try {
             return cathedral ? ongoingCathedral : ongoingChapel;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public boolean getOngoingWeddingType(boolean cathedral) {
-        lock.lock();
         try {
             return cathedral ? ongoingCathedralType : ongoingChapelType;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void closeOngoingWedding(boolean cathedral) {
-        lock.lock();
         try {
             if (cathedral) {
                 ongoingCathedral = null;
@@ -853,12 +814,10 @@ public final class Channel {
                 ongoingChapelGuests = null;
             }
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void setOngoingWedding(final boolean cathedral, Boolean premium, Integer weddingId, Set<Integer> guests) {
-        lock.lock();
         try {
             if (cathedral) {
                 ongoingCathedral = weddingId;
@@ -870,8 +829,7 @@ public final class Channel {
                 ongoingChapelGuests = guests;
             }
         } finally {
-            lock.unlock();
-        }
+            }
 
         ongoingStartTime = System.currentTimeMillis();
         if (weddingId != null) {
@@ -952,7 +910,6 @@ public final class Channel {
             return null;
         }
 
-        lock.lock();
         try {
             boolean cathedral = true;
 
@@ -974,17 +931,14 @@ public final class Channel {
 
             return venue + " - " + getTimeLeft(ongoingStartTime + MINUTES.toMillis((long) resStatus * YamlConfig.config.server.WEDDING_RESERVATION_INTERVAL)) + " from now";
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Pair<Integer, Integer> getWeddingCoupleForGuest(int guestId, boolean cathedral) {
-        lock.lock();
         try {
             return (isOngoingWeddingGuest(cathedral, guestId)) ? getWorldServer().getRelationshipCouple(getOngoingWedding(cathedral)) : null;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void dropMessage(int type, String message) {

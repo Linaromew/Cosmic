@@ -83,7 +83,6 @@ public class IntervalBuilder {
     }
 
     public void addInterval(int from, int to) {
-        intervalWlock.lock();
         try {
             int st = bsearchInterval(from);
             if (st < 0) {
@@ -99,8 +98,7 @@ public class IntervalBuilder {
 
             refitOverlappedIntervals(st, en + 1, from, to);
         } finally {
-            intervalWlock.unlock();
-        }
+            }
     }
 
     public boolean inInterval(int point) {
@@ -108,22 +106,18 @@ public class IntervalBuilder {
     }
 
     public boolean inInterval(int from, int to) {
-        intervalRlock.lock();
         try {
             int idx = bsearchInterval(from);
             return idx >= 0 && to <= intervalLimits.get(idx).getX2();
         } finally {
-            intervalRlock.unlock();
-        }
+            }
     }
 
     public void clear() {
-        intervalWlock.lock();
         try {
             intervalLimits.clear();
         } finally {
-            intervalWlock.unlock();
-        }
+            }
     }
 
 }

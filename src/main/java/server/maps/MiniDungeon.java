@@ -57,7 +57,6 @@ public class MiniDungeon {
             chr.sendPacket(PacketCreator.getClock(time));
         }
 
-        lock.lock();
         try {
             if (timeoutTask == null) {
                 return false;
@@ -65,8 +64,7 @@ public class MiniDungeon {
 
             players.add(chr);
         } finally {
-            lock.unlock();
-        }
+            }
 
         return true;
     }
@@ -74,7 +72,6 @@ public class MiniDungeon {
     public boolean unregisterPlayer(Character chr) {
         chr.sendPacket(PacketCreator.removeClock());
 
-        lock.lock();
         try {
             players.remove(chr);
 
@@ -83,8 +80,7 @@ public class MiniDungeon {
                 return false;
             }
         } finally {
-            lock.unlock();
-        }
+            }
 
         if (chr.isPartyLeader()) {  // thanks Conrad for noticing party is not sent out of the MD as soon as leader leaves it
             close();
@@ -94,7 +90,6 @@ public class MiniDungeon {
     }
 
     public void close() {
-        lock.lock();
         try {
             List<Character> lchr = new ArrayList<>(players);
 
@@ -105,12 +100,10 @@ public class MiniDungeon {
             dispose();
             timeoutTask = null;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void dispose() {
-        lock.lock();
         try {
             players.clear();
 
@@ -119,7 +112,6 @@ public class MiniDungeon {
                 timeoutTask = null;
             }
         } finally {
-            lock.unlock();
-        }
+            }
     }
 }

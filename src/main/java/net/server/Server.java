@@ -241,7 +241,6 @@ public class Server {
     }
 
     public World getWorld(int id) {
-        wldRLock.lock();
         try {
             try {
                 return worlds.get(id);
@@ -249,26 +248,21 @@ public class Server {
                 return null;
             }
         } finally {
-            wldRLock.unlock();
-        }
+            }
     }
 
     public List<World> getWorlds() {
-        wldRLock.lock();
         try {
             return Collections.unmodifiableList(worlds);
         } finally {
-            wldRLock.unlock();
-        }
+            }
     }
 
     public int getWorldsSize() {
-        wldRLock.lock();
         try {
             return worlds.size();
         } finally {
-            wldRLock.unlock();
-        }
+            }
     }
 
     public Channel getChannel(int world, int channel) {
@@ -300,21 +294,17 @@ public class Server {
     }
 
     public Set<Integer> getOpenChannels(int world) {
-        wldRLock.lock();
         try {
             return new HashSet<>(channels.get(world).keySet());
         } finally {
-            wldRLock.unlock();
-        }
+            }
     }
 
     private String getIP(int world, int channel) {
-        wldRLock.lock();
         try {
             return channels.get(world).get(channel);
         } finally {
-            wldRLock.unlock();
-        }
+            }
     }
 
     public String[] getInetSocket(Client client, int world, int channel) {
@@ -336,15 +326,13 @@ public class Server {
 
 
     private void dumpData() {
-        wldRLock.lock();
         try {
             log.debug("Worlds: {}", worlds);
             log.debug("Channels: {}", channels);
             log.debug("World recommended list: {}", worldRecommendedList);
             log.debug("---------------------");
         } finally {
-            wldRLock.unlock();
-        }
+            }
     }
 
     public int addChannel(int worldid) {
@@ -352,7 +340,6 @@ public class Server {
         Map<Integer, String> channelInfo;
         int channelid;
 
-        wldRLock.lock();
         try {
             if (worldid >= worlds.size()) {
                 return -3;
@@ -371,19 +358,16 @@ public class Server {
             channelid++;
             world = this.getWorld(worldid);
         } finally {
-            wldRLock.unlock();
-        }
+            }
 
         Channel channel = new Channel(worldid, channelid, getCurrentTime());
         channel.setServerMessage(YamlConfig.config.worlds.get(worldid).why_am_i_recommended);
 
         if (world.addChannel(channel)) {
-            wldWLock.lock();
             try {
                 channelInfo.put(channelid, channel.getIP());
             } finally {
-                wldWLock.unlock();
-            }
+                }
         }
 
         return channelid;
@@ -395,12 +379,10 @@ public class Server {
             installWorldPlayerRanking(newWorld);
 
             Set<Integer> accounts;
-            lgnRLock.lock();
             try {
                 accounts = new HashSet<>(accountChars.keySet());
             } finally {
-                lgnRLock.unlock();
-            }
+                }
 
             for (Integer accId : accounts) {
                 loadAccountCharactersView(accId, 0, newWorld);
@@ -413,7 +395,6 @@ public class Server {
     private int initWorld() {
         int i;
 
-        wldRLock.lock();
         try {
             i = worlds.size();
 
@@ -421,8 +402,7 @@ public class Server {
                 return -1;
             }
         } finally {
-            wldRLock.unlock();
-        }
+            }
 
         log.info("Starting world {}", i);
 
@@ -455,7 +435,7 @@ public class Server {
 
         boolean canDeploy;
 
-        wldWLock.lock();    // thanks Ashen for noticing a deadlock issue when trying to deploy a channel
+        // thanks Ashen for noticing a deadlock issue when trying to deploy a channel
         try {
             canDeploy = world.getId() == worlds.size();
             if (canDeploy) {
@@ -464,8 +444,7 @@ public class Server {
                 channels.add(i, channelInfo);
             }
         } finally {
-            wldWLock.unlock();
-        }
+            }
 
         if (canDeploy) {
             world.setServerMessage(YamlConfig.config.worlds.get(i).server_message);
@@ -482,27 +461,23 @@ public class Server {
     public boolean removeChannel(int worldid) {   //lol don't!
         World world;
 
-        wldRLock.lock();
         try {
             if (worldid >= worlds.size()) {
                 return false;
             }
             world = worlds.get(worldid);
         } finally {
-            wldRLock.unlock();
-        }
+            }
 
         if (world != null) {
             int channel = world.removeChannel();
-            wldWLock.lock();
             try {
                 Map<Integer, String> m = channels.get(worldid);
                 if (m != null) {
                     m.remove(channel);
                 }
             } finally {
-                wldWLock.unlock();
-            }
+                }
 
             return channel > -1;
         }
@@ -514,7 +489,6 @@ public class Server {
         World w;
         int worldid;
 
-        wldRLock.lock();
         try {
             worldid = worlds.size() - 1;
             if (worldid < 0) {
@@ -523,8 +497,7 @@ public class Server {
 
             w = worlds.get(worldid);
         } finally {
-            wldRLock.unlock();
-        }
+            }
 
         if (w == null || !w.canUninstall()) {
             return false;
@@ -533,7 +506,6 @@ public class Server {
         removeWorldPlayerRanking();
         w.shutdown();
 
-        wldWLock.lock();
         try {
             if (worldid == worlds.size() - 1) {
                 worlds.remove(worldid);
@@ -541,21 +513,18 @@ public class Server {
                 worldRecommendedList.remove(worldid);
             }
         } finally {
-            wldWLock.unlock();
-        }
+            }
 
         return true;
     }
 
     private void resetServerWorlds() {  // thanks maple006 for noticing proprietary lists assigned to null
-        wldWLock.lock();
         try {
             worlds.clear();
             channels.clear();
             worldRecommendedList.clear();
         } finally {
-            wldWLock.unlock();
-        }
+            }
     }
 
     private static long getTimeLeftForNextHour() {
@@ -681,13 +650,11 @@ public class Server {
 
     public void runAnnouncePlayerDiseasesSchedule() {
         List<Client> processDiseaseAnnounceClients;
-        disLock.lock();
         try {
             processDiseaseAnnounceClients = new LinkedList<>(processDiseaseAnnouncePlayers);
             processDiseaseAnnouncePlayers.clear();
         } finally {
-            disLock.unlock();
-        }
+            }
 
         while (!processDiseaseAnnounceClients.isEmpty()) {
             Client c = processDiseaseAnnounceClients.remove(0);
@@ -698,7 +665,6 @@ public class Server {
             }
         }
 
-        disLock.lock();
         try {
             // this is to force the system to wait for at least one complete tick before releasing disease info for the registered clients
             while (!registeredDiseaseAnnouncePlayers.isEmpty()) {
@@ -706,32 +672,26 @@ public class Server {
                 processDiseaseAnnouncePlayers.add(c);
             }
         } finally {
-            disLock.unlock();
-        }
+            }
     }
 
     public void registerAnnouncePlayerDiseases(Client c) {
-        disLock.lock();
         try {
             registeredDiseaseAnnouncePlayers.add(c);
         } finally {
-            disLock.unlock();
-        }
+            }
     }
 
     public List<Pair<String, Integer>> getWorldPlayerRanking(int worldid) {
-        wldRLock.lock();
         try {
             return new ArrayList<>(playerRanking.get(!YamlConfig.config.server.USE_WHOLE_SERVER_RANKING ? worldid : 0));
         } finally {
-            wldRLock.unlock();
-        }
+            }
     }
 
     private void installWorldPlayerRanking(int worldid) {
         List<Pair<Integer, List<Pair<String, Integer>>>> ranking = loadPlayerRankingFromDB(worldid);
         if (!ranking.isEmpty()) {
-            wldWLock.lock();
             try {
                 if (!YamlConfig.config.server.USE_WHOLE_SERVER_RANKING) {
                     for (int i = playerRanking.size(); i <= worldid; i++) {
@@ -743,14 +703,12 @@ public class Server {
                     playerRanking.add(0, ranking.get(0).getRight());
                 }
             } finally {
-                wldWLock.unlock();
-            }
+                }
         }
     }
 
     private void removeWorldPlayerRanking() {
         if (!YamlConfig.config.server.USE_WHOLE_SERVER_RANKING) {
-            wldWLock.lock();
             try {
                 if (playerRanking.size() < worlds.size()) {
                     return;
@@ -758,17 +716,14 @@ public class Server {
 
                 playerRanking.remove(playerRanking.size() - 1);
             } finally {
-                wldWLock.unlock();
-            }
+                }
         } else {
             List<Pair<Integer, List<Pair<String, Integer>>>> ranking = loadPlayerRankingFromDB(-1 * (this.getWorldsSize() - 2));  // update ranking list
 
-            wldWLock.lock();
             try {
                 playerRanking.add(0, ranking.get(0).getRight());
             } finally {
-                wldWLock.unlock();
-            }
+                }
         }
     }
 
@@ -778,7 +733,6 @@ public class Server {
             return;
         }
 
-        wldWLock.lock();
         try {
             if (!YamlConfig.config.server.USE_WHOLE_SERVER_RANKING) {
                 for (int i = playerRanking.size(); i <= rankUpdates.get(rankUpdates.size() - 1).getLeft(); i++) {
@@ -792,19 +746,16 @@ public class Server {
                 playerRanking.set(0, rankUpdates.get(0).getRight());
             }
         } finally {
-            wldWLock.unlock();
-        }
+            }
 
     }
 
     private void initWorldPlayerRanking() {
         if (YamlConfig.config.server.USE_WHOLE_SERVER_RANKING) {
-            wldWLock.lock();
             try {
                 playerRanking.add(new ArrayList<>(0));
             } finally {
-                wldWLock.unlock();
-            }
+                }
         }
 
         updateWorldPlayerRanking();
@@ -1343,36 +1294,29 @@ public class Server {
     }
 
     public int getCharacterWorld(Integer chrid) {
-        lgnRLock.lock();
         try {
             Integer worldid = worldChars.get(chrid);
             return worldid != null ? worldid : -1;
         } finally {
-            lgnRLock.unlock();
-        }
+            }
     }
 
     public boolean haveCharacterEntry(Integer accountid, Integer chrid) {
-        lgnRLock.lock();
         try {
             Set<Integer> accChars = accountChars.get(accountid);
             return accChars.contains(chrid);
         } finally {
-            lgnRLock.unlock();
-        }
+            }
     }
 
     public short getAccountCharacterCount(Integer accountid) {
-        lgnRLock.lock();
         try {
             return accountCharacterCount.get(accountid);
         } finally {
-            lgnRLock.unlock();
-        }
+            }
     }
 
     public short getAccountWorldCharacterCount(Integer accountid, Integer worldid) {
-        lgnRLock.lock();
         try {
             short count = 0;
 
@@ -1384,37 +1328,31 @@ public class Server {
 
             return count;
         } finally {
-            lgnRLock.unlock();
-        }
+            }
     }
 
     private Set<Integer> getAccountCharacterEntries(Integer accountid) {
-        lgnRLock.lock();
         try {
             return new HashSet<>(accountChars.get(accountid));
         } finally {
-            lgnRLock.unlock();
-        }
+            }
     }
 
     public void updateCharacterEntry(Character chr) {
         Character chrView = chr.generateCharacterEntry();
 
-        lgnWLock.lock();
         try {
             World wserv = this.getWorld(chrView.getWorld());
             if (wserv != null) {
                 wserv.registerAccountCharacterView(chrView.getAccountID(), chrView);
             }
         } finally {
-            lgnWLock.unlock();
-        }
+            }
     }
 
     public void createCharacterEntry(Character chr) {
         Integer accountid = chr.getAccountID(), chrid = chr.getId(), world = chr.getWorld();
 
-        lgnWLock.lock();
         try {
             accountCharacterCount.put(accountid, (short) (accountCharacterCount.get(accountid) + 1));
 
@@ -1430,12 +1368,10 @@ public class Server {
                 wserv.registerAccountCharacterView(chrView.getAccountID(), chrView);
             }
         } finally {
-            lgnWLock.unlock();
-        }
+            }
     }
 
     public void deleteCharacterEntry(Integer accountid, Integer chrid) {
-        lgnWLock.lock();
         try {
             accountCharacterCount.put(accountid, (short) (accountCharacterCount.get(accountid) - 1));
 
@@ -1450,12 +1386,10 @@ public class Server {
                 }
             }
         } finally {
-            lgnWLock.unlock();
-        }
+            }
     }
 
     public void transferWorldCharacterEntry(Character chr, Integer toWorld) { // used before setting the new worldid on the character object
-        lgnWLock.lock();
         try {
             Integer chrid = chr.getId(), accountid = chr.getAccountID(), world = worldChars.get(chr.getId());
             if (world != null) {
@@ -1474,19 +1408,16 @@ public class Server {
                 wserv.registerAccountCharacterView(chrView.getAccountID(), chrView);
             }
         } finally {
-            lgnWLock.unlock();
-        }
+            }
     }
     
     /*
     public void deleteAccountEntry(Integer accountid) { is this even a thing?
-        lgnWLock.lock();
         try {
             accountCharacterCount.remove(accountid);
             accountChars.remove(accountid);
         } finally {
-            lgnWLock.unlock();
-        }
+            }
     
         for (World wserv : this.getWorlds()) {
             wserv.clearAccountCharacterView(accountid);
@@ -1504,7 +1435,6 @@ public class Server {
         SortedMap<Integer, List<Character>> worldChrs = new TreeMap<>();
         int chrTotal = 0;
 
-        lgnRLock.lock();
         try {
             for (World world : worlds) {
                 List<Character> chrs = world.getAccountCharactersView(accountId);
@@ -1518,8 +1448,7 @@ public class Server {
                 }
             }
         } finally {
-            lgnRLock.unlock();
-        }
+            }
 
         return worldChrs;
     }
@@ -1598,12 +1527,10 @@ public class Server {
     }
 
     private boolean isFirstAccountLogin(Integer accId) {
-        lgnRLock.lock();
         try {
             return !accountChars.containsKey(accId);
         } finally {
-            lgnRLock.unlock();
-        }
+            }
     }
 
     private static void applyAllNameChanges(Connection con) throws SQLException {
@@ -1704,14 +1631,12 @@ public class Server {
         if (!isFirstAccountLogin(accId)) {
             Set<Integer> accWorlds = new HashSet<>();
 
-            lgnRLock.lock();
             try {
                 for (Integer chrid : getAccountCharacterEntries(accId)) {
                     accWorlds.add(worldChars.get(chrid));
                 }
             } finally {
-                lgnRLock.unlock();
-            }
+                }
 
             int gmLevel = 0;
             for (Integer aw : accWorlds) {
@@ -1738,7 +1663,6 @@ public class Server {
         List<World> wlist = this.getWorlds();
         Pair<Short, List<List<Character>>> accCharacters = loadAccountCharactersViewFromDb(accId, wlist.size());
 
-        lgnWLock.lock();
         try {
             List<List<Character>> accChars = accCharacters.getRight();
             accountCharacterCount.put(accId, accCharacters.getLeft());
@@ -1766,8 +1690,7 @@ public class Server {
 
             accountChars.put(accId, chars);
         } finally {
-            lgnWLock.unlock();
-        }
+            }
 
         return gmLevel;
     }
@@ -1775,7 +1698,6 @@ public class Server {
     public void loadAccountStorages(Client c) {
         int accountId = c.getAccID();
         Set<Integer> accWorlds = new HashSet<>();
-        lgnWLock.lock();
         try {
             Set<Integer> chars = accountChars.get(accountId);
 
@@ -1786,8 +1708,7 @@ public class Server {
                 }
             }
         } finally {
-            lgnWLock.unlock();
-        }
+            }
 
         List<World> worldList = this.getWorlds();
         for (Integer worldid : accWorlds) {
@@ -1805,12 +1726,10 @@ public class Server {
     public void setCharacteridInTransition(Client client, int charId) {
         String remoteIp = getRemoteHost(client);
 
-        lgnWLock.lock();
         try {
             transitioningChars.put(remoteIp, charId);
         } finally {
-            lgnWLock.unlock();
-        }
+            }
     }
 
     public boolean validateCharacteridInTransition(Client client, int charId) {
@@ -1820,13 +1739,11 @@ public class Server {
 
         String remoteIp = getRemoteHost(client);
 
-        lgnWLock.lock();
         try {
             Integer cid = transitioningChars.remove(remoteIp);
             return cid != null && cid.equals(charId);
         } finally {
-            lgnWLock.unlock();
-        }
+            }
     }
 
     public Integer freeCharacteridInTransition(Client client) {
@@ -1836,12 +1753,10 @@ public class Server {
 
         String remoteIp = getRemoteHost(client);
 
-        lgnWLock.lock();
         try {
             return transitioningChars.remove(remoteIp);
         } finally {
-            lgnWLock.unlock();
-        }
+            }
     }
 
     public boolean hasCharacteridInTransition(Client client) {
@@ -1851,36 +1766,29 @@ public class Server {
 
         String remoteIp = getRemoteHost(client);
 
-        lgnRLock.lock();
         try {
             return transitioningChars.containsKey(remoteIp);
         } finally {
-            lgnRLock.unlock();
-        }
+            }
     }
 
     public void registerLoginState(Client c) {
-        srvLock.lock();
         try {
             inLoginState.put(c, System.currentTimeMillis() + 600000);
         } finally {
-            srvLock.unlock();
-        }
+            }
     }
 
     public void unregisterLoginState(Client c) {
-        srvLock.lock();
         try {
             inLoginState.remove(c);
         } finally {
-            srvLock.unlock();
-        }
+            }
     }
 
     private void disconnectIdlesOnLoginState() {
         List<Client> toDisconnect = new LinkedList<>();
 
-        srvLock.lock();
         try {
             long timeNow = System.currentTimeMillis();
 
@@ -1894,8 +1802,7 @@ public class Server {
                 inLoginState.remove(c);
             }
         } finally {
-            srvLock.unlock();
-        }
+            }
 
         for (Client c : toDisconnect) {    // thanks Lei for pointing a deadlock issue with srvLock
             if (c.isLoggedIn()) {

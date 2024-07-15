@@ -95,7 +95,6 @@ public class MobStatusService extends BaseService {
             super.addListener((toRemove, update) -> {
                 List<Runnable> toRun = new ArrayList<>();
 
-                overtimeStatusLock.lock();
                 try {
                     for (Object mseo : toRemove) {
                         MonsterStatusEffect mse = (MonsterStatusEffect) mseo;
@@ -110,8 +109,7 @@ public class MobStatusService extends BaseService {
                         }
                     }
                 } finally {
-                    overtimeStatusLock.unlock();
-                }
+                    }
 
                 for (Runnable r : toRun) {
                     r.run();
@@ -123,12 +121,10 @@ public class MobStatusService extends BaseService {
             if (overtimeStatus != null) {
                 MobStatusOvertimeEntry mdoe = new MobStatusOvertimeEntry(overtimeDelay, overtimeStatus);
 
-                overtimeStatusLock.lock();
                 try {
                     registeredMobStatusOvertime.put(mse, mdoe);
                 } finally {
-                    overtimeStatusLock.unlock();
-                }
+                    }
             }
 
             registerEntry(mse, cancelStatus, duration);

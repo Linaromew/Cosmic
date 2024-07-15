@@ -61,13 +61,11 @@ public abstract class BaseScheduler {
 
     private void lockScheduler() {
         externalLocks.forEach(Lock::lock);
-        schedulerLock.lock();
-    }
+        }
 
     private void unlockScheduler() {
         externalLocks.forEach(Lock::unlock);
-        schedulerLock.unlock();
-    }
+        }
 
     private void runBaseSchedule() {
         List<Object> toRemove;

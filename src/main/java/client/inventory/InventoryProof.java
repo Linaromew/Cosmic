@@ -32,7 +32,6 @@ public class InventoryProof extends Inventory {
 
     public void cloneContents(Inventory inv) {
         inv.lockInventory();
-        lock.lock();
         try {
             inventory.clear();
             this.setSlotLimit(inv.getSlotLimit());
@@ -42,18 +41,15 @@ public class InventoryProof extends Inventory {
                 inventory.put(item.getPosition(), item);
             }
         } finally {
-            lock.unlock();
             inv.unlockInventory();
         }
     }
 
     public void flushContents() {
-        lock.lock();
         try {
             inventory.clear();
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     @Override
@@ -62,7 +58,6 @@ public class InventoryProof extends Inventory {
             return -1;
         }
 
-        lock.lock();
         try {
             short slotId = getNextFreeSlot();
             if (slotId < 0) {
@@ -72,27 +67,22 @@ public class InventoryProof extends Inventory {
 
             return slotId;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     @Override
     protected void addSlotFromDB(short slot, Item item) {
-        lock.lock();
         try {
             inventory.put(slot, item);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     @Override
     public void removeSlot(short slot) {
-        lock.lock();
         try {
             inventory.remove(slot);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 }

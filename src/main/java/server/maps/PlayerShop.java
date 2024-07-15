@@ -90,16 +90,13 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public boolean hasFreeSlot() {
-        visitorLock.lock();
         try {
             return visitors[0] == null || visitors[1] == null || visitors[2] == null;
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public byte[] getShopRoomInfo() {
-        visitorLock.lock();
         try {
             byte count = 0;
             //if (this.isOpen()) {
@@ -114,8 +111,7 @@ public class PlayerShop extends AbstractMapObject {
 
             return new byte[]{count, (byte) visitors.length};
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public boolean isOwner(Character chr) {
@@ -141,7 +137,6 @@ public class PlayerShop extends AbstractMapObject {
             owner.setPlayerShop(null);
         }
 
-        visitorLock.lock();
         try {
             for (int i = 0; i < 3; i++) {
                 if (visitors[i] != null && visitors[i].getId() == visitor.getId()) {
@@ -155,8 +150,7 @@ public class PlayerShop extends AbstractMapObject {
                 }
             }
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public void removeVisitor(Character visitor) {
@@ -164,7 +158,6 @@ public class PlayerShop extends AbstractMapObject {
             owner.getMap().removeMapObject(this);
             owner.setPlayerShop(null);
         } else {
-            visitorLock.lock();
             try {
                 for (int i = 0; i < 3; i++) {
                     if (visitors[i] != null && visitors[i].getId() == visitor.getId()) {
@@ -192,20 +185,17 @@ public class PlayerShop extends AbstractMapObject {
                     }
                 }
             } finally {
-                visitorLock.unlock();
-            }
+                }
 
             owner.getMap().broadcastMessage(PacketCreator.updatePlayerShopBox(this));
         }
     }
 
     public boolean isVisitor(Character visitor) {
-        visitorLock.lock();
         try {
             return visitors[0] == visitor || visitors[1] == visitor || visitors[2] == visitor;
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public boolean addItem(PlayerShopItem item) {
@@ -274,7 +264,6 @@ public class PlayerShop extends AbstractMapObject {
 
                 KarmaManipulator.toggleKarmaFlagToUntradeable(newItem);
 
-                visitorLock.lock();
                 try {
                     int price = (int) Math.min((float) pItem.getPrice() * quantity, Integer.MAX_VALUE);
 
@@ -320,8 +309,7 @@ public class PlayerShop extends AbstractMapObject {
 
                     return true;
                 } finally {
-                    visitorLock.unlock();
-                }
+                    }
             } else {
                 return false;
             }
@@ -329,7 +317,6 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public void broadcastToVisitors(Packet packet) {
-        visitorLock.lock();
         try {
             for (int i = 0; i < 3; i++) {
                 if (visitors[i] != null) {
@@ -337,12 +324,10 @@ public class PlayerShop extends AbstractMapObject {
                 }
             }
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public void broadcastRestoreToVisitors() {
-        visitorLock.lock();
         try {
             for (int i = 0; i < 3; i++) {
                 if (visitors[i] != null) {
@@ -358,14 +343,12 @@ public class PlayerShop extends AbstractMapObject {
 
             recoverChatLog();
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public void removeVisitors() {
         List<Character> visitorList = new ArrayList<>(3);
 
-        visitorLock.lock();
         try {
             try {
                 for (int i = 0; i < 3; i++) {
@@ -378,8 +361,7 @@ public class PlayerShop extends AbstractMapObject {
                 e.printStackTrace();
             }
         } finally {
-            visitorLock.unlock();
-        }
+            }
 
         for (Character mc : visitorList) {
             forceRemoveVisitor(mc);
@@ -451,12 +433,10 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public void sendShop(Client c) {
-        visitorLock.lock();
         try {
             c.sendPacket(PacketCreator.getPlayerShop(this, isOwner(c.getPlayer())));
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public Character getOwner() {
@@ -464,7 +444,6 @@ public class PlayerShop extends AbstractMapObject {
     }
 
     public Character[] getVisitors() {
-        visitorLock.lock();
         try {
             Character[] copy = new Character[3];
             for (int i = 0; i < visitors.length; i++) {
@@ -473,8 +452,7 @@ public class PlayerShop extends AbstractMapObject {
 
             return copy;
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public List<PlayerShopItem> getItems() {
@@ -507,7 +485,6 @@ public class PlayerShop extends AbstractMapObject {
         }
 
         Character target = null;
-        visitorLock.lock();
         try {
             for (int i = 0; i < 3; i++) {
                 if (visitors[i] != null && visitors[i].getName().equals(name)) {
@@ -516,8 +493,7 @@ public class PlayerShop extends AbstractMapObject {
                 }
             }
         } finally {
-            visitorLock.unlock();
-        }
+            }
 
         if (target != null) {
             target.sendPacket(PacketCreator.shopErrorMessage(5, 1));
@@ -535,7 +511,6 @@ public class PlayerShop extends AbstractMapObject {
             return false;
         }
 
-        visitorLock.lock();
         try {
             if (!open.get()) {
                 chr.dropMessage(1, "This store is not yet open.");
@@ -552,8 +527,7 @@ public class PlayerShop extends AbstractMapObject {
 
             return false;
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public List<PlayerShopItem> sendAvailableBundles(int itemid) {

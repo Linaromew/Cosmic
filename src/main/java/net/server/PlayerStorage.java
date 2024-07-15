@@ -46,17 +46,14 @@ public class PlayerStorage {
     }
 
     public void addPlayer(Character chr) {
-        wlock.lock();
         try {
             storage.put(chr.getId(), chr);
             nameStorage.put(chr.getName().toLowerCase(), chr);
         } finally {
-            wlock.unlock();
-        }
+            }
     }
 
     public Character removePlayer(int chr) {
-        wlock.lock();
         try {
             Character mc = storage.remove(chr);
             if (mc != null) {
@@ -65,45 +62,36 @@ public class PlayerStorage {
 
             return mc;
         } finally {
-            wlock.unlock();
-        }
+            }
     }
 
     public Character getCharacterByName(String name) {
-        rlock.lock();
         try {
             return nameStorage.get(name.toLowerCase());
         } finally {
-            rlock.unlock();
-        }
+            }
     }
 
     public Character getCharacterById(int id) {
-        rlock.lock();
         try {
             return storage.get(id);
         } finally {
-            rlock.unlock();
-        }
+            }
     }
 
     public Collection<Character> getAllCharacters() {
-        rlock.lock();
         try {
             return new ArrayList<>(storage.values());
         } finally {
-            rlock.unlock();
-        }
+            }
     }
 
     public final void disconnectAll() {
         List<Character> chrList;
-        rlock.lock();
         try {
             chrList = new ArrayList<>(storage.values());
         } finally {
-            rlock.unlock();
-        }
+            }
 
         for (Character mc : chrList) {
             Client client = mc.getClient();
@@ -112,20 +100,16 @@ public class PlayerStorage {
             }
         }
 
-        wlock.lock();
         try {
             storage.clear();
         } finally {
-            wlock.unlock();
-        }
+            }
     }
 
     public int getSize() {
-        rlock.lock();
         try {
             return storage.size();
         } finally {
-            rlock.unlock();
-        }
+            }
     }
 }

@@ -196,7 +196,6 @@ public enum ItemFactory {
 
     private void saveItemsCommon(List<Pair<Item, InventoryType>> items, int id, Connection con) throws SQLException {
         Lock lock = locks[id % lockCount];
-        lock.lock();
         try {
             StringBuilder query = new StringBuilder();
             query.append("DELETE `inventoryitems`, `inventoryequipment` FROM `inventoryitems` LEFT JOIN `inventoryequipment` USING(`inventoryitemid`) WHERE `type` = ? AND `");
@@ -267,8 +266,7 @@ public enum ItemFactory {
                 }
             }
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     private List<Pair<Item, InventoryType>> loadItemsMerchant(int id, boolean login) throws SQLException {
@@ -328,7 +326,6 @@ public enum ItemFactory {
 
     private void saveItemsMerchant(List<Pair<Item, InventoryType>> items, List<Short> bundlesList, int id, Connection con) throws SQLException {
         Lock lock = locks[id % lockCount];
-        lock.lock();
         try {
             try (PreparedStatement ps = con.prepareStatement("DELETE FROM `inventorymerchant` WHERE `characterid` = ?")) {
                 ps.setInt(1, id);
@@ -419,7 +416,6 @@ public enum ItemFactory {
                 }
             }
         } finally {
-            lock.unlock();
-        }
+            }
     }
 }

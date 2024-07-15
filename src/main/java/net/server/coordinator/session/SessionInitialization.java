@@ -52,8 +52,7 @@ public class SessionInitialization {
 
                         remoteHostsInInitState.add(remoteHost);
                     } finally {
-                        lock.unlock();
-                    }
+                        }
 
                     break;
                 } else {
@@ -77,11 +76,9 @@ public class SessionInitialization {
      */
     public void finalize(String remoteHost) {
         final Lock lock = getLock(remoteHost);
-        lock.lock();
         try {
             remoteHostsInInitState.remove(remoteHost);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 }

@@ -45,19 +45,16 @@ public final class MonsterBook {
     private final Lock lock = new ReentrantLock();
 
     public Set<Entry<Integer, Integer>> getCardSet() {
-        lock.lock();
         try {
             return new HashSet<>(cards.entrySet());
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void addCard(final Client c, final int cardid) {
         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), PacketCreator.showForeignCardEffect(c.getPlayer().getId()), false);
 
         Integer qty;
-        lock.lock();
         try {
             qty = cards.get(cardid);
 
@@ -76,8 +73,7 @@ public final class MonsterBook {
                 }
             }
         } finally {
-            lock.unlock();
-        }
+            }
 
         if (qty < 5) {
             if (qty == 0) {     // leveling system only accounts unique cards
@@ -92,7 +88,6 @@ public final class MonsterBook {
     }
 
     private void calculateLevel() {
-        lock.lock();
         try {
             int collectionExp = (normalCard + specialCard);
 
@@ -104,57 +99,45 @@ public final class MonsterBook {
 
             bookLevel = level;  // thanks IxianMace for noticing book level differing between book UI and character info UI
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public int getBookLevel() {
-        lock.lock();
         try {
             return bookLevel;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Map<Integer, Integer> getCards() {
-        lock.lock();
         try {
             return Collections.unmodifiableMap(cards);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public int getTotalCards() {
-        lock.lock();
         try {
             return specialCard + normalCard;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public int getNormalCard() {
-        lock.lock();
         try {
             return normalCard;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public int getSpecialCard() {
-        lock.lock();
         try {
             return specialCard;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void loadCards(final int charid) throws SQLException {
-        lock.lock();
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement("SELECT cardid, level FROM monsterbook WHERE charid = ? ORDER BY cardid ASC")) {
             ps.setInt(1, charid);
@@ -174,8 +157,7 @@ public final class MonsterBook {
                 }
             }
         } finally {
-            lock.unlock();
-        }
+            }
 
         calculateLevel();
     }

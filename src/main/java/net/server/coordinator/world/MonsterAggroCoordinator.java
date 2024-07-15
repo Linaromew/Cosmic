@@ -71,7 +71,6 @@ public class MonsterAggroCoordinator {
     }
 
     public void stopAggroCoordinator() {
-        idleLock.lock();
         try {
             if (aggroMonitor == null) {
                 return;
@@ -80,14 +79,12 @@ public class MonsterAggroCoordinator {
             aggroMonitor.cancel(false);
             aggroMonitor = null;
         } finally {
-            idleLock.unlock();
-        }
+            }
 
         lastStopTime = Server.getInstance().getCurrentTime();
     }
 
     public void startAggroCoordinator() {
-        idleLock.lock();
         try {
             if (aggroMonitor != null) {
                 return;
@@ -98,8 +95,7 @@ public class MonsterAggroCoordinator {
                 runSortLeadingCharactersAggro();
             }, YamlConfig.config.server.MOB_STATUS_AGGRO_INTERVAL, YamlConfig.config.server.MOB_STATUS_AGGRO_INTERVAL);
         } finally {
-            idleLock.unlock();
-        }
+            }
 
         int timeDelta = (int) Math.ceil((Server.getInstance().getCurrentTime() - lastStopTime) / YamlConfig.config.server.MOB_STATUS_AGGRO_INTERVAL);
         if (timeDelta > 0) {
@@ -168,8 +164,7 @@ public class MonsterAggroCoordinator {
                         sortedAggro = mobSortedAggros.get(mob);
                     }
                 } finally {
-                    lock.unlock();
-                }
+                    }
             } else {
                 return;
             }
@@ -200,14 +195,12 @@ public class MonsterAggroCoordinator {
 
     private void runAggroUpdate(int deltaTime) {
         List<Pair<Monster, Map<Integer, PlayerAggroEntry>>> aggroMobs = new LinkedList<>();
-        lock.lock();
         try {
             for (Entry<Monster, Map<Integer, PlayerAggroEntry>> e : mobAggroEntries.entrySet()) {
                 aggroMobs.add(new Pair<>(e.getKey(), e.getValue()));
             }
         } finally {
-            lock.unlock();
-        }
+            }
 
         for (Pair<Monster, Map<Integer, PlayerAggroEntry>> am : aggroMobs) {
             Map<Integer, PlayerAggroEntry> mobAggro = am.getRight();
@@ -326,12 +319,10 @@ public class MonsterAggroCoordinator {
 
     public void runSortLeadingCharactersAggro() {
         List<List<PlayerAggroEntry>> aggroList;
-        lock.lock();
         try {
             aggroList = new ArrayList<>(mobSortedAggros.values());
         } finally {
-            lock.unlock();
-        }
+            }
 
         for (List<PlayerAggroEntry> mobAggroList : aggroList) {
             synchronized (mobAggroList) {
@@ -341,13 +332,11 @@ public class MonsterAggroCoordinator {
     }
 
     public void removeAggroEntries(Monster mob) {
-        lock.lock();
         try {
             mobAggroEntries.remove(mob);
             mobSortedAggros.remove(mob);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void addPuppetAggro(Character player) {
@@ -371,12 +360,10 @@ public class MonsterAggroCoordinator {
     public void dispose() {
         stopAggroCoordinator();
 
-        lock.lock();
         try {
             mobAggroEntries.clear();
             mobSortedAggros.clear();
         } finally {
-            lock.unlock();
-        }
+            }
     }
 }

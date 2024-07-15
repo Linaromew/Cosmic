@@ -224,21 +224,17 @@ public class PartySearchCoordinator {
     }
 
     private void addQueueLeader(Character leader) {
-        leaderQueueRLock.lock();
         try {
             leaderQueue.add(leader);
         } finally {
-            leaderQueueRLock.unlock();
-        }
+            }
     }
 
     private void removeQueueLeader(Character leader) {
-        leaderQueueRLock.lock();
         try {
             leaderQueue.remove(leader);
         } finally {
-            leaderQueueRLock.unlock();
-        }
+            }
     }
 
     public void registerPartyLeader(Character leader, int minLevel, int maxLevel, int jobs) {
@@ -312,48 +308,40 @@ public class PartySearchCoordinator {
     private Pair<List<Character>, List<Character>> fetchQueuedLeaders() {
         List<Character> queuedLeaders, nextLeaders;
 
-        leaderQueueWLock.lock();
         try {
             int splitIdx = Math.min(leaderQueue.size(), 100);
 
             queuedLeaders = new LinkedList<>(leaderQueue.subList(0, splitIdx));
             nextLeaders = new LinkedList<>(leaderQueue.subList(splitIdx, leaderQueue.size()));
         } finally {
-            leaderQueueWLock.unlock();
-        }
+            }
 
         return new Pair<>(queuedLeaders, nextLeaders);
     }
 
     private void registerLongTermPartyLeaders(List<Pair<Character, LeaderSearchMetadata>> recycledLeaders) {
-        leaderQueueRLock.lock();
         try {
             for (Pair<Character, LeaderSearchMetadata> p : recycledLeaders) {
                 timeoutLeaders.put(p.getLeft(), p.getRight());
             }
         } finally {
-            leaderQueueRLock.unlock();
-        }
+            }
     }
 
     private void unregisterLongTermPartyLeader(Character leader) {
-        leaderQueueRLock.lock();
         try {
             timeoutLeaders.remove(leader);
         } finally {
-            leaderQueueRLock.unlock();
-        }
+            }
     }
 
     private void reinstateLongTermPartyLeaders() {
         Map<Character, LeaderSearchMetadata> timeoutLeadersCopy;
-        leaderQueueWLock.lock();
         try {
             timeoutLeadersCopy = new HashMap<>(timeoutLeaders);
             timeoutLeaders.clear();
         } finally {
-            leaderQueueWLock.unlock();
-        }
+            }
 
         for (Entry<Character, LeaderSearchMetadata> e : timeoutLeadersCopy.entrySet()) {
             registerPartyLeader(e.getKey(), e.getValue());
@@ -384,7 +372,6 @@ public class PartySearchCoordinator {
             }
         }
 
-        leaderQueueRLock.lock();
         try {
             leaderQueue.clear();
             leaderQueue.addAll(queuedLeaders.getRight());
@@ -395,8 +382,7 @@ public class PartySearchCoordinator {
                 leaderQueue.addAll(recalledLeaders);
             }
         } finally {
-            leaderQueueRLock.unlock();
-        }
+            }
 
         for (Character leader : searchedLeaders) {
             Party party = leader.getParty();

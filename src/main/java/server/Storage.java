@@ -115,7 +115,6 @@ public class Storage {
     }
 
     public boolean gainSlots(int slots) {
-        lock.lock();
         try {
             if (canGainSlots(slots)) {
                 slots += this.slots;
@@ -125,8 +124,7 @@ public class Storage {
 
             return false;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void saveToDB(Connection con) {
@@ -151,16 +149,13 @@ public class Storage {
     }
 
     public Item getItem(byte slot) {
-        lock.lock();
         try {
             return items.get(slot);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public boolean takeOut(Item item) {
-        lock.lock();
         try {
             boolean ret = items.remove(item);
 
@@ -169,12 +164,10 @@ public class Storage {
 
             return ret;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public boolean store(Item item) {
-        lock.lock();
         try {
             if (isFull()) { // thanks Optimist for noticing unrestricted amount of insertions here
                 return false;
@@ -187,17 +180,14 @@ public class Storage {
 
             return true;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public List<Item> getItems() {
-        lock.lock();
         try {
             return Collections.unmodifiableList(items);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     private List<Item> filterItems(InventoryType type) {
@@ -213,7 +203,6 @@ public class Storage {
     }
 
     public byte getSlot(InventoryType type, byte slot) {
-        lock.lock();
         try {
             byte ret = 0;
             List<Item> storageItems = getItems();
@@ -225,8 +214,7 @@ public class Storage {
             }
             return -1;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void sendStorage(Client c, int npcId) {
@@ -236,7 +224,6 @@ public class Storage {
             return;
         }
 
-        lock.lock();
         try {
             items.sort((o1, o2) -> {
                 if (o1.getInventoryType().getType() < o2.getInventoryType().getType()) {
@@ -255,30 +242,24 @@ public class Storage {
             currentNpcid = npcId;
             c.sendPacket(PacketCreator.getStorage(npcId, slots, storageItems, meso));
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void sendStored(Client c, InventoryType type) {
-        lock.lock();
         try {
             c.sendPacket(PacketCreator.storeStorage(slots, type, typeItems.get(type)));
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void sendTakenOut(Client c, InventoryType type) {
-        lock.lock();
         try {
             c.sendPacket(PacketCreator.takeOutStorage(slots, type, typeItems.get(type)));
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void arrangeItems(Client c) {
-        lock.lock();
         try {
             StorageInventory msi = new StorageInventory(c, items);
             msi.mergeItems();
@@ -290,8 +271,7 @@ public class Storage {
 
             c.sendPacket(PacketCreator.arrangeStorage(slots, items));
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public int getMeso() {
@@ -346,21 +326,17 @@ public class Storage {
     }
 
     public boolean isFull() {
-        lock.lock();
         try {
             return items.size() >= slots;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void close() {
-        lock.lock();
         try {
             typeItems.clear();
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
 }

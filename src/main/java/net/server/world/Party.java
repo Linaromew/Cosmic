@@ -63,35 +63,29 @@ public class Party {
     }
 
     public boolean containsMembers(PartyCharacter member) {
-        lock.lock();
         try {
             return members.contains(member);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void addMember(PartyCharacter member) {
-        lock.lock();
         try {
             histMembers.put(member.getId(), nextEntry);
             nextEntry++;
 
             members.add(member);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void removeMember(PartyCharacter member) {
-        lock.lock();
         try {
             histMembers.remove(member.getId());
 
             members.remove(member);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void setLeader(PartyCharacter victim) {
@@ -99,7 +93,6 @@ public class Party {
     }
 
     public void updateMember(PartyCharacter member) {
-        lock.lock();
         try {
             for (int i = 0; i < members.size(); i++) {
                 if (members.get(i).getId() == member.getId()) {
@@ -107,12 +100,10 @@ public class Party {
                 }
             }
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public PartyCharacter getMemberById(int id) {
-        lock.lock();
         try {
             for (PartyCharacter chr : members) {
                 if (chr.getId() == id) {
@@ -121,30 +112,24 @@ public class Party {
             }
             return null;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Collection<PartyCharacter> getMembers() {
-        lock.lock();
         try {
             return new LinkedList<>(members);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public List<PartyCharacter> getPartyMembers() {
-        lock.lock();
         try {
             return new LinkedList<>(members);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public List<PartyCharacter> getPartyMembersOnline() {
-        lock.lock();
         try {
             List<PartyCharacter> ret = new LinkedList<>();
 
@@ -156,8 +141,7 @@ public class Party {
 
             return ret;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     // used whenever entering PQs: will draw every party member that can attempt a target PQ while ingnoring those unfit.
@@ -182,7 +166,6 @@ public class Party {
     }
 
     public PartyCharacter getLeader() {
-        lock.lock();
         try {
             for (PartyCharacter mpc : members) {
                 if (mpc.getId() == leaderId) {
@@ -192,8 +175,7 @@ public class Party {
 
             return null;
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Party getEnemy() {
@@ -207,12 +189,10 @@ public class Party {
     public List<Integer> getMembersSortedByHistory() {
         List<Entry<Integer, Integer>> histList;
 
-        lock.lock();
         try {
             histList = new LinkedList<>(histMembers.entrySet());
         } finally {
-            lock.unlock();
-        }
+            }
 
         histList.sort((o1, o2) -> (o1.getValue()).compareTo(o2.getValue()));
 
@@ -238,37 +218,30 @@ public class Party {
     }
 
     public void addDoor(Integer owner, Door door) {
-        lock.lock();
         try {
             this.doors.put(owner, door);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void removeDoor(Integer owner) {
-        lock.lock();
         try {
             this.doors.remove(owner);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Map<Integer, Door> getDoors() {
-        lock.lock();
         try {
             return Collections.unmodifiableMap(doors);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void assignNewLeader(Client c) {
         World world = c.getWorldServer();
         PartyCharacter newLeadr = null;
 
-        lock.lock();
         try {
             for (PartyCharacter mpc : members) {
                 if (mpc.getId() != leaderId && (newLeadr == null || newLeadr.getLevel() < mpc.getLevel())) {
@@ -276,8 +249,7 @@ public class Party {
                 }
             }
         } finally {
-            lock.unlock();
-        }
+            }
 
         if (newLeadr != null) {
             world.updateParty(this.getId(), PartyOperation.CHANGE_LEADER, newLeadr);

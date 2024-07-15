@@ -133,7 +133,6 @@ public class Guild {
             }
         }
 
-        membersLock.lock();
         try {
             for (GuildCharacter mgc : members) {
                 if (!mgc.isOnline()) {
@@ -150,8 +149,7 @@ public class Guild {
                 //Unable to connect to Channel... error was here
             }
         } finally {
-            membersLock.unlock();
-        }
+            }
 
         bDirty = false;
     }
@@ -191,12 +189,10 @@ public class Guild {
                     ps.executeUpdate();
                 }
 
-                membersLock.lock();
                 try {
                     this.broadcast(GuildPackets.guildDisband(this.id));
                 } finally {
-                    membersLock.unlock();
-                }
+                    }
             }
         } catch (SQLException se) {
             se.printStackTrace();
@@ -263,12 +259,10 @@ public class Guild {
     }
 
     public List<GuildCharacter> getMembers() {
-        membersLock.lock();
         try {
             return new ArrayList<>(members);
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public int getCapacity() {
@@ -329,7 +323,7 @@ public class Guild {
     }
 
     public void broadcast(Packet packet, int exceptionId, BCOp bcop) {
-        membersLock.lock(); // membersLock awareness thanks to ProjectNano dev team
+        // membersLock awareness thanks to ProjectNano dev team
         try {
             synchronized (notifications) {
                 if (bDirty) {
@@ -352,12 +346,10 @@ public class Guild {
                 }
             }
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void guildMessage(Packet serverNotice) {
-        membersLock.lock();
         try {
             for (GuildCharacter mgc : members) {
                 for (Channel cs : Server.getInstance().getChannelsFromWorld(world)) {
@@ -368,8 +360,7 @@ public class Guild {
                 }
             }
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void dropMessage(String message) {
@@ -377,7 +368,6 @@ public class Guild {
     }
 
     public void dropMessage(int type, String message) {
-        membersLock.lock();
         try {
             for (GuildCharacter mgc : members) {
                 if (mgc.getCharacter() != null) {
@@ -385,8 +375,7 @@ public class Guild {
                 }
             }
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void broadcastMessage(Packet packet) {
@@ -394,7 +383,6 @@ public class Guild {
     }
 
     public final void setOnline(int cid, boolean online, int channel) {
-        membersLock.lock();
         try {
             boolean bBroadcast = true;
             for (GuildCharacter mgc : members) {
@@ -412,17 +400,14 @@ public class Guild {
             }
             bDirty = true;
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void guildChat(String name, int cid, String message) {
-        membersLock.lock();
         try {
             this.broadcast(PacketCreator.multiChat(name, message, 2), cid);
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public String getRankTitle(int rank) {
@@ -472,7 +457,6 @@ public class Guild {
     }
 
     public int addGuildMember(GuildCharacter mgc, Character chr) {
-        membersLock.lock();
         try {
             if (members.size() >= capacity) {
                 return 0;
@@ -489,23 +473,19 @@ public class Guild {
             this.broadcast(GuildPackets.newGuildMember(mgc));
             return 1;
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void leaveGuild(GuildCharacter mgc) {
-        membersLock.lock();
         try {
             this.broadcast(GuildPackets.memberLeft(mgc, false));
             members.remove(mgc);
             bDirty = true;
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void expelMember(GuildCharacter initiator, String name, int cid, NoteService noteService) {
-        membersLock.lock();
         try {
             java.util.Iterator<GuildCharacter> itr = members.iterator();
             GuildCharacter mgc;
@@ -531,12 +511,10 @@ public class Guild {
             }
             log.warn("Unable to find member with name {} and id {}", name, cid);
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void changeRank(int cid, int newRank) {
-        membersLock.lock();
         try {
             for (GuildCharacter mgc : members) {
                 if (cid == mgc.getId()) {
@@ -545,8 +523,7 @@ public class Guild {
                 }
             }
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void changeRank(GuildCharacter mgc, int newRank) {
@@ -563,28 +540,23 @@ public class Guild {
             return;
         }
 
-        membersLock.lock();
         try {
             this.broadcast(GuildPackets.changeRank(mgc));
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void setGuildNotice(String notice) {
         this.notice = notice;
         this.writeToDB(false);
 
-        membersLock.lock();
         try {
             this.broadcast(GuildPackets.guildNotice(this.id, notice));
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void memberLevelJobUpdate(GuildCharacter mgc) {
-        membersLock.lock();
         try {
             for (GuildCharacter member : members) {
                 if (mgc.equals(member)) {
@@ -595,8 +567,7 @@ public class Guild {
                 }
             }
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     @Override
@@ -618,12 +589,10 @@ public class Guild {
     public void changeRankTitle(String[] ranks) {
         System.arraycopy(ranks, 0, rankTitles, 0, 5);
 
-        membersLock.lock();
         try {
             this.broadcast(GuildPackets.rankTitleChange(this.id, ranks));
         } finally {
-            membersLock.unlock();
-        }
+            }
 
         this.writeToDB(false);
     }
@@ -635,13 +604,11 @@ public class Guild {
             }
         }
 
-        membersLock.lock();
         try {
             this.writeToDB(true);
             this.broadcast(null, -1, BCOp.DISBAND);
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public void setGuildEmblem(short bg, byte bgcolor, short logo, byte logocolor) {
@@ -651,16 +618,13 @@ public class Guild {
         this.logoColor = logocolor;
         this.writeToDB(false);
 
-        membersLock.lock();
         try {
             this.broadcast(null, -1, BCOp.EMBLEMCHANGE);
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public GuildCharacter getMGC(int cid) {
-        membersLock.lock();
         try {
             for (GuildCharacter mgc : members) {
                 if (mgc.getId() == cid) {
@@ -669,8 +633,7 @@ public class Guild {
             }
             return null;
         } finally {
-            membersLock.unlock();
-        }
+            }
     }
 
     public boolean increaseCapacity() {
@@ -680,12 +643,10 @@ public class Guild {
         capacity += 5;
         this.writeToDB(false);
 
-        membersLock.lock();
         try {
             this.broadcast(GuildPackets.guildCapacityChange(this.id, this.capacity));
         } finally {
-            membersLock.unlock();
-        }
+            }
 
         return true;
     }
@@ -786,7 +747,6 @@ public class Guild {
 
     public void resetAllianceGuildPlayersRank() {
         try {
-            membersLock.lock();
             try {
                 for (GuildCharacter mgc : members) {
                     if (mgc.isOnline()) {
@@ -794,8 +754,7 @@ public class Guild {
                     }
                 }
             } finally {
-                membersLock.unlock();
-            }
+                }
 
             try (Connection con = DatabaseConnection.getConnection();
                  PreparedStatement ps = con.prepareStatement("UPDATE characters SET allianceRank = ? WHERE guildid = ?")) {

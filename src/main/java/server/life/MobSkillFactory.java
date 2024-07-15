@@ -57,21 +57,18 @@ public class MobSkillFactory {
     }
 
     public static Optional<MobSkill> getMobSkill(final MobSkillType type, final int level) {
-        readLock.lock();
         try {
             MobSkill ms = mobSkills.get(createKey(type, level));
             if (ms != null) {
                 return Optional.of(ms);
             }
         } finally {
-            readLock.unlock();
-        }
+            }
 
         return loadMobSkill(type, level);
     }
 
     private static Optional<MobSkill> loadMobSkill(final MobSkillType type, final int level) {
-        writeLock.lock();
         try {
             MobSkill existingMs = mobSkills.get(createKey(type, level));
             if (existingMs != null) {
@@ -129,8 +126,7 @@ public class MobSkillFactory {
             mobSkills.put(createKey(type, level), loadedMobSkill);
             return Optional.of(loadedMobSkill);
         } finally {
-            writeLock.unlock();
-        }
+            }
     }
 
     private static String createKey(MobSkillType type, int skillLevel) {

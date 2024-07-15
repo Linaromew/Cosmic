@@ -49,12 +49,10 @@ public class PartySearchStorage {
     }
 
     public List<PartySearchCharacter> getStorageList() {
-        psRLock.lock();
         try {
             return new ArrayList<>(storage);
         } finally {
-            psRLock.unlock();
-        }
+            }
     }
 
     private Map<Integer, Character> fetchRemainingPlayers() {
@@ -92,13 +90,11 @@ public class PartySearchStorage {
             return levelP1 > levelP2 ? 1 : (levelP1 == levelP2 ? 0 : -1);
         });
 
-        psWLock.lock();
         try {
             storage.clear();
             storage.addAll(pscList);
         } finally {
-            psWLock.unlock();
-        }
+            }
 
         emptyIntervals.clear();
     }
@@ -163,12 +159,10 @@ public class PartySearchStorage {
         }
 
         if (toRemove != null) {
-            psWLock.lock();
             try {
                 storage.remove(toRemove);
             } finally {
-                psWLock.unlock();
-            }
+                }
         }
     }
 

@@ -46,7 +46,7 @@ public class PartySearchEchelon {
     }
 
     public List<Character> exportEchelon() {
-        psWLock.lock();     // reversing read/write actually could provide a lax yet sure performance/precision trade-off here
+        // reversing read/write actually could provide a lax yet sure performance/precision trade-off here
         try {
             List<Character> players = new ArrayList<>(echelon.size());
 
@@ -60,26 +60,21 @@ public class PartySearchEchelon {
             echelon.clear();
             return players;
         } finally {
-            psWLock.unlock();
-        }
+            }
     }
 
     public void attachPlayer(Character chr) {
-        psRLock.lock();
         try {
             echelon.put(chr.getId(), new WeakReference<>(chr));
         } finally {
-            psRLock.unlock();
-        }
+            }
     }
 
     public boolean detachPlayer(Character chr) {
-        psRLock.lock();
         try {
             return echelon.remove(chr.getId()) != null;
         } finally {
-            psRLock.unlock();
-        }
+            }
     }
 
 }

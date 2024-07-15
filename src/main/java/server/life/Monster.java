@@ -133,12 +133,10 @@ public class Monster extends AbstractLoadedLife {
     }
 
     public void lockMonster() {
-        externalLock.lock();
-    }
+        }
 
     public void unlockMonster() {
-        externalLock.unlock();
-    }
+        }
 
     private void initWithStats(MonsterStats baseStats) {
         setStance(5);
@@ -348,8 +346,7 @@ public class Monster extends AbstractLoadedLife {
                 return true;
             }
         } finally {
-            animationLock.unlock();
-        }
+            }
     }
 
     public synchronized Integer applyAndGetHpDamage(int delta, boolean stayAlive) {
@@ -703,15 +700,13 @@ public class Monster extends AbstractLoadedLife {
             }
         }
 
-        statiLock.lock();
         try {
             MonsterStatusEffect mse = stati.get(MonsterStatus.SHOWDOWN);
             if (mse != null) {
                 multiplier *= (1.0 + (mse.getStati().get(MonsterStatus.SHOWDOWN).doubleValue() / 100.0));
             }
         } finally {
-            statiLock.unlock();
-        }
+            }
 
         return multiplier;
     }
@@ -917,35 +912,29 @@ public class Monster extends AbstractLoadedLife {
         this.dispatchClearSummons();
 
         MonsterListener[] listenersList;
-        statiLock.lock();
         try {
             listenersList = listeners.toArray(new MonsterListener[listeners.size()]);
         } finally {
-            statiLock.unlock();
-        }
+            }
 
         for (MonsterListener listener : listenersList) {
             listener.monsterKilled(getAnimationTime("die1"));
         }
 
-        statiLock.lock();
         try {
             stati.clear();
             alreadyBuffed.clear();
             listeners.clear();
         } finally {
-            statiLock.unlock();
-        }
+            }
     }
 
     private void dispatchMonsterDamaged(Character from, int trueDmg) {
         MonsterListener[] listenersList;
-        statiLock.lock();
         try {
             listenersList = listeners.toArray(new MonsterListener[listeners.size()]);
         } finally {
-            statiLock.unlock();
-        }
+            }
 
         for (MonsterListener listener : listenersList) {
             listener.monsterDamaged(from, trueDmg);
@@ -954,12 +943,10 @@ public class Monster extends AbstractLoadedLife {
 
     private void dispatchMonsterHealed(int trueHeal) {
         MonsterListener[] listenersList;
-        statiLock.lock();
         try {
             listenersList = listeners.toArray(new MonsterListener[listeners.size()]);
         } finally {
-            statiLock.unlock();
-        }
+            }
 
         for (MonsterListener listener : listenersList) {
             listener.monsterHealed(trueHeal);
@@ -993,12 +980,10 @@ public class Monster extends AbstractLoadedLife {
     }
 
     public void addListener(MonsterListener listener) {
-        statiLock.lock();
         try {
             listeners.add(listener);
         } finally {
-            statiLock.unlock();
-        }
+            }
     }
 
     public Character getController() {
@@ -1083,25 +1068,21 @@ public class Monster extends AbstractLoadedLife {
     }
 
     public ElementalEffectiveness getElementalEffectiveness(Element e) {
-        statiLock.lock();
         try {
             if (stati.get(MonsterStatus.DOOM) != null) {
                 return ElementalEffectiveness.NORMAL; // like blue snails
             }
         } finally {
-            statiLock.unlock();
-        }
+            }
 
         return getMonsterEffectiveness(e);
     }
 
     private ElementalEffectiveness getMonsterEffectiveness(Element e) {
-        monsterLock.lock();
         try {
             return stats.getEffectiveness(e);
         } finally {
-            monsterLock.unlock();
-        }
+            }
     }
 
     private Character getActiveController() {
@@ -1181,7 +1162,6 @@ public class Monster extends AbstractLoadedLife {
         final Channel ch = map.getChannelServer();
         final int mapid = map.getId();
         if (statis.size() > 0) {
-            statiLock.lock();
             try {
                 for (MonsterStatus stat : statis.keySet()) {
                     final MonsterStatusEffect oldEffect = stati.get(stat);
@@ -1194,8 +1174,7 @@ public class Monster extends AbstractLoadedLife {
                     }
                 }
             } finally {
-                statiLock.unlock();
-            }
+                }
         }
 
         final Runnable cancelTask = () -> {
@@ -1204,14 +1183,12 @@ public class Monster extends AbstractLoadedLife {
                 broadcastMonsterStatusMessage(packet);
             }
 
-            statiLock.lock();
             try {
                 for (MonsterStatus stat : status.getStati().keySet()) {
                     stati.remove(stat);
                 }
             } finally {
-                statiLock.unlock();
-            }
+                }
 
             setVenomMulti(0);
         };
@@ -1281,15 +1258,13 @@ public class Monster extends AbstractLoadedLife {
             animationTime = broadcastStatusEffect(status);
         }
 
-        statiLock.lock();
         try {
             for (MonsterStatus stat : status.getStati().keySet()) {
                 stati.put(stat, status);
                 alreadyBuffed.add(stat);
             }
         } finally {
-            statiLock.unlock();
-        }
+            }
 
         MobStatusService service = (MobStatusService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_STATUS);
         service.registerMobStatus(mapid, status, cancelTask, duration + animationTime - 100, overtimeAction, overtimeDelay);
@@ -1315,29 +1290,25 @@ public class Monster extends AbstractLoadedLife {
                 Packet packet = PacketCreator.cancelMonsterStatus(getObjectId(), stats);
                 broadcastMonsterStatusMessage(packet);
 
-                statiLock.lock();
                 try {
                     for (final MonsterStatus stat : stats.keySet()) {
                         stati.remove(stat);
                     }
                 } finally {
-                    statiLock.unlock();
-                }
+                    }
             }
         };
         final MonsterStatusEffect effect = new MonsterStatusEffect(stats, null, skill, true);
         Packet packet = PacketCreator.applyMonsterStatus(getObjectId(), effect, reflection);
         broadcastMonsterStatusMessage(packet);
 
-        statiLock.lock();
         try {
             for (MonsterStatus stat : stats.keySet()) {
                 stati.put(stat, effect);
                 alreadyBuffed.add(stat);
             }
         } finally {
-            statiLock.unlock();
-        }
+            }
 
         MobStatusService service = (MobStatusService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_STATUS);
         service.registerMobStatus(map.getId(), effect, cancelTask, duration);
@@ -1359,12 +1330,10 @@ public class Monster extends AbstractLoadedLife {
 
     private void debuffMobStat(MonsterStatus stat) {
         MonsterStatusEffect oldEffect;
-        statiLock.lock();
         try {
             oldEffect = stati.remove(stat);
         } finally {
-            statiLock.unlock();
-        }
+            }
 
         if (oldEffect != null) {
             Packet packet = PacketCreator.cancelMonsterStatus(getObjectId(), oldEffect.getStati());
@@ -1374,7 +1343,6 @@ public class Monster extends AbstractLoadedLife {
 
     public void debuffMob(int skillid) {
         MonsterStatus[] statups = {MonsterStatus.WEAPON_ATTACK_UP, MonsterStatus.WEAPON_DEFENSE_UP, MonsterStatus.MAGIC_ATTACK_UP, MonsterStatus.MAGIC_DEFENSE_UP};
-        statiLock.lock();
         try {
             if (skillid == Hermit.SHADOW_MESO) {
                 debuffMobStat(statups[1]);
@@ -1407,35 +1375,28 @@ public class Monster extends AbstractLoadedLife {
                 }
             }
         } finally {
-            statiLock.unlock();
-        }
+            }
     }
 
     public boolean isBuffed(MonsterStatus status) {
-        statiLock.lock();
         try {
             return stati.containsKey(status);
         } finally {
-            statiLock.unlock();
-        }
+            }
     }
 
     public void setFake(boolean fake) {
-        monsterLock.lock();
         try {
             this.fake = fake;
         } finally {
-            monsterLock.unlock();
-        }
+            }
     }
 
     public boolean isFake() {
-        monsterLock.lock();
         try {
             return fake;
         } finally {
-            monsterLock.unlock();
-        }
+            }
     }
 
     public MapleMap getMap() {
@@ -1465,7 +1426,6 @@ public class Monster extends AbstractLoadedLife {
             }
         }
 
-        monsterLock.lock();
         try {
             if (usedSkills.contains(toUse.getId())) {
                 return false;
@@ -1486,8 +1446,7 @@ public class Monster extends AbstractLoadedLife {
                 this.usedSkill(toUse);
             }
         } finally {
-            monsterLock.unlock();
-        }
+            }
 
         return true;
     }
@@ -1501,14 +1460,12 @@ public class Monster extends AbstractLoadedLife {
 
     private void usedSkill(MobSkill skill) {
         final MobSkillId msId = skill.getId();
-        monsterLock.lock();
         try {
             mp -= skill.getMpCon();
 
             this.usedSkills.add(msId);
         } finally {
-            monsterLock.unlock();
-        }
+            }
 
         final Monster mons = this;
         MapleMap mmap = mons.getMap();
@@ -1519,16 +1476,13 @@ public class Monster extends AbstractLoadedLife {
     }
 
     private void clearSkill(MobSkillId msId) {
-        monsterLock.lock();
         try {
             usedSkills.remove(msId);
         } finally {
-            monsterLock.unlock();
-        }
+            }
     }
 
     public int canUseAttack(int attackPos, boolean isSkill) {
-        monsterLock.lock();
         try {
             /*
             if (usedAttacks.contains(attackPos)) {
@@ -1555,12 +1509,10 @@ public class Monster extends AbstractLoadedLife {
             usedAttack(attackPos, mpCon, attackInfo.getRight());
             return 1;
         } finally {
-            monsterLock.unlock();
-        }
+            }
     }
 
     private void usedAttack(final int attackPos, int mpCon, int cooltime) {
-        monsterLock.lock();
         try {
             mp -= mpCon;
             usedAttacks.add(attackPos);
@@ -1572,17 +1524,14 @@ public class Monster extends AbstractLoadedLife {
             MobClearSkillService service = (MobClearSkillService) map.getChannelServer().getServiceAccess(ChannelServices.MOB_CLEAR_SKILL);
             service.registerMobClearSkillAction(mmap.getId(), r, cooltime);
         } finally {
-            monsterLock.unlock();
-        }
+            }
     }
 
     private void clearAttack(int attackPos) {
-        monsterLock.lock();
         try {
             usedAttacks.remove(attackPos);
         } finally {
-            monsterLock.unlock();
-        }
+            }
     }
 
     public boolean hasAnySkill() {
@@ -1674,7 +1623,6 @@ public class Monster extends AbstractLoadedLife {
     }
 
     public void setTempEffectiveness(Element e, ElementalEffectiveness ee, long milli) {
-        monsterLock.lock();
         try {
             final Element fE = e;
             final ElementalEffectiveness fEE = stats.getEffectiveness(e);
@@ -1683,30 +1631,25 @@ public class Monster extends AbstractLoadedLife {
 
                 MapleMap mmap = this.getMap();
                 Runnable r = () -> {
-                    monsterLock.lock();
                     try {
                         stats.removeEffectiveness(fE);
                         stats.setEffectiveness(fE, fEE);
                     } finally {
-                        monsterLock.unlock();
-                    }
+                        }
                 };
 
                 MobClearSkillService service = (MobClearSkillService) mmap.getChannelServer().getServiceAccess(ChannelServices.MOB_CLEAR_SKILL);
                 service.registerMobClearSkillAction(mmap.getId(), r, milli);
             }
         } finally {
-            monsterLock.unlock();
-        }
+            }
     }
 
     public Collection<MonsterStatus> alreadyBuffedStats() {
-        statiLock.lock();
         try {
             return Collections.unmodifiableCollection(alreadyBuffed);
         } finally {
-            statiLock.unlock();
-        }
+            }
     }
 
     public BanishInfo getBanish() {
@@ -1726,21 +1669,17 @@ public class Monster extends AbstractLoadedLife {
     }
 
     public Map<MonsterStatus, MonsterStatusEffect> getStati() {
-        statiLock.lock();
         try {
             return new HashMap<>(stati);
         } finally {
-            statiLock.unlock();
-        }
+            }
     }
 
     public MonsterStatusEffect getStati(MonsterStatus ms) {
-        statiLock.lock();
         try {
             return stati.get(ms);
         } finally {
-            statiLock.unlock();
-        }
+            }
     }
 
     // ---- one can always have fun trying these pieces of codes below in-game rofl ----
@@ -1878,7 +1817,6 @@ public class Monster extends AbstractLoadedLife {
         Character chrController;
         boolean hadAggro;
 
-        aggroUpdateLock.lock();
         try {
             chrController = getActiveController();
             hadAggro = isControllerHasAggro();
@@ -1887,8 +1825,7 @@ public class Monster extends AbstractLoadedLife {
             this.setControllerHasAggro(false);
             this.setControllerKnowsAboutAggro(false);
         } finally {
-            aggroUpdateLock.unlock();
-        }
+            }
 
         if (chrController != null) { // this can/should only happen when a hidden gm attacks the monster
             if (!this.isFake()) {
@@ -1922,8 +1859,7 @@ public class Monster extends AbstractLoadedLife {
                 this.setControllerKnowsAboutAggro(false);
                 this.setControllerHasPuppet(false);
             } finally {
-                aggroUpdateLock.unlock();
-            }
+                }
 
             this.aggroUpdatePuppetVisibility();
             aggroMonsterControl(newController.getClient(), this, immediateAggro);
@@ -2178,13 +2114,11 @@ public class Monster extends AbstractLoadedLife {
      * Clears this mob aggro on the current controller.
      */
     public void aggroResetAggro() {
-        aggroUpdateLock.lock();
         try {
             this.setControllerHasAggro(false);
             this.setControllerKnowsAboutAggro(false);
         } finally {
-            aggroUpdateLock.unlock();
-        }
+            }
     }
 
     public final int getRemoveAfter() {

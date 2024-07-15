@@ -65,20 +65,17 @@ public class MobAnimationService extends BaseService {
 
         public MobAnimationScheduler() {
             super.addListener((toRemove, update) -> {
-                animationLock.lock();
                 try {
                     for (Object hashObj : toRemove) {
                         Integer mobHash = (Integer) hashObj;
                         onAnimationMobs.remove(mobHash);
                     }
                 } finally {
-                    animationLock.unlock();
-                }
+                    }
             });
         }
 
         public boolean registerAnimationMode(Integer mobHash, long animationTime) {
-            animationLock.lock();
             try {
                 if (onAnimationMobs.contains(mobHash)) {
                     return false;
@@ -88,8 +85,7 @@ public class MobAnimationService extends BaseService {
                 onAnimationMobs.add(mobHash);
                 return true;
             } finally {
-                animationLock.unlock();
-            }
+                }
         }
 
         @Override

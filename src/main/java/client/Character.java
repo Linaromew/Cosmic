@@ -615,14 +615,10 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void addCooldown(int skillId, long startTime, long length) {
-        effLock.lock();
-        chrLock.lock();
         try {
             this.coolDowns.put(Integer.valueOf(skillId), new CooldownValueHolder(skillId, startTime, length));
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void addCrushRing(Ring r) {
@@ -717,7 +713,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void addPet(Pet pet) {
-        petLock.lock();
         try {
             for (int i = 0; i < 3; i++) {
                 if (pets[i] == null) {
@@ -726,8 +721,7 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public void addSummon(int id, Summon summon) {
@@ -1225,8 +1219,6 @@ public class Character extends AbstractCharacterObject {
         }
         */
 
-        effLock.lock();
-        statWlock.lock();
         try {
             addMaxMPMaxHP(addhp, addmp, true);
             recalcLocalStats();
@@ -1241,9 +1233,7 @@ public class Character extends AbstractCharacterObject {
             statup.add(new Pair<>(Stat.JOB, job.getId()));
             sendPacket(PacketCreator.updatePlayerStats(statup, true, this));
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
 
         setMPC(new PartyCharacter(this));
         silentPartyUpdate();
@@ -1534,8 +1524,6 @@ public class Character extends AbstractCharacterObject {
         int thisMapid = mapid;
         int returnMapid = client.getChannelServer().getMapFactory().getMap(thisMapid).getReturnMapId();
 
-        effLock.lock();
-        chrLock.lock();
         try {
             for (Entry<BuffStat, BuffStatValueHolder> mbs : effects.entrySet()) {
                 if (mbs.getKey() == BuffStat.MAP_PROTECTION) {
@@ -1549,9 +1537,7 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
 
         for (Item it : this.getInventory(InventoryType.EQUIPPED).list()) {
             if ((it.getFlag() & ItemConstants.COLD) == ItemConstants.COLD &&
@@ -1566,7 +1552,6 @@ public class Character extends AbstractCharacterObject {
     public List<Integer> getLastVisitedMapids() {
         List<Integer> lastVisited = new ArrayList<>(5);
 
-        petLock.lock();
         try {
             for (WeakReference<MapleMap> lv : lastVisitedMaps) {
                 MapleMap lvm = lv.get();
@@ -1576,8 +1561,7 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            petLock.unlock();
-        }
+            }
 
         return lastVisited;
     }
@@ -1585,12 +1569,10 @@ public class Character extends AbstractCharacterObject {
     public void partyOperationUpdate(Party party, List<Character> exPartyMembers) {
         List<WeakReference<MapleMap>> mapids;
 
-        petLock.lock();
         try {
             mapids = new LinkedList<>(lastVisitedMaps);
         } finally {
-            petLock.unlock();
-        }
+            }
 
         List<Character> partyMembers = new LinkedList<>();
         for (Character mc : (exPartyMembers != null) ? exPartyMembers : this.getPartyMembersOnline()) {
@@ -1731,7 +1713,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void visitMap(MapleMap map) {
-        petLock.lock();
         try {
             int idx = getVisitedMapIndex(map);
 
@@ -1747,8 +1728,7 @@ public class Character extends AbstractCharacterObject {
 
             lastVisitedMaps.add(new WeakReference<>(map));
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public void setOwnedMap(MapleMap map) {
@@ -1798,7 +1778,6 @@ public class Character extends AbstractCharacterObject {
             map.addPlayer(this);
             visitMap(map);
 
-            prtLock.lock();
             try {
                 if (party != null) {
                     mpc.setMapId(to.getId());
@@ -1806,8 +1785,7 @@ public class Character extends AbstractCharacterObject {
                     updatePartyMemberHPInternal();
                 }
             } finally {
-                prtLock.unlock();
-            }
+                }
             if (Character.this.getParty() != null) {
                 Character.this.getParty().setEnemy(k);
             }
@@ -1921,8 +1899,7 @@ public class Character extends AbstractCharacterObject {
             try {
                 controlled.add(monster);
             } finally {
-                cpnLock.unlock();
-            }
+                }
         }
     }
 
@@ -1931,39 +1908,32 @@ public class Character extends AbstractCharacterObject {
             try {
                 controlled.remove(monster);
             } finally {
-                cpnLock.unlock();
-            }
+                }
         }
     }
 
     public int getNumControlledMonsters() {
-        cpnLock.lock();
         try {
             return controlled.size();
         } finally {
-            cpnLock.unlock();
-        }
+            }
     }
 
     public Collection<Monster> getControlledMonsters() {
-        cpnLock.lock();
         try {
             return new ArrayList<>(controlled);
         } finally {
-            cpnLock.unlock();
-        }
+            }
     }
 
     public void releaseControlledMonsters() {
         Collection<Monster> controlledMonsters;
 
-        cpnLock.lock();
         try {
             controlledMonsters = new ArrayList<>(controlled);
             controlled.clear();
         } finally {
-            cpnLock.unlock();
-        }
+            }
 
         for (Monster monster : controlledMonsters) {
             monster.aggroRedirectController();
@@ -2461,15 +2431,13 @@ public class Character extends AbstractCharacterObject {
     }
 
     private void stopChairTask() {
-        chrLock.lock();
         try {
             if (chairRecoveryTask != null) {
                 chairRecoveryTask.cancel(false);
                 chairRecoveryTask = null;
             }
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     private static Pair<Integer, Pair<Integer, Integer>> getChairTaskIntervalRate(int maxhp, int maxmp) {
@@ -2508,17 +2476,13 @@ public class Character extends AbstractCharacterObject {
     }
 
     private void updateChairHealStats() {
-        statRlock.lock();
         try {
             if (localchairrate != -1) {
                 return;
             }
         } finally {
-            statRlock.unlock();
-        }
+            }
 
-        effLock.lock();
-        statWlock.lock();
         try {
             Pair<Integer, Pair<Integer, Integer>> p = getChairTaskIntervalRate(localmaxhp, localmaxmp);
 
@@ -2526,9 +2490,7 @@ public class Character extends AbstractCharacterObject {
             localchairhp = p.getRight().getLeft();
             localchairmp = p.getRight().getRight();
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     private void startChairTask() {
@@ -2537,15 +2499,12 @@ public class Character extends AbstractCharacterObject {
         }
 
         int healInterval;
-        effLock.lock();
         try {
             updateChairHealStats();
             healInterval = localchairrate;
         } finally {
-            effLock.unlock();
-        }
+            }
 
-        chrLock.lock();
         try {
             if (chairRecoveryTask != null) {
                 stopChairTask();
@@ -2571,29 +2530,24 @@ public class Character extends AbstractCharacterObject {
                 }
             }, healInterval, healInterval);
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     private void stopExtraTask() {
-        chrLock.lock();
         try {
             if (extraRecoveryTask != null) {
                 extraRecoveryTask.cancel(false);
                 extraRecoveryTask = null;
             }
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     private void startExtraTask(final byte healHP, final byte healMP, final short healInterval) {
-        chrLock.lock();
         try {
             startExtraTaskInternal(healHP, healMP, healInterval);
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     private void startExtraTaskInternal(final byte healHP, final byte healMP, final short healInterval) {
@@ -2644,25 +2598,20 @@ public class Character extends AbstractCharacterObject {
     }
 
     public final boolean hasDisease(final Disease dis) {
-        chrLock.lock();
         try {
             return diseases.containsKey(dis);
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public final int getDiseasesSize() {
-        chrLock.lock();
         try {
             return diseases.size();
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public Map<Disease, Pair<Long, MobSkill>> getAllDiseases() {
-        chrLock.lock();
         try {
             long curtime = Server.getInstance().getCurrentTime();
             Map<Disease, Pair<Long, MobSkill>> ret = new LinkedHashMap<>();
@@ -2676,12 +2625,10 @@ public class Character extends AbstractCharacterObject {
 
             return ret;
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public void silentApplyDiseases(Map<Disease, Pair<Long, MobSkill>> diseaseMap) {
-        chrLock.lock();
         try {
             long curTime = Server.getInstance().getCurrentTime();
 
@@ -2692,14 +2639,12 @@ public class Character extends AbstractCharacterObject {
                 diseases.put(di.getKey(), new Pair<>(new DiseaseValueHolder(curTime, di.getValue().getLeft()), di.getValue().getRight()));
             }
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public void announceDiseases() {
         Set<Entry<Disease, Pair<DiseaseValueHolder, MobSkill>>> chrDiseases;
 
-        chrLock.lock();
         try {
             // Poison damage visibility and diseases status visibility, extended through map transitions thanks to Ronan
             if (!this.isLoggedinWorld()) {
@@ -2708,8 +2653,7 @@ public class Character extends AbstractCharacterObject {
 
             chrDiseases = new LinkedHashSet<>(diseases.entrySet());
         } finally {
-            chrLock.unlock();
-        }
+            }
 
         for (Entry<Disease, Pair<DiseaseValueHolder, MobSkill>> di : chrDiseases) {
             Disease disease = di.getKey();
@@ -2750,14 +2694,12 @@ public class Character extends AbstractCharacterObject {
                 }
             }
 
-            chrLock.lock();
             try {
                 long curTime = Server.getInstance().getCurrentTime();
                 diseaseExpires.put(disease, curTime + skill.getDuration());
                 diseases.put(disease, new Pair<>(new DiseaseValueHolder(curTime, skill.getDuration()), skill));
             } finally {
-                chrLock.unlock();
-            }
+                }
 
             if (disease == Disease.SEDUCE && chair.get() < 0) {
                 sitChair(-1);
@@ -2785,13 +2727,11 @@ public class Character extends AbstractCharacterObject {
                 map.broadcastMessage(this, PacketCreator.cancelForeignSlowDebuff(id), false);
             }
 
-            chrLock.lock();
             try {
                 diseases.remove(debuff);
                 diseaseExpires.remove(debuff);
             } finally {
-                chrLock.unlock();
-            }
+                }
         }
     }
 
@@ -2812,13 +2752,11 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void cancelAllDebuffs() {
-        chrLock.lock();
         try {
             diseases.clear();
             diseaseExpires.clear();
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public void dispelSkill(int skillid) {
@@ -2904,7 +2842,6 @@ public class Character extends AbstractCharacterObject {
                 public void run() {
                     Set<Disease> toExpire = new LinkedHashSet<>();
 
-                    chrLock.lock();
                     try {
                         long curTime = Server.getInstance().getCurrentTime();
 
@@ -2914,8 +2851,7 @@ public class Character extends AbstractCharacterObject {
                             }
                         }
                     } finally {
-                        chrLock.unlock();
-                    }
+                        }
 
                     for (Disease d : toExpire) {
                         dispelDebuff(d);
@@ -2940,8 +2876,6 @@ public class Character extends AbstractCharacterObject {
                     Set<Entry<Integer, Long>> es;
                     List<BuffStatValueHolder> toCancel = new ArrayList<>();
 
-                    effLock.lock();
-                    chrLock.lock();
                     try {
                         es = new LinkedHashSet<>(buffExpires.entrySet());
 
@@ -2952,9 +2886,7 @@ public class Character extends AbstractCharacterObject {
                             }
                         }
                     } finally {
-                        chrLock.unlock();
-                        effLock.unlock();
-                    }
+                        }
 
                     for (BuffStatValueHolder mbsvh : toCancel) {
                         cancelEffect(mbsvh.effect, false, mbsvh.startTime);
@@ -2978,14 +2910,10 @@ public class Character extends AbstractCharacterObject {
                 public void run() {
                     Set<Entry<Integer, CooldownValueHolder>> es;
 
-                    effLock.lock();
-                    chrLock.lock();
                     try {
                         es = new LinkedHashSet<>(coolDowns.entrySet());
                     } finally {
-                        chrLock.unlock();
-                        effLock.unlock();
-                    }
+                        }
 
                     long curTime = Server.getInstance().getCurrentTime();
                     for (Entry<Integer, CooldownValueHolder> bel : es) {
@@ -3228,7 +3156,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     private Pair<Integer, Integer> applyFame(int delta) {
-        petLock.lock();
         try {
             int newFame = fame + delta;
             if (newFame < -30000) {
@@ -3240,8 +3167,7 @@ public class Character extends AbstractCharacterObject {
             fame += delta;
             return new Pair<>(fame, delta);
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public void gainFame(int delta) {
@@ -3283,7 +3209,6 @@ public class Character extends AbstractCharacterObject {
 
     public void gainMeso(int gain, boolean show, boolean enableActions, boolean inChat) {
         long nextMeso;
-        petLock.lock();
         try {
             nextMeso = (long) meso.get() + gain;  // thanks Thora for pointing integer overflow here
             if (nextMeso > Integer.MAX_VALUE) {
@@ -3293,8 +3218,7 @@ public class Character extends AbstractCharacterObject {
             }
             nextMeso = meso.addAndGet(gain);
         } finally {
-            petLock.unlock();
-        }
+            }
 
         if (gain != 0) {
             updateSingleStat(Stat.MESO, (int) nextMeso, enableActions);
@@ -3317,16 +3241,12 @@ public class Character extends AbstractCharacterObject {
     public List<PlayerCoolDownValueHolder> getAllCooldowns() {
         List<PlayerCoolDownValueHolder> ret = new ArrayList<>();
 
-        effLock.lock();
-        chrLock.lock();
         try {
             for (CooldownValueHolder mcdvh : coolDowns.values()) {
                 ret.add(new PlayerCoolDownValueHolder(mcdvh.skillId, mcdvh.startTime, mcdvh.length));
             }
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
 
         return ret;
     }
@@ -3390,8 +3310,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Long getBuffedStarttime(BuffStat effect) {
-        effLock.lock();
-        chrLock.lock();
         try {
             BuffStatValueHolder mbsvh = effects.get(effect);
             if (mbsvh == null) {
@@ -3399,14 +3317,10 @@ public class Character extends AbstractCharacterObject {
             }
             return Long.valueOf(mbsvh.startTime);
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public Integer getBuffedValue(BuffStat effect) {
-        effLock.lock();
-        chrLock.lock();
         try {
             BuffStatValueHolder mbsvh = effects.get(effect);
             if (mbsvh == null) {
@@ -3414,14 +3328,10 @@ public class Character extends AbstractCharacterObject {
             }
             return Integer.valueOf(mbsvh.value);
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public int getBuffSource(BuffStat stat) {
-        effLock.lock();
-        chrLock.lock();
         try {
             BuffStatValueHolder mbsvh = effects.get(stat);
             if (mbsvh == null) {
@@ -3429,14 +3339,10 @@ public class Character extends AbstractCharacterObject {
             }
             return mbsvh.effect.getSourceId();
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public StatEffect getBuffEffect(BuffStat stat) {
-        effLock.lock();
-        chrLock.lock();
         try {
             BuffStatValueHolder mbsvh = effects.get(stat);
             if (mbsvh == null) {
@@ -3445,25 +3351,17 @@ public class Character extends AbstractCharacterObject {
                 return mbsvh.effect;
             }
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public Set<Integer> getAvailableBuffs() {
-        effLock.lock();
-        chrLock.lock();
         try {
             return new LinkedHashSet<>(buffEffects.keySet());
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     private List<BuffStatValueHolder> getAllStatups() {
-        effLock.lock();
-        chrLock.lock();
         try {
             List<BuffStatValueHolder> ret = new ArrayList<>();
             for (Map<BuffStat, BuffStatValueHolder> bel : buffEffects.values()) {
@@ -3473,14 +3371,10 @@ public class Character extends AbstractCharacterObject {
             }
             return ret;
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public List<PlayerBuffValueHolder> getAllBuffs() {  // buff values will be stored in an arbitrary order
-        effLock.lock();
-        chrLock.lock();
         try {
             long curtime = Server.getInstance().getCurrentTime();
 
@@ -3495,14 +3389,10 @@ public class Character extends AbstractCharacterObject {
             }
             return new ArrayList<>(ret.values());
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public List<Pair<BuffStat, Integer>> getAllActiveStatups() {
-        effLock.lock();
-        chrLock.lock();
         try {
             List<Pair<BuffStat, Integer>> ret = new ArrayList<>();
             for (BuffStat mbs : effects.keySet()) {
@@ -3511,33 +3401,23 @@ public class Character extends AbstractCharacterObject {
             }
             return ret;
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public boolean hasBuffFromSourceid(int sourceid) {
-        effLock.lock();
-        chrLock.lock();
         try {
             return buffEffects.containsKey(sourceid);
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public boolean hasActiveBuff(int sourceid) {
         LinkedList<BuffStatValueHolder> allBuffs;
 
-        effLock.lock();
-        chrLock.lock();
         try {
             allBuffs = new LinkedList<>(effects.values());
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
 
         for (BuffStatValueHolder mbsvh : allBuffs) {
             if (mbsvh.effect.getBuffSourceId() == sourceid) {
@@ -3665,17 +3545,13 @@ public class Character extends AbstractCharacterObject {
     }
 
     private void extractBuffValue(int sourceid, BuffStat stat) {
-        chrLock.lock();
         try {
             removeEffectFromItemEffectHolder(sourceid, stat);
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public void debugListAllBuffs() {
-        effLock.lock();
-        chrLock.lock();
         try {
             log.debug("-------------------");
             log.debug("CACHED BUFF COUNT: {}", buffEffectsCount.entrySet().stream()
@@ -3697,29 +3573,21 @@ public class Character extends AbstractCharacterObject {
                     .collect(Collectors.joining(", "))
             );
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void debugListAllBuffsCount() {
-        effLock.lock();
-        chrLock.lock();
         try {
             log.debug("ALL BUFFS COUNT: {}", buffEffectsCount.entrySet().stream()
                     .map(entry -> entry.getKey().name() + " -> " + entry.getValue())
                     .collect(Collectors.joining(", "))
             );
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void cancelAllBuffs(boolean softcancel) {
         if (softcancel) {
-            effLock.lock();
-            chrLock.lock();
             try {
                 cancelEffectFromBuffStat(BuffStat.SUMMON);
                 cancelEffectFromBuffStat(BuffStat.PUPPET);
@@ -3731,14 +3599,10 @@ public class Character extends AbstractCharacterObject {
                     removeItemEffectHolder(srcid);
                 }
             } finally {
-                chrLock.unlock();
-                effLock.unlock();
-            }
+                }
         } else {
             Map<StatEffect, Long> mseBuffs = new LinkedHashMap<>();
 
-            effLock.lock();
-            chrLock.lock();
             try {
                 for (Entry<Integer, Map<BuffStat, BuffStatValueHolder>> bpl : buffEffects.entrySet()) {
                     for (Entry<BuffStat, BuffStatValueHolder> mbse : bpl.getValue().entrySet()) {
@@ -3746,9 +3610,7 @@ public class Character extends AbstractCharacterObject {
                     }
                 }
             } finally {
-                chrLock.unlock();
-                effLock.unlock();
-            }
+                }
 
             for (Entry<StatEffect, Long> mse : mseBuffs.entrySet()) {
                 cancelEffect(mse.getKey(), false, mse.getValue());
@@ -3760,7 +3622,6 @@ public class Character extends AbstractCharacterObject {
         for (Pair<BuffStat, BuffStatValueHolder> cancelEffectCancelTasks : effectsToCancel) {
             //boolean nestedCancel = false;
 
-            chrLock.lock();
             try {
                 /*
                 if (buffExpires.get(cancelEffectCancelTasks.getRight().effect.getBuffSourceId()) != null) {
@@ -3771,8 +3632,7 @@ public class Character extends AbstractCharacterObject {
                     fetchBestEffectFromItemEffectHolder(cancelEffectCancelTasks.getLeft());
                 }
             } finally {
-                chrLock.unlock();
-            }
+                }
 
             /*
             if (nestedCancel) {
@@ -3782,7 +3642,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     private List<Pair<BuffStat, BuffStatValueHolder>> deregisterBuffStats(Map<BuffStat, BuffStatValueHolder> stats) {
-        chrLock.lock();
         try {
             List<Pair<BuffStat, BuffStatValueHolder>> effectsToCancel = new ArrayList<>(stats.size());
             for (Entry<BuffStat, BuffStatValueHolder> stat : stats.entrySet()) {
@@ -3852,8 +3711,7 @@ public class Character extends AbstractCharacterObject {
 
             return effectsToCancel;
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public void cancelEffect(int itemId) {
@@ -3864,26 +3722,18 @@ public class Character extends AbstractCharacterObject {
     public boolean cancelEffect(StatEffect effect, boolean overwrite, long startTime) {
         boolean ret;
 
-        prtLock.lock();
-        effLock.lock();
         try {
             ret = cancelEffect(effect, overwrite, startTime, true);
         } finally {
-            effLock.unlock();
-            prtLock.unlock();
-        }
+            }
 
         if (effect.isMagicDoor() && ret) {
-            prtLock.lock();
-            effLock.lock();
             try {
                 if (!hasBuffFromSourceid(Priest.MYSTIC_DOOR)) {
                     Door.attemptRemoveDoor(this);
                 }
             } finally {
-                effLock.unlock();
-                prtLock.unlock();
-            }
+                }
         }
 
         return ret;
@@ -3912,7 +3762,7 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void updateActiveEffects() {
-        effLock.lock();     // thanks davidlafriniere, maple006, RedHat for pointing a deadlock occurring here
+        // thanks davidlafriniere, maple006, RedHat for pointing a deadlock occurring here
         try {
             Set<BuffStat> updatedBuffs = new LinkedHashSet<>();
             Set<StatEffect> activeEffects = new LinkedHashSet<>();
@@ -3936,13 +3786,10 @@ public class Character extends AbstractCharacterObject {
 
             updateEffects(updatedBuffs);
         } finally {
-            effLock.unlock();
-        }
+            }
     }
 
     private void updateEffects(Set<BuffStat> removedStats) {
-        effLock.lock();
-        chrLock.lock();
         try {
             Set<BuffStat> retrievedStats = new LinkedHashSet<>();
 
@@ -3959,9 +3806,7 @@ public class Character extends AbstractCharacterObject {
 
             propagateBuffEffectUpdates(new LinkedHashMap<Integer, Pair<StatEffect, Long>>(), retrievedStats, removedStats);
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     private boolean cancelEffect(StatEffect effect, boolean overwrite, long startTime, boolean firstCancel) {
@@ -4009,25 +3854,19 @@ public class Character extends AbstractCharacterObject {
     public void cancelEffectFromBuffStat(BuffStat stat) {
         BuffStatValueHolder effect;
 
-        effLock.lock();
-        chrLock.lock();
         try {
             effect = effects.get(stat);
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
         if (effect != null) {
             cancelEffect(effect.effect, false, -1);
         }
     }
 
     public void cancelBuffStats(BuffStat stat) {
-        effLock.lock();
         try {
             List<Pair<Integer, BuffStatValueHolder>> cancelList = new LinkedList<>();
 
-            chrLock.lock();
             try {
                 for (Entry<Integer, Map<BuffStat, BuffStatValueHolder>> bel : this.buffEffects.entrySet()) {
                     BuffStatValueHolder beli = bel.getValue().get(stat);
@@ -4036,8 +3875,7 @@ public class Character extends AbstractCharacterObject {
                     }
                 }
             } finally {
-                chrLock.unlock();
-            }
+                }
 
             Map<BuffStat, BuffStatValueHolder> buffStatList = new LinkedHashMap<>();
             for (Pair<Integer, BuffStatValueHolder> p : cancelList) {
@@ -4046,14 +3884,12 @@ public class Character extends AbstractCharacterObject {
                 dropBuffStats(deregisterBuffStats(buffStatList));
             }
         } finally {
-            effLock.unlock();
-        }
+            }
 
         cancelPlayerBuffs(Arrays.asList(stat));
     }
 
     private Map<BuffStat, BuffStatValueHolder> extractCurrentBuffStats(StatEffect effect) {
-        chrLock.lock();
         try {
             Map<BuffStat, BuffStatValueHolder> stats = new LinkedHashMap<>();
             Map<BuffStat, BuffStatValueHolder> buffList = buffEffects.remove(effect.getBuffSourceId());
@@ -4067,14 +3903,12 @@ public class Character extends AbstractCharacterObject {
 
             return stats;
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     private Map<BuffStat, BuffStatValueHolder> extractLeastRelevantStatEffectsIfFull(StatEffect effect) {
         Map<BuffStat, BuffStatValueHolder> extractedStatBuffs = new LinkedHashMap<>();
 
-        chrLock.lock();
         try {
             Map<BuffStat, Byte> stats = new LinkedHashMap<>();
             Map<BuffStat, BuffStatValueHolder> minStatBuffs = new LinkedHashMap<>();
@@ -4118,8 +3952,7 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            chrLock.unlock();
-        }
+            }
 
         return extractedStatBuffs;
     }
@@ -4532,7 +4365,6 @@ public class Character extends AbstractCharacterObject {
             int healInterval = (YamlConfig.config.server.USE_ULTRA_RECOVERY) ? 2000 : 5000;
             final byte heal = (byte) effect.getX();
 
-            chrLock.lock();
             try {
                 if (recoveryTask != null) {
                     recoveryTask.cancel(false);
@@ -4542,15 +4374,13 @@ public class Character extends AbstractCharacterObject {
                     @Override
                     public void run() {
                         if (getBuffSource(BuffStat.RECOVERY) == -1) {
-                            chrLock.lock();
                             try {
                                 if (recoveryTask != null) {
                                     recoveryTask.cancel(false);
                                     recoveryTask = null;
                                 }
                             } finally {
-                                chrLock.unlock();
-                            }
+                                }
 
                             return;
                         }
@@ -4561,8 +4391,7 @@ public class Character extends AbstractCharacterObject {
                     }
                 }, healInterval, healInterval);
             } finally {
-                chrLock.unlock();
-            }
+                }
         } else if (effect.getHpRRate() > 0 || effect.getMpRRate() > 0) {
             if (effect.getHpRRate() > 0) {
                 extraHpRec = effect.getHpR();
@@ -4574,21 +4403,16 @@ public class Character extends AbstractCharacterObject {
                 extraRecInterval = effect.getMpRRate();
             }
 
-            chrLock.lock();
             try {
                 stopExtraTask();
                 startExtraTask(extraHpRec, extraMpRec, extraRecInterval);   // HP & MP sharing the same task holder
             } finally {
-                chrLock.unlock();
-            }
+                }
 
         } else if (effect.isMapChair()) {
             startChairTask();
         }
 
-        prtLock.lock();
-        effLock.lock();
-        chrLock.lock();
         try {
             Integer sourceid = effect.getBuffSourceId();
             Map<BuffStat, BuffStatValueHolder> toDeploy;
@@ -4659,10 +4483,7 @@ public class Character extends AbstractCharacterObject {
                 effects.put(statup.getKey(), statup.getValue());
             }
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-            prtLock.unlock();
-        }
+            }
 
         updateLocalStats();
     }
@@ -4776,21 +4597,17 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Collection<Door> getDoors() {
-        prtLock.lock();
         try {
             return (party != null ? Collections.unmodifiableCollection(party.getDoors().values()) : (pdoor != null ? Collections.singleton(pdoor) : new LinkedHashSet<Door>()));
         } finally {
-            prtLock.unlock();
-        }
+            }
     }
 
     public Door getPlayerDoor() {
-        prtLock.lock();
         try {
             return pdoor;
         } finally {
-            prtLock.unlock();
-        }
+            }
     }
 
     public Door getMainTownDoor() {
@@ -4805,7 +4622,6 @@ public class Character extends AbstractCharacterObject {
 
     public void applyPartyDoor(Door door, boolean partyUpdate) {
         Party chrParty;
-        prtLock.lock();
         try {
             if (!partyUpdate) {
                 pdoor = door;
@@ -4816,8 +4632,7 @@ public class Character extends AbstractCharacterObject {
                 chrParty.addDoor(id, door);
             }
         } finally {
-            prtLock.unlock();
-        }
+            }
 
         silentPartyUpdateInternal(chrParty);
     }
@@ -4826,7 +4641,6 @@ public class Character extends AbstractCharacterObject {
         Door ret = null;
         Party chrParty;
 
-        prtLock.lock();
         try {
             chrParty = getParty();
             if (chrParty != null) {
@@ -4838,8 +4652,7 @@ public class Character extends AbstractCharacterObject {
                 pdoor = null;
             }
         } finally {
-            prtLock.unlock();
-        }
+            }
 
         silentPartyUpdateInternal(chrParty);
         return ret;
@@ -4854,12 +4667,10 @@ public class Character extends AbstractCharacterObject {
     }
 
     public EventInstanceManager getEventInstance() {
-        evtLock.lock();
         try {
             return eventInstance;
         } finally {
-            evtLock.unlock();
-        }
+            }
     }
 
     public Marriage getMarriageInstance() {
@@ -4873,7 +4684,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void resetExcluded(int petId) {
-        chrLock.lock();
         try {
             Set<Integer> petExclude = excluded.get(petId);
 
@@ -4883,28 +4693,23 @@ public class Character extends AbstractCharacterObject {
                 excluded.put(petId, new LinkedHashSet<Integer>());
             }
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public void addExcluded(int petId, int x) {
-        chrLock.lock();
         try {
             excluded.get(petId).add(x);
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public void commitExcludedItems() {
         Map<Integer, Set<Integer>> petExcluded = this.getExcluded();
 
-        chrLock.lock();
         try {
             excludedItems.clear();
         } finally {
-            chrLock.unlock();
-        }
+            }
 
         for (Map.Entry<Integer, Set<Integer>> pe : petExcluded.entrySet()) {
             byte petIndex = this.getPetIndex(pe.getKey());
@@ -4916,14 +4721,12 @@ public class Character extends AbstractCharacterObject {
             if (!exclItems.isEmpty()) {
                 sendPacket(PacketCreator.loadExceptionList(this.getId(), pe.getKey(), petIndex, new ArrayList<>(exclItems)));
 
-                chrLock.lock();
                 try {
                     for (Integer itemid : exclItems) {
                         excludedItems.add(itemid);
                     }
                 } finally {
-                    chrLock.unlock();
-                }
+                    }
             }
         }
     }
@@ -4944,21 +4747,17 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Map<Integer, Set<Integer>> getExcluded() {
-        chrLock.lock();
         try {
             return Collections.unmodifiableMap(excluded);
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public Set<Integer> getExcludedItems() {
-        chrLock.lock();
         try {
             return Collections.unmodifiableSet(excludedItems);
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public int getExp() {
@@ -5488,7 +5287,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public int getNextEmptyPetIndex() {
-        petLock.lock();
         try {
             for (int i = 0; i < 3; i++) {
                 if (pets[i] == null) {
@@ -5497,12 +5295,10 @@ public class Character extends AbstractCharacterObject {
             }
             return 3;
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public int getNoPets() {
-        petLock.lock();
         try {
             int ret = 0;
             for (int i = 0; i < 3; i++) {
@@ -5512,32 +5308,26 @@ public class Character extends AbstractCharacterObject {
             }
             return ret;
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public Party getParty() {
-        prtLock.lock();
         try {
             return party;
         } finally {
-            prtLock.unlock();
-        }
+            }
     }
 
     public int getPartyId() {
-        prtLock.lock();
         try {
             return (party != null ? party.getId() : -1);
         } finally {
-            prtLock.unlock();
-        }
+            }
     }
 
     public List<Character> getPartyMembersOnline() {
         List<Character> list = new LinkedList<>();
 
-        prtLock.lock();
         try {
             if (party != null) {
                 for (PartyCharacter mpc : party.getMembers()) {
@@ -5548,8 +5338,7 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            prtLock.unlock();
-        }
+            }
 
         return list;
     }
@@ -5558,7 +5347,6 @@ public class Character extends AbstractCharacterObject {
         List<Character> list = new LinkedList<>();
         int thisMapHash = this.getMap().hashCode();
 
-        prtLock.lock();
         try {
             if (party != null) {
                 for (PartyCharacter mpc : party.getMembers()) {
@@ -5572,8 +5360,7 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            prtLock.unlock();
-        }
+            }
 
         return list;
     }
@@ -5583,14 +5370,12 @@ public class Character extends AbstractCharacterObject {
     }
 
     public boolean isPartyMember(int cid) {
-        prtLock.lock();
         try {
             if (party != null) {
                 return party.getMemberById(cid) != null;
             }
         } finally {
-            prtLock.unlock();
-        }
+            }
 
         return false;
     }
@@ -5719,12 +5504,10 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Pet[] getPets() {
-        petLock.lock();
         try {
             return Arrays.copyOf(pets, pets.length);
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public Pet getPet(int index) {
@@ -5732,16 +5515,13 @@ public class Character extends AbstractCharacterObject {
             return null;
         }
 
-        petLock.lock();
         try {
             return pets[index];
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public byte getPetIndex(int petId) {
-        petLock.lock();
         try {
             for (byte i = 0; i < 3; i++) {
                 if (pets[i] != null) {
@@ -5752,12 +5532,10 @@ public class Character extends AbstractCharacterObject {
             }
             return -1;
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public byte getPetIndex(Pet pet) {
-        petLock.lock();
         try {
             for (byte i = 0; i < 3; i++) {
                 if (pets[i] != null) {
@@ -5768,8 +5546,7 @@ public class Character extends AbstractCharacterObject {
             }
             return -1;
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public int getPossibleReports() {
@@ -5951,8 +5728,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public StatEffect getStatForBuff(BuffStat effect) {
-        effLock.lock();
-        chrLock.lock();
         try {
             BuffStatValueHolder mbsvh = effects.get(effect);
             if (mbsvh == null) {
@@ -5960,9 +5735,7 @@ public class Character extends AbstractCharacterObject {
             }
             return mbsvh.effect;
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public Storage getStorage() {
@@ -6161,8 +5934,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public boolean isBuffFrom(BuffStat stat, Skill skill) {
-        effLock.lock();
-        chrLock.lock();
         try {
             BuffStatValueHolder mbsvh = effects.get(stat);
             if (mbsvh == null) {
@@ -6170,9 +5941,7 @@ public class Character extends AbstractCharacterObject {
             }
             return mbsvh.effect.isSkill() && mbsvh.effect.getSourceId() == skill.getId();
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public boolean isGmJob() {
@@ -6205,13 +5974,11 @@ public class Character extends AbstractCharacterObject {
     }
 
     public boolean isPartyLeader() {
-        prtLock.lock();
         try {
             Party party = getParty();
             return party != null && party.getLeaderId() == getId();
         } finally {
-            prtLock.unlock();
-        }
+            }
     }
 
     public boolean isGuildLeader() {    // true on guild master or jr. master
@@ -6325,8 +6092,6 @@ public class Character extends AbstractCharacterObject {
 
         boolean isBeginner = isBeginnerJob();
         if (YamlConfig.config.server.USE_AUTOASSIGN_STARTERS_AP && isBeginner && level < 11) {
-            effLock.lock();
-            statWlock.lock();
             try {
                 gainAp(5, true);
 
@@ -6340,9 +6105,7 @@ public class Character extends AbstractCharacterObject {
 
                 assignStrDexIntLuk(str, dex, 0, 0);
             } finally {
-                statWlock.unlock();
-                effLock.unlock();
-            }
+                }
         } else {
             int remainingAp = 5;
 
@@ -6444,8 +6207,6 @@ public class Character extends AbstractCharacterObject {
 
         levelUpGainSp();
 
-        effLock.lock();
-        statWlock.lock();
         try {
             recalcLocalStats();
             changeHpMp(localmaxhp, localmaxmp, true);
@@ -6464,9 +6225,7 @@ public class Character extends AbstractCharacterObject {
 
             sendPacket(PacketCreator.updatePlayerStats(statup, true, this));
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
 
         getMap().broadcastMessage(this, PacketCreator.showForeignEffect(getId(), 0), false);
         setMPC(new PartyCharacter(this));
@@ -6530,13 +6289,11 @@ public class Character extends AbstractCharacterObject {
         Party party;
         boolean partyLeader;
 
-        prtLock.lock();
         try {
             party = getParty();
             partyLeader = isPartyLeader();
         } finally {
-            prtLock.unlock();
-        }
+            }
 
         if (party != null) {
             if (partyLeader) {
@@ -6585,13 +6342,11 @@ public class Character extends AbstractCharacterObject {
         List<Integer> couponEffects;
 
         Collection<Item> cashItems = this.getInventory(InventoryType.CASH).list();
-        chrLock.lock();
         try {
             setActiveCoupons(cashItems);
             couponEffects = activateCouponsEffects();
         } finally {
-            chrLock.unlock();
-        }
+            }
 
         for (Integer couponId : couponEffects) {
             commitBuffCoupon(couponId);
@@ -6608,17 +6363,13 @@ public class Character extends AbstractCharacterObject {
             return;
         }
 
-        effLock.lock();
-        chrLock.lock();
         cashInv.lockInventory();
         try {
             revertCouponRates();
             setCouponRates();
         } finally {
             cashInv.unlockInventory();
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void resetPlayerRates() {
@@ -6752,12 +6503,10 @@ public class Character extends AbstractCharacterObject {
     }
 
     public Set<Integer> getActiveCoupons() {
-        chrLock.lock();
         try {
             return Collections.unmodifiableSet(activeCoupons.keySet());
         } finally {
-            chrLock.unlock();
-        }
+            }
     }
 
     public void addPlayerRing(Ring ring) {
@@ -7677,9 +7426,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     private void reapplyLocalStats() {
-        effLock.lock();
-        chrLock.lock();
-        statWlock.lock();
         try {
             localmaxhp = getMaxHp();
             localmaxmp = getMaxMp();
@@ -7795,16 +7541,10 @@ public class Character extends AbstractCharacterObject {
                 // Add throwing stars to dmg.
             }
         } finally {
-            statWlock.unlock();
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     private List<Pair<Stat, Integer>> recalcLocalStats() {
-        effLock.lock();
-        chrLock.lock();
-        statWlock.lock();
         try {
             List<Pair<Stat, Integer>> hpmpupdate = new ArrayList<>(2);
             int oldlocalmaxhp = localmaxhp;
@@ -7840,16 +7580,10 @@ public class Character extends AbstractCharacterObject {
 
             return hpmpupdate;
         } finally {
-            statWlock.unlock();
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     private void updateLocalStats() {
-        prtLock.lock();
-        effLock.lock();
-        statWlock.lock();
         try {
             int oldmaxhp = localmaxhp;
             List<Pair<Stat, Integer>> hpmpupdate = recalcLocalStats();
@@ -7863,14 +7597,10 @@ public class Character extends AbstractCharacterObject {
                 updatePartyMemberHP();
             }
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-            prtLock.unlock();
-        }
+            }
     }
 
     public void receivePartyMemberHP() {
-        prtLock.lock();
         try {
             if (party != null) {
                 for (Character partychar : this.getPartyMembersOnSameMap()) {
@@ -7878,13 +7608,10 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            prtLock.unlock();
-        }
+            }
     }
 
     public void removeAllCooldownsExcept(int id, boolean packet) {
-        effLock.lock();
-        chrLock.lock();
         try {
             ArrayList<CooldownValueHolder> list = new ArrayList<>(coolDowns.values());
             for (CooldownValueHolder mcvh : list) {
@@ -7896,9 +7623,7 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public static void removeAriantRoom(int room) {
@@ -7907,18 +7632,13 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void removeCooldown(int skillId) {
-        effLock.lock();
-        chrLock.lock();
         try {
             this.coolDowns.remove(skillId);
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void removePet(Pet pet, boolean shift_left) {
-        petLock.lock();
         try {
             int slot = -1;
             for (int i = 0; i < 3; i++) {
@@ -7942,8 +7662,7 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     public void removeVisibleMapObject(MapObject mo) {
@@ -7955,8 +7674,6 @@ public class Character extends AbstractCharacterObject {
             return;
         }
 
-        effLock.lock();
-        statWlock.lock();
         try {
             int tap = remainingAp + str + dex + int_ + luk, tsp = 1;
             int tstr = 4, tdex = 4, tint = 4, tluk = 4;
@@ -7998,9 +7715,7 @@ public class Character extends AbstractCharacterObject {
                 log.warn("Chr {} tried to have its stats reset without enough AP available");
             }
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void resetBattleshipHp() {
@@ -8299,8 +8014,6 @@ public class Character extends AbstractCharacterObject {
                     ps.setInt(1, level);    // thanks CanIGetaPR for noticing an unnecessary "level" limitation when persisting DB data
                     ps.setInt(2, fame);
 
-                    effLock.lock();
-                    statWlock.lock();
                     try {
                         ps.setInt(3, str);
                         ps.setInt(4, dex);
@@ -8323,9 +8036,7 @@ public class Character extends AbstractCharacterObject {
 
                         ps.setInt(14, remainingAp);
                     } finally {
-                        statWlock.unlock();
-                        effLock.unlock();
-                    }
+                        }
 
                     ps.setInt(15, gmLevel);
                     ps.setInt(16, skinColor.getId());
@@ -8355,7 +8066,6 @@ public class Character extends AbstractCharacterObject {
                         }
                     }
 
-                    prtLock.lock();
                     try {
                         if (party != null) {
                             ps.setInt(25, party.getId());
@@ -8363,8 +8073,7 @@ public class Character extends AbstractCharacterObject {
                             ps.setInt(25, -1);
                         }
                     } finally {
-                        prtLock.unlock();
-                    }
+                        }
 
                     ps.setInt(26, buddylist.getCapacity());
                     if (messenger != null) {
@@ -8418,7 +8127,6 @@ public class Character extends AbstractCharacterObject {
                 }
 
                 List<Pet> petList = new LinkedList<>();
-                petLock.lock();
                 try {
                     for (int i = 0; i < 3; i++) {
                         if (pets[i] != null) {
@@ -8426,8 +8134,7 @@ public class Character extends AbstractCharacterObject {
                         }
                     }
                 } finally {
-                    petLock.unlock();
-                }
+                    }
 
                 for (Pet pet : petList) {
                     pet.saveToDb();
@@ -8755,8 +8462,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void setBuffedValue(BuffStat effect, int value) {
-        effLock.lock();
-        chrLock.lock();
         try {
             BuffStatValueHolder mbsvh = effects.get(effect);
             if (mbsvh == null) {
@@ -8764,9 +8469,7 @@ public class Character extends AbstractCharacterObject {
             }
             mbsvh.value = value;
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void setChalkboard(String text) {
@@ -8790,12 +8493,10 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void setEventInstance(EventInstanceManager eventInstance) {
-        evtLock.lock();
         try {
             this.eventInstance = eventInstance;
         } finally {
-            evtLock.unlock();
-        }
+            }
     }
 
     public void setExp(int amount) {
@@ -9001,8 +8702,6 @@ public class Character extends AbstractCharacterObject {
     public boolean applyHpMpChange(int hpCon, int hpchange, int mpchange) {
         boolean zombify = hasDisease(Disease.ZOMBIFY);
 
-        effLock.lock();
-        statWlock.lock();
         try {
             int nextHp = hp + hpchange, nextMp = mp + mpchange;
             boolean cannotApplyHp = hpchange != 0 && nextHp <= 0 && (!zombify || hpCon > 0);
@@ -9020,9 +8719,7 @@ public class Character extends AbstractCharacterObject {
 
             updateHpMp(nextHp, nextMp);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
 
         // autopot on HPMP deplete... thanks shavit for finding out D. Roar doesn't trigger autopot request
         if (hpchange < 0) {
@@ -9152,17 +8849,14 @@ public class Character extends AbstractCharacterObject {
     }
 
     public int fetchDoorSlot() {
-        prtLock.lock();
         try {
             doorSlot = (party == null) ? 0 : party.getPartyDoor(this.getId());
             return doorSlot;
         } finally {
-            prtLock.unlock();
-        }
+            }
     }
 
     public void setParty(Party p) {
-        prtLock.lock();
         try {
             if (p == null) {
                 this.mpc = null;
@@ -9173,8 +8867,7 @@ public class Character extends AbstractCharacterObject {
                 party = p;
             }
         } finally {
-            prtLock.unlock();
-        }
+            }
     }
 
     public void setPlayerShop(PlayerShop playerShop) {
@@ -9494,7 +9187,6 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void shiftPetsRight() {
-        petLock.lock();
         try {
             if (pets[2] == null) {
                 pets[2] = pets[1];
@@ -9502,8 +9194,7 @@ public class Character extends AbstractCharacterObject {
                 pets[0] = null;
             }
         } finally {
-            petLock.unlock();
-        }
+            }
     }
 
     private long getDojoTimeLeft() {
@@ -9590,14 +9281,10 @@ public class Character extends AbstractCharacterObject {
     }
 
     public boolean skillIsCooling(int skillId) {
-        effLock.lock();
-        chrLock.lock();
         try {
             return coolDowns.containsKey(Integer.valueOf(skillId));
         } finally {
-            chrLock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void runFullnessSchedule(int petSlot) {
@@ -9690,12 +9377,10 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void updatePartyMemberHP() {
-        prtLock.lock();
         try {
             updatePartyMemberHPInternal();
         } finally {
-            prtLock.unlock();
-        }
+            }
     }
 
     private void updatePartyMemberHPInternal() {
@@ -9832,19 +9517,16 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void cancelQuestExpirationTask() {
-        evtLock.lock();
         try {
             if (questExpireTask != null) {
                 questExpireTask.cancel(false);
                 questExpireTask = null;
             }
         } finally {
-            evtLock.unlock();
-        }
+            }
     }
 
     public void forfeitExpirableQuests() {
-        evtLock.lock();
         try {
             for (Quest quest : questExpirations.keySet()) {
                 quest.forfeit(this);
@@ -9852,12 +9534,10 @@ public class Character extends AbstractCharacterObject {
 
             questExpirations.clear();
         } finally {
-            evtLock.unlock();
-        }
+            }
     }
 
     public void questExpirationTask() {
-        evtLock.lock();
         try {
             if (!questExpirations.isEmpty()) {
                 if (questExpireTask == null) {
@@ -9870,12 +9550,10 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            evtLock.unlock();
-        }
+            }
     }
 
     private void runQuestExpireTask() {
-        evtLock.lock();
         try {
             long timeNow = Server.getInstance().getCurrentTime();
             List<Quest> expireList = new LinkedList<>();
@@ -9898,12 +9576,10 @@ public class Character extends AbstractCharacterObject {
                 }
             }
         } finally {
-            evtLock.unlock();
-        }
+            }
     }
 
     private void registerQuestExpire(Quest quest, long time) {
-        evtLock.lock();
         try {
             if (questExpireTask == null) {
                 questExpireTask = TimerManager.getInstance().register(new Runnable() {
@@ -9916,8 +9592,7 @@ public class Character extends AbstractCharacterObject {
 
             questExpirations.put(quest, Server.getInstance().getCurrentTime() + time);
         } finally {
-            evtLock.unlock();
-        }
+            }
     }
 
     public void questTimeLimit(final Quest quest, int seconds) {
@@ -10397,7 +10072,6 @@ public class Character extends AbstractCharacterObject {
 
         clearCpqTimer();
 
-        evtLock.lock();
         try {
             if (questExpireTask != null) {
                 questExpireTask.cancel(false);
@@ -10407,8 +10081,7 @@ public class Character extends AbstractCharacterObject {
                 questExpirations = null;
             }
         } finally {
-            evtLock.unlock();
-        }
+            }
 
         if (maplemount != null) {
             maplemount.empty();

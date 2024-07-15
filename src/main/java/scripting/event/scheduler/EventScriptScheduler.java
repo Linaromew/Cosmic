@@ -50,7 +50,6 @@ public class EventScriptScheduler {
         List<Runnable> toRemove;
         Map<Runnable, Long> registeredEntriesCopy;
 
-        schedulerLock.lock();
         try {
             if (registeredEntries.isEmpty()) {
                 idleProcs++;
@@ -68,8 +67,7 @@ public class EventScriptScheduler {
             idleProcs = 0;
             registeredEntriesCopy = new HashMap<>(registeredEntries);
         } finally {
-            schedulerLock.unlock();
-        }
+            }
 
         long timeNow = Server.getInstance().getCurrentTime();
         toRemove = new LinkedList<>();
@@ -83,21 +81,18 @@ public class EventScriptScheduler {
         }
 
         if (!toRemove.isEmpty()) {
-            schedulerLock.lock();
             try {
                 for (Runnable r : toRemove) {
                     registeredEntries.remove(r);
                 }
             } finally {
-                schedulerLock.unlock();
-            }
+                }
         }
     }
 
     public void registerEntry(final Runnable scheduledAction, final long duration) {
 
         ThreadManager.getInstance().newTask(() -> {
-            schedulerLock.lock();
             try {
                 idleProcs = 0;
                 if (schedulerTask == null) {
@@ -110,27 +105,23 @@ public class EventScriptScheduler {
 
                 registeredEntries.put(scheduledAction, Server.getInstance().getCurrentTime() + duration);
             } finally {
-                schedulerLock.unlock();
-            }
+                }
         });
     }
 
     public void cancelEntry(final Runnable scheduledAction) {
 
         ThreadManager.getInstance().newTask(() -> {
-            schedulerLock.lock();
             try {
                 registeredEntries.remove(scheduledAction);
             } finally {
-                schedulerLock.unlock();
-            }
+                }
         });
     }
 
     public void dispose() {
 
         ThreadManager.getInstance().newTask(() -> {
-            schedulerLock.lock();
             try {
                 if (schedulerTask != null) {
                     schedulerTask.cancel(false);
@@ -140,8 +131,7 @@ public class EventScriptScheduler {
                 registeredEntries.clear();
                 disposed = true;
             } finally {
-                schedulerLock.unlock();
-            }
+                }
         });
     }
 }

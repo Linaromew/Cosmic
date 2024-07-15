@@ -73,120 +73,94 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     public int getStr() {
-        statRlock.lock();
         try {
             return str;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getDex() {
-        statRlock.lock();
         try {
             return dex;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getInt() {
-        statRlock.lock();
         try {
             return int_;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getLuk() {
-        statRlock.lock();
         try {
             return luk;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getRemainingAp() {
-        statRlock.lock();
         try {
             return remainingAp;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     protected int getRemainingSp(int jobid) {
-        statRlock.lock();
         try {
             return remainingSp[GameConstants.getSkillBook(jobid)];
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int[] getRemainingSps() {
-        statRlock.lock();
         try {
             return Arrays.copyOf(remainingSp, remainingSp.length);
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getHpMpApUsed() {
-        statRlock.lock();
         try {
             return hpMpApUsed;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public boolean isAlive() {
-        statRlock.lock();
         try {
             return hp > 0;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getHp() {
-        statRlock.lock();
         try {
             return hp;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getMp() {
-        statRlock.lock();
         try {
             return mp;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getMaxHp() {
-        statRlock.lock();
         try {
             return maxhp;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getMaxMp() {
-        statRlock.lock();
         try {
             return maxmp;
         } finally {
-            statRlock.unlock();
-        }
+            }
     }
 
     public int getClientMaxHp() {
@@ -308,8 +282,6 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     private void changeStatPool(Long hpMpPool, Long strDexIntLuk, Long newSp, int newAp, boolean silent) {
-        effLock.lock();
-        statWlock.lock();
         try {
             statUpdates.clear();
             boolean poolUpdate = false;
@@ -410,9 +382,7 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
                 }
             }
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void healHpMp() {
@@ -473,21 +443,15 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     protected void enforceMaxHpMp() {
-        effLock.lock();
-        statWlock.lock();
         try {
             if (mp > localmaxmp || hp > localmaxhp) {
                 changeHpMp(hp, mp, false);
             }
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public int safeAddHP(int delta) {
-        effLock.lock();
-        statWlock.lock();
         try {
             if (hp + delta <= 0) {
                 delta = -hp + 1;
@@ -496,75 +460,49 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
             addHP(delta);
             return delta;
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void addHP(int delta) {
-        effLock.lock();
-        statWlock.lock();
         try {
             updateHp(hp + delta);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void addMP(int delta) {
-        effLock.lock();
-        statWlock.lock();
         try {
             updateMp(mp + delta);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void addMPHP(int hpDelta, int mpDelta) {
-        effLock.lock();
-        statWlock.lock();
         try {
             updateHpMp(hp + hpDelta, mp + mpDelta);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     protected void addMaxMPMaxHP(int hpdelta, int mpdelta, boolean silent) {
-        effLock.lock();
-        statWlock.lock();
         try {
             changeHpMpPool(null, null, maxhp + hpdelta, maxmp + mpdelta, silent);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void addMaxHP(int delta) {
-        effLock.lock();
-        statWlock.lock();
         try {
             updateMaxHp(maxhp + delta);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void addMaxMP(int delta) {
-        effLock.lock();
-        statWlock.lock();
         try {
             updateMaxMp(maxmp + delta);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     private void setStr(int str) {
@@ -600,8 +538,6 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     public boolean assignHP(int deltaHP, int deltaAp) {
-        effLock.lock();
-        statWlock.lock();
         try {
             if (remainingAp - deltaAp < 0 || hpMpApUsed + deltaAp < 0 || maxhp >= 30000) {
                 return false;
@@ -614,14 +550,10 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
             setHpMpApUsed(hpMpApUsed + deltaAp);
             return true;
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public boolean assignMP(int deltaMP, int deltaAp) {
-        effLock.lock();
-        statWlock.lock();
         try {
             if (remainingAp - deltaAp < 0 || hpMpApUsed + deltaAp < 0 || maxmp >= 30000) {
                 return false;
@@ -634,9 +566,7 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
             setHpMpApUsed(hpMpApUsed + deltaAp);
             return true;
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     private static int apAssigned(Integer x) {
@@ -648,8 +578,6 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     private boolean assignStrDexIntLuk(Integer deltaStr, Integer deltaDex, Integer deltaInt, Integer deltaLuk) {
-        effLock.lock();
-        statWlock.lock();
         try {
             int apUsed = apAssigned(deltaStr) + apAssigned(deltaDex) + apAssigned(deltaInt) + apAssigned(deltaLuk);
             if (apUsed > remainingAp) {
@@ -690,9 +618,7 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
             updateStrDexIntLuk(newStr, newDex, newInt, newLuk, newAp);
             return true;
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void updateStrDexIntLuk(int x) {
@@ -700,25 +626,17 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     public void changeRemainingAp(int x, boolean silent) {
-        effLock.lock();
-        statWlock.lock();
         try {
             changeStrDexIntLuk(str, dex, int_, luk, x, silent);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     public void gainAp(int deltaAp, boolean silent) {
-        effLock.lock();
-        statWlock.lock();
         try {
             changeRemainingAp(Math.max(0, remainingAp + deltaAp), silent);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     protected void updateStrDexIntLuk(int str, int dex, int int_, int luk, int remainingAp) {
@@ -741,14 +659,10 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     protected void setRemainingSp(int[] sps) {
-        effLock.lock();
-        statWlock.lock();
         try {
             System.arraycopy(sps, 0, remainingSp, 0, sps.length);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 
     protected void updateRemainingSp(int remainingSp, int skillbook) {
@@ -761,13 +675,9 @@ public abstract class AbstractCharacterObject extends AbstractAnimatedMapObject 
     }
 
     public void gainSp(int deltaSp, int skillbook, boolean silent) {
-        effLock.lock();
-        statWlock.lock();
         try {
             changeRemainingSp(Math.max(0, remainingSp[skillbook] + deltaSp), skillbook, silent);
         } finally {
-            statWlock.unlock();
-            effLock.unlock();
-        }
+            }
     }
 }

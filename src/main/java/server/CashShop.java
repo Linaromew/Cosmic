@@ -351,12 +351,10 @@ public class CashShop {
     }
 
     public List<Item> getInventory() {
-        lock.lock();
         try {
             return Collections.unmodifiableList(inventory);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Item findByCashId(int cashId) {
@@ -379,21 +377,17 @@ public class CashShop {
     }
 
     public void addToInventory(Item item) {
-        lock.lock();
         try {
             inventory.add(item);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void removeFromInventory(Item item) {
-        lock.lock();
         try {
             inventory.remove(item);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public List<Integer> getWishList() {
@@ -515,7 +509,6 @@ public class CashShop {
     }
 
     public Optional<CashShopSurpriseResult> openCashShopSurprise(long cashId) {
-        lock.lock();
         try {
             Optional<Item> maybeCashShopSurprise = getItemByCashId(cashId);
             if (maybeCashShopSurprise.isEmpty() ||
@@ -548,8 +541,7 @@ public class CashShop {
 
             return Optional.of(new CashShopSurpriseResult(cashShopSurprise, itemReward));
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     @GuardedBy("lock")
@@ -560,12 +552,10 @@ public class CashShop {
     }
 
     public int getItemsSize() {
-        lock.lock();
         try {
             return inventory.size();
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public static Item generateCouponItem(int itemId, short quantity) {

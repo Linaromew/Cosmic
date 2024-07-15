@@ -189,12 +189,10 @@ public class MapItem extends AbstractMapObject {
     }
 
     public void lockItem() {
-        itemLock.lock();
-    }
+        }
 
     public void unlockItem() {
-        itemLock.unlock();
-    }
+        }
 
     @Override
     public final MapObjectType getType() {

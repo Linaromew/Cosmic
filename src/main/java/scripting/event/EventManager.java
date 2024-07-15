@@ -119,14 +119,12 @@ public class EventManager {
         }
 
         List<EventInstanceManager> readyEims;
-        queueLock.lock();
         try {
             readyEims = new ArrayList<>(readyInstances);
             readyInstances.clear();
             onLoadInstances = Integer.MIN_VALUE / 2;
         } finally {
-            queueLock.unlock();
-        }
+            }
 
         for (EventInstanceManager eim : readyEims) {
             eim.dispose(true);
@@ -278,16 +276,13 @@ public class EventManager {
     }
 
     private void setLockLobby(int lobbyId, boolean lock) {
-        lobbyLock.lock();
         try {
             openedLobbys.set(lobbyId, lock);
         } finally {
-            lobbyLock.unlock();
-        }
+            }
     }
 
     private boolean startLobbyInstance(int lobbyId) {
-        lobbyLock.lock();
         try {
             if (lobbyId < 0) {
                 lobbyId = 0;
@@ -302,8 +297,7 @@ public class EventManager {
 
             return false;
         } finally {
-            lobbyLock.unlock();
-        }
+            }
     }
 
     private void freeLobbyInstance(String lobbyName) {
@@ -382,7 +376,6 @@ public class EventManager {
             if (!playerPermit.contains(leader.getId()) && startSemaphore.tryAcquire(7777, MILLISECONDS)) {
                 playerPermit.add(leader.getId());
 
-                startLock.lock();
                 try {
                     try {
                         if (lobbyId == -1) {
@@ -424,7 +417,6 @@ public class EventManager {
 
                     return true;
                 } finally {
-                    startLock.unlock();
                     playerPermit.remove(leader.getId());
                     startSemaphore.release();
                 }
@@ -454,7 +446,6 @@ public class EventManager {
             if (!playerPermit.contains(leader.getId()) && startSemaphore.tryAcquire(7777, MILLISECONDS)) {
                 playerPermit.add(leader.getId());
 
-                startLock.lock();
                 try {
                     try {
                         if (lobbyId == -1) {
@@ -496,7 +487,6 @@ public class EventManager {
 
                     return true;
                 } finally {
-                    startLock.unlock();
                     playerPermit.remove(leader.getId());
                     startSemaphore.release();
                 }
@@ -526,7 +516,6 @@ public class EventManager {
             if (!playerPermit.contains(leader.getId()) && startSemaphore.tryAcquire(7777, MILLISECONDS)) {
                 playerPermit.add(leader.getId());
 
-                startLock.lock();
                 try {
                     try {
                         if (lobbyId == -1) {
@@ -568,7 +557,6 @@ public class EventManager {
 
                     return true;
                 } finally {
-                    startLock.unlock();
                     playerPermit.remove(leader.getId());
                     startSemaphore.release();
                 }
@@ -598,7 +586,6 @@ public class EventManager {
             if (!playerPermit.contains(leader.getId()) && startSemaphore.tryAcquire(7777, MILLISECONDS)) {
                 playerPermit.add(leader.getId());
 
-                startLock.lock();
                 try {
                     try {
                         if (lobbyId == -1) {
@@ -640,7 +627,6 @@ public class EventManager {
 
                     return true;
                 } finally {
-                    startLock.unlock();
                     playerPermit.remove(leader.getId());
                     startSemaphore.release();
                 }
@@ -674,7 +660,6 @@ public class EventManager {
             if (!playerPermit.contains(leader.getId()) && startSemaphore.tryAcquire(7777, MILLISECONDS)) {
                 playerPermit.add(leader.getId());
 
-                startLock.lock();
                 try {
                     try {
                         if (lobbyId == -1) {
@@ -707,7 +692,6 @@ public class EventManager {
 
                     return true;
                 } finally {
-                    startLock.unlock();
                     playerPermit.remove(leader.getId());
                     startSemaphore.release();
                 }
@@ -891,7 +875,6 @@ public class EventManager {
     }
 
     private EventInstanceManager getReadyInstance() {
-        queueLock.lock();
         try {
             if (readyInstances.isEmpty()) {
                 fillEimQueue();
@@ -903,13 +886,11 @@ public class EventManager {
 
             return eim;
         } finally {
-            queueLock.unlock();
-        }
+            }
     }
 
     private void instantiateQueuedInstance() {
         int nextEventId;
-        queueLock.lock();
         try {
             if (this.isDisposed() || readyInstances.size() + onLoadInstances >= Math.ceil((double) maxLobbys / 3.0)) {
                 return;
@@ -919,11 +900,9 @@ public class EventManager {
             nextEventId = readyId;
             readyId++;
         } finally {
-            queueLock.unlock();
-        }
+            }
 
         EventInstanceManager eim = new EventInstanceManager(this, "sampleName" + nextEventId);
-        queueLock.lock();
         try {
             if (this.isDisposed()) {  // EM already disposed
                 return;
@@ -932,8 +911,7 @@ public class EventManager {
             readyInstances.add(eim);
             onLoadInstances--;
         } finally {
-            queueLock.unlock();
-        }
+            }
 
         instantiateQueuedInstance();    // keep filling the queue until reach threshold.
     }

@@ -42,39 +42,31 @@ public class PlayerBuffStorage {
     private final Map<Integer, Map<Disease, Pair<Long, MobSkill>>> diseases = new HashMap<>();
 
     public void addBuffsToStorage(int chrid, List<PlayerBuffValueHolder> toStore) {
-        lock.lock();
         try {
             buffs.put(chrid, toStore);//Old one will be replaced if it's in here.
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public List<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) {
-        lock.lock();
         try {
             return buffs.remove(chrid);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public void addDiseasesToStorage(int chrid, Map<Disease, Pair<Long, MobSkill>> toStore) {
-        lock.lock();
         try {
             diseases.put(chrid, toStore);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     public Map<Disease, Pair<Long, MobSkill>> getDiseasesFromStorage(int chrid) {
-        lock.lock();
         try {
             return diseases.remove(chrid);
         } finally {
-            lock.unlock();
-        }
+            }
     }
 
     @Override

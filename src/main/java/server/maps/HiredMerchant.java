@@ -99,12 +99,10 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public void broadcastToVisitorsThreadsafe(Packet packet) {
-        visitorLock.lock();
         try {
             broadcastToVisitors(packet);
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     private void broadcastToVisitors(Packet packet) {
@@ -116,7 +114,6 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public byte[] getShopRoomInfo() {
-        visitorLock.lock();
         try {
             byte count = 0;
             if (this.isOpen()) {
@@ -131,12 +128,10 @@ public class HiredMerchant extends AbstractMapObject {
 
             return new byte[]{count, (byte) (visitors.length + 1)};
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public boolean addVisitor(Character visitor) {
-        visitorLock.lock();
         try {
             int i = this.getFreeSlot();
             if (i > -1) {
@@ -149,12 +144,10 @@ public class HiredMerchant extends AbstractMapObject {
 
             return false;
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public void removeVisitor(Character chr) {
-        visitorLock.lock();
         try {
             int slot = getVisitorSlot(chr);
             if (slot < 0) { //Not found
@@ -169,8 +162,7 @@ public class HiredMerchant extends AbstractMapObject {
                 this.getMap().broadcastMessage(PacketCreator.updateHiredMerchantBox(this));
             }
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     private void addVisitorToHistory(Visitor visitor) {
@@ -182,12 +174,10 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public int getVisitorSlotThreadsafe(Character visitor) {
-        visitorLock.lock();
         try {
             return getVisitorSlot(visitor);
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     private int getVisitorSlot(Character visitor) {
@@ -200,7 +190,6 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     private void removeAllVisitors() {
-        visitorLock.lock();
         try {
             for (int i = 0; i < 3; i++) {
                 Visitor visitor = visitors[i];
@@ -217,8 +206,7 @@ public class HiredMerchant extends AbstractMapObject {
 
             this.getMap().broadcastMessage(PacketCreator.updateHiredMerchantBox(this));
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     private void removeOwner(Character owner) {
@@ -376,7 +364,6 @@ public class HiredMerchant extends AbstractMapObject {
 
         Character owner = Server.getInstance().getWorld(world).getPlayerStorage().getCharacterById(ownerId);
 
-        visitorLock.lock();
         try {
             setOpen(false);
             removeAllVisitors();
@@ -385,8 +372,7 @@ public class HiredMerchant extends AbstractMapObject {
                 closeOwnerMerchant(owner);
             }
         } finally {
-            visitorLock.unlock();
-        }
+            }
 
         Server.getInstance().getWorld(world).unregisterHiredMerchant(this);
 
@@ -481,7 +467,6 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public synchronized void visitShop(Character chr) {
-        visitorLock.lock();
         try {
             if (this.isOwner(chr)) {
                 this.setOpen(false);
@@ -502,8 +487,7 @@ public class HiredMerchant extends AbstractMapObject {
             }
             chr.setHiredMerchant(this);
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public String getOwner() {
@@ -525,7 +509,6 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public Character[] getVisitorCharacters() {
-        visitorLock.lock();
         try {
             Character[] copy = new Character[3];
             for (int i = 0; i < visitors.length; i++) {
@@ -537,8 +520,7 @@ public class HiredMerchant extends AbstractMapObject {
 
             return copy;
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public List<PlayerShopItem> getItems() {
@@ -728,24 +710,20 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     public void addToBlacklist(String chrName) {
-        visitorLock.lock();
         try {
             if (blacklist.size() >= BLACKLIST_LIMIT) {
                 return;
             }
             blacklist.add(chrName);
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public void removeFromBlacklist(String chrName) {
-        visitorLock.lock();
         try {
             blacklist.remove(chrName);
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public Set<String> getBlacklist() {
@@ -753,12 +731,10 @@ public class HiredMerchant extends AbstractMapObject {
     }
 
     private boolean isBlacklisted(String chrName) {
-        visitorLock.lock();
         try {
             return blacklist.contains(chrName);
         } finally {
-            visitorLock.unlock();
-        }
+            }
     }
 
     public int getMapId() {
