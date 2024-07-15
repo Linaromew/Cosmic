@@ -9085,10 +9085,8 @@ public class Character extends AbstractCharacterObject {
     public void flushDelayedUpdateQuests() {
         List<Pair<DelayedQuestUpdate, Object[]>> qmQuestUpdateList;
 
-
-            qmQuestUpdateList = new ArrayList<>(npcUpdateQuests);
-            npcUpdateQuests.clear();
-
+        qmQuestUpdateList = new ArrayList<>(npcUpdateQuests);
+        npcUpdateQuests.clear();
 
         for (Pair<DelayedQuestUpdate, Object[]> q : qmQuestUpdateList) {
             announceUpdateQuestInternal(this, q);

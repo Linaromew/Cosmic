@@ -45,10 +45,10 @@ public final class NPCTalkHandler extends AbstractPacketHandler {
             return;
         }
 
-        if (currentServerTime() - c.getPlayer().getNpcCooldown() < YamlConfig.config.server.BLOCK_NPC_RACE_CONDT) {
-            c.sendPacket(PacketCreator.enableActions());
-            return;
-        }
+        //if (currentServerTime() - c.getPlayer().getNpcCooldown() < YamlConfig.config.server.BLOCK_NPC_RACE_CONDT) {
+        //    c.sendPacket(PacketCreator.enableActions());
+        //    return;
+        //}
 
         int oid = p.readInt();
         MapObject obj = c.getPlayer().getMap().getMapObject(oid);
@@ -56,7 +56,6 @@ public final class NPCTalkHandler extends AbstractPacketHandler {
             if (YamlConfig.config.server.USE_DEBUG) {
                 c.getPlayer().dropMessage(5, "Talking to NPC " + npc.getId());
             }
-
             if (npc.getId() == NpcId.DUEY) {
                 DueyProcessor.dueySendTalk(c, false);
             } else {

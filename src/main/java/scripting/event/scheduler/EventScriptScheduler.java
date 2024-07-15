@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -40,25 +41,16 @@ public class EventScriptScheduler
 {
     private boolean disposed = false;
     private int idleProcs = 0;
-    private final Map<Runnable, Long> registeredEntries = new HashMap<>();
-
+    private final Map<Runnable, Long> registeredEntries = new ConcurrentHashMap<>();
     private ScheduledFuture<?> schedulerTask = null;
-    private final Lock schedulerLock = new ReentrantLock(true);
     private final Runnable monitorTask = () -> runBaseSchedule();
 
-    private void runBaseSchedule()
-    {
-        List<Runnable> toRemove;
-        Map<Runnable, Long> registeredEntriesCopy;
-
-        if (registeredEntries.isEmpty())
-        {
+    private void runBaseSchedule() {
+        if (registeredEntries.isEmpty()) {
             idleProcs++;
 
-            if (idleProcs >= YamlConfig.config.server.MOB_STATUS_MONITOR_LIFE)
-            {
-                if (schedulerTask != null)
-                {
+            if (idleProcs >= YamlConfig.config.server.MOB_STATUS_MONITOR_LIFE) {
+                if (schedulerTask != null) {
                     schedulerTask.cancel(false);
                     schedulerTask = null;
                 }
@@ -68,25 +60,19 @@ public class EventScriptScheduler
         }
 
         idleProcs = 0;
-        registeredEntriesCopy = new HashMap<>(registeredEntries);
-
         long timeNow = Server.getInstance().getCurrentTime();
-        toRemove = new LinkedList<>();
-        for (Entry<Runnable, Long> rmd : registeredEntriesCopy.entrySet())
-        {
-            if (rmd.getValue() < timeNow)
-            {
-                Runnable r = rmd.getKey();
+        List<Runnable> toRemove = new LinkedList<>();
 
+        for (Entry<Runnable, Long> rmd : registeredEntries.entrySet()) {
+            if (rmd.getValue() < timeNow) {
+                Runnable r = rmd.getKey();
                 r.run();  // runs the scheduled action
                 toRemove.add(r);
             }
         }
 
-        if (!toRemove.isEmpty())
-        {
-            for (Runnable r : toRemove)
-            {
+        if (!toRemove.isEmpty()) {
+            for (Runnable r : toRemove) {
                 registeredEntries.remove(r);
             }
         }

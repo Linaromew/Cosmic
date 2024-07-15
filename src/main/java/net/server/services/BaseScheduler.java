@@ -40,57 +40,37 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class BaseScheduler {
     private int idleProcs = 0;
     private final List<SchedulerListener> listeners = new LinkedList<>();
-    private final List<Lock> externalLocks = new LinkedList<>();
     private final Map<Object, Pair<Runnable, Long>> registeredEntries = new HashMap<>();
 
     private ScheduledFuture<?> schedulerTask = null;
-    private final Lock schedulerLock = new ReentrantLock(true);
     private final Runnable monitorTask = () -> runBaseSchedule();
 
     protected BaseScheduler() {
-    }
-
-    // NOTE: practice EXTREME caution when adding external locks to the scheduler system, if you don't know what you're doing DON'T USE THIS.
-    protected BaseScheduler(List<Lock> extLocks) {
-        externalLocks.addAll(extLocks);
     }
 
     protected void addListener(SchedulerListener listener) {
         listeners.add(listener);
     }
 
-    private void lockScheduler() {
-        externalLocks.forEach(Lock::lock);
-        }
-
-    private void unlockScheduler() {
-        externalLocks.forEach(Lock::unlock);
-        }
-
     private void runBaseSchedule() {
         List<Object> toRemove;
         Map<Object, Pair<Runnable, Long>> registeredEntriesCopy;
 
-        lockScheduler();
-        try {
-            if (registeredEntries.isEmpty()) {
-                idleProcs++;
+        if (registeredEntries.isEmpty()) {
+            idleProcs++;
 
-                if (idleProcs >= YamlConfig.config.server.MOB_STATUS_MONITOR_LIFE) {
-                    if (schedulerTask != null) {
-                        schedulerTask.cancel(false);
-                        schedulerTask = null;
-                    }
+            if (idleProcs >= YamlConfig.config.server.MOB_STATUS_MONITOR_LIFE) {
+                if (schedulerTask != null) {
+                    schedulerTask.cancel(false);
+                    schedulerTask = null;
                 }
-
-                return;
             }
 
-            idleProcs = 0;
-            registeredEntriesCopy = new HashMap<>(registeredEntries);
-        } finally {
-            unlockScheduler();
+            return;
         }
+
+        idleProcs = 0;
+        registeredEntriesCopy = new HashMap<>(registeredEntries);
 
         long timeNow = Server.getInstance().getCurrentTime();
         toRemove = new LinkedList<>();
@@ -104,13 +84,8 @@ public abstract class BaseScheduler {
         }
 
         if (!toRemove.isEmpty()) {
-            lockScheduler();
-            try {
-                for (Object o : toRemove) {
-                    registeredEntries.remove(o);
-                }
-            } finally {
-                unlockScheduler();
+            for (Object o : toRemove) {
+                registeredEntries.remove(o);
             }
         }
 
@@ -118,30 +93,20 @@ public abstract class BaseScheduler {
     }
 
     protected void registerEntry(Object key, Runnable removalAction, long duration) {
-        lockScheduler();
-        try {
-            idleProcs = 0;
-            if (schedulerTask == null) {
-                schedulerTask = TimerManager.getInstance().register(monitorTask, YamlConfig.config.server.MOB_STATUS_MONITOR_PROC, YamlConfig.config.server.MOB_STATUS_MONITOR_PROC);
-            }
-
-            registeredEntries.put(key, new Pair<>(removalAction, Server.getInstance().getCurrentTime() + duration));
-        } finally {
-            unlockScheduler();
+        idleProcs = 0;
+        if (schedulerTask == null) {
+            schedulerTask = TimerManager.getInstance().register(monitorTask, YamlConfig.config.server.MOB_STATUS_MONITOR_PROC, YamlConfig.config.server.MOB_STATUS_MONITOR_PROC);
         }
+
+        registeredEntries.put(key, new Pair<>(removalAction, Server.getInstance().getCurrentTime() + duration));
     }
 
     protected void interruptEntry(Object key) {
         Runnable toRun = null;
 
-        lockScheduler();
-        try {
-            Pair<Runnable, Long> rm = registeredEntries.remove(key);
-            if (rm != null) {
-                toRun = rm.getLeft();
-            }
-        } finally {
-            unlockScheduler();
+        Pair<Runnable, Long> rm = registeredEntries.remove(key);
+        if (rm != null) {
+            toRun = rm.getLeft();
         }
 
         if (toRun != null) {
@@ -158,18 +123,12 @@ public abstract class BaseScheduler {
     }
 
     public void dispose() {
-        lockScheduler();
-        try {
-            if (schedulerTask != null) {
-                schedulerTask.cancel(false);
-                schedulerTask = null;
-            }
-
-            listeners.clear();
-            registeredEntries.clear();
-        } finally {
-            unlockScheduler();
-            externalLocks.clear();
+        if (schedulerTask != null) {
+            schedulerTask.cancel(false);
+            schedulerTask = null;
         }
+
+        listeners.clear();
+        registeredEntries.clear();
     }
 }

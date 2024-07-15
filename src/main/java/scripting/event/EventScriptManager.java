@@ -29,10 +29,10 @@ import scripting.SynchronizedInvocable;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Matze
@@ -40,8 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EventScriptManager extends AbstractScriptManager {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(EventScriptManager.class);
     private static final String INJECTED_VARIABLE_NAME = "em";
-    private static EventEntry fallback;
-    private final Map<String, EventEntry> events = new ConcurrentHashMap<>();
+    private Map<String, EventEntry> events = new LinkedHashMap<>();
     private boolean active = false;
 
     private static class EventEntry {
@@ -63,13 +62,12 @@ public class EventScriptManager extends AbstractScriptManager {
         }
 
         init();
-        fallback = events.remove("0_EXAMPLE");
     }
 
     public EventManager getEventManager(String event) {
         EventEntry entry = events.get(event);
         if (entry == null) {
-            return fallback.em;
+            return null;
         }
         return entry.em;
     }
