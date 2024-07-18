@@ -74,6 +74,7 @@ import javax.script.ScriptEngine;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -239,7 +240,9 @@ public class Client extends ChannelInboundHandlerAdapter {
         if (player != null) {
             log.warn("Exception caught by {}", player, cause);
         }
-
+        if (cause instanceof SocketException && cause.getMessage().contains("Connection reset")) {
+            log.warn("Connection reset by {} {}", player, ctx.channel().remoteAddress());
+        }
         if (cause instanceof InvalidPacketHeaderException) {
             SessionCoordinator.getInstance().closeSession(this, true);
         } else if (cause instanceof IOException) {

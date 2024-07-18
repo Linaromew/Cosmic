@@ -32,6 +32,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -44,73 +46,38 @@ public class TimerManager implements TimerManagerMBean {
     private static final Logger log = LoggerFactory.getLogger(TimerManager.class);
     private static final TimerManager instance = new TimerManager();
 
-    private ScheduledThreadPoolExecutor ses;
+    private ScheduledExecutorService ses;
 
     public static TimerManager getInstance() {
         return instance;
     }
 
-    private TimerManager()
-    {
+    private TimerManager() {
         System.out.println("Initializing TimerManager");
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        try
-        {
+        try {
             mBeanServer.registerMBean(this, new ObjectName("server:type=TimerManager"));
-        }
-        catch (MalformedObjectNameException | InstanceAlreadyExistsException | MBeanRegistrationException |
-               NotCompliantMBeanException e)
-        {
+        } catch (Exception e) {
             log.error("Error registering MBean", e);
         }
     }
 
-    public void start()
-    {
-        synchronized (this)
-        {
-            if (ses != null && !ses.isShutdown() && !ses.isTerminated())
-            {
+    public void start() {
+        synchronized (this) {
+            if (ses != null && !ses.isShutdown() && !ses.isTerminated()) {
                 return;
             }
-
-            ScheduledThreadPoolExecutor stpe = new ScheduledThreadPoolExecutor( 4, new ThreadFactory()
-            {
-                private final AtomicInteger threadNumber = new AtomicInteger( 1 );
-
-                @Override
-                public Thread newThread(Runnable r)
-                {
-                    Thread t = new Thread( r );
-                    t.setName( "Timermanager-Worker-" + threadNumber.getAndIncrement() );
-                    return t;
-                }
-            } );
-
-            stpe.setContinueExistingPeriodicTasksAfterShutdownPolicy( false );
-            ses = stpe;
+            ses = Executors.newSingleThreadScheduledExecutor();
         }
     }
 
-    public void stop()
-    {
-        synchronized (this)
-        {
-            if (ses != null && !ses.isShutdown() && !ses.isTerminated())
-            {
-                return;
+    public void stop() {
+        synchronized (this) {
+            if (ses != null && !ses.isShutdown() && !ses.isTerminated()) {
+                ses.shutdown();
             }
-            ses.shutdown();
         }
     }
-
-    // no?
-    //public Runnable purge() {//Yay?
-    //    return () -> {
-    //        Server.getInstance().forceUpdateCurrentTime();
-    //        ses.purge();
-    //    };
-    //}
 
     public ScheduledFuture<?> register(Runnable r, long repeatTime, long delay) {
         return ses.scheduleAtFixedRate(new LoggingSaveRunnable(r), delay, repeatTime, MILLISECONDS);
@@ -130,22 +97,25 @@ public class TimerManager implements TimerManagerMBean {
 
     @Override
     public long getActiveCount() {
-        return ses.getActiveCount();
+        return ((ScheduledThreadPoolExecutor) ses).getActiveCount();
     }
 
     @Override
     public long getCompletedTaskCount() {
-        return ses.getCompletedTaskCount();
+        return ((ScheduledThreadPoolExecutor) ses).getCompletedTaskCount();
     }
 
     @Override
     public int getQueuedTasks() {
-        return ses.getQueue().toArray().length;
+        if (ses instanceof ScheduledThreadPoolExecutor) {
+            return ((ScheduledThreadPoolExecutor) ses).getQueue().size();
+        }
+        return 0;
     }
 
     @Override
     public long getTaskCount() {
-        return ses.getTaskCount();
+        return ((ScheduledThreadPoolExecutor) ses).getTaskCount();
     }
 
     @Override
@@ -157,7 +127,6 @@ public class TimerManager implements TimerManagerMBean {
     public boolean isTerminated() {
         return ses.isTerminated();
     }
-
 
     private static class LoggingSaveRunnable implements Runnable {
         Runnable r;
